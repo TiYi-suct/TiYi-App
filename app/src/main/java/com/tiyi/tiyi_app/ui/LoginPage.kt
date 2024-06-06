@@ -106,7 +106,9 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { /* 处理登录逻辑 */ },
+                onClick = {
+                    onLoginClick(LoginInfo(username.text, password.text))
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "登录")
