@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.ui
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,18 +31,55 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 @Composable
 fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
     Scaffold(modifier = modifier) { innerPadding ->
-        // 使用 innerPadding 作为内边距
-        Button(onClick = { onLoginClick() }, modifier = Modifier.padding(innerPadding)) {
-            Text(text = "登录")
+        Surface(
+            color = MaterialTheme.colorScheme.background,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.login_background),
+                contentDescription = "Logo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top=100.dp)
+                        .padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    LoginBlock { loginInfo ->
+                        println("Login: $loginInfo")
+                        onLoginClick()
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+@Preview(name = "Light Mode")
+@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun LoginScreenPreview() {
+    TiYiAppTheme {
+        LoginScreen({}, Modifier.fillMaxWidth())
     }
 }
 
