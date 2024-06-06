@@ -79,7 +79,7 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 100.dp)
+                    .padding(top = 200.dp)
                     .padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -90,7 +90,8 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
                 }
                 Spacer(modifier = Modifier.height(64.dp))
                 OutlinedButton(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     onClick = {
                         onLoginClick()
                     },
