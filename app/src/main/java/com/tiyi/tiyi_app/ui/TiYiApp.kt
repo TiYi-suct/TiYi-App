@@ -1,14 +1,9 @@
 package com.tiyi.tiyi_app.ui
 
-import ProfilePage
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Star
@@ -23,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tiyi.tiyi_app.screen.AnalysisPage
+import com.tiyi.tiyi_app.screen.ProfilePage
 import com.tiyi.tiyi_app.screen.RecentPage
 
 @Preview
@@ -80,7 +75,7 @@ fun MainScreen(onLoginClick: () -> Unit, modifier: Modifier) {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            composable("RecentPage") { RecentPage(Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) }
+            composable("RecentPage") { RecentPage(Modifier.fillMaxSize()) }
             composable("ProfilePage") { ProfilePage(Modifier.fillMaxSize()) }
             composable("AnalysisPage") { AnalysisPage(Modifier.fillMaxSize()) }
         }
