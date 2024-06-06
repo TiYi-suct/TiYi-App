@@ -44,10 +44,14 @@ import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
+fun LoginScreen(
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
+    modifier: Modifier
+) {
     Surface(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -78,7 +82,7 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     onClick = {
-                        onLoginClick()
+                        onRegisterClick()
                     },
                 ) {
                     Text(text = "注册")
@@ -93,7 +97,7 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
 @Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun LoginScreenPreview() {
     TiYiAppTheme {
-        LoginScreen({}, Modifier.fillMaxWidth())
+        LoginScreen({}, {}, Modifier.fillMaxWidth())
     }
 }
 
