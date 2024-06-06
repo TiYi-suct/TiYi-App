@@ -46,6 +46,7 @@ import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
@@ -60,42 +61,41 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 
 @Composable
 fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
-    Scaffold(modifier = modifier) { innerPadding ->
-        Surface(
-            color = MaterialTheme.colorScheme.background,
-            modifier = Modifier.padding(innerPadding)
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(id = R.drawable.login_background),
                 contentDescription = "Logo",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .align(Alignment.TopCenter)
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 100.dp)
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(top=100.dp)
-                        .padding(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    LoginBlock { loginInfo ->
-                        println("Login: $loginInfo")
+                Spacer(modifier = Modifier.height(16.dp))
+                LoginBlock { loginInfo ->
+                    println("Login: $loginInfo")
+                    onLoginClick()
+                }
+                Spacer(modifier = Modifier.height(64.dp))
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
                         onLoginClick()
-                    }
-                    Spacer(modifier = Modifier.height(64.dp))
-                    OutlinedButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            onLoginClick()
-                        },
-                    ) {
-                        Text(text = "注册")
-                    }
+                    },
+                ) {
+                    Text(text = "注册")
                 }
             }
         }
