@@ -1,14 +1,29 @@
 package com.tiyi.tiyi_app.screen
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.annotation.SuppressLint
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,8 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
@@ -27,19 +40,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tiyi.tiyi_app.R
 
-@Preview(showBackground = true)
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun ProfilePage(modifier: Modifier = Modifier) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF5F5F5))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        ProfileInfoBlock()
-        Spacer(modifier = Modifier.height(16.dp))
-        BalanceInfoBlock()
+fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
+    Scaffold(floatingActionButton = { TopUpFloatBtn() }, modifier = modifier.padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            ProfileInfoBlock()
+            Spacer(modifier = Modifier.height(16.dp))
+            BalanceInfoBlock()
+        }
     }
 }
 
@@ -59,7 +75,10 @@ fun ProfileInfoBlock() {
             )
             .width(348.dp)
             .height(136.dp)
-            .background(color = Color(0xFFEFF5F5), shape = RoundedCornerShape(size = 12.dp))
+            .background(
+                color = MaterialTheme.colorScheme.secondary,
+                shape = RoundedCornerShape(size = 12.dp)
+            ) // 颜色暂时设为 secondary，待适配黑暗模式
     ) {
         Row(
             modifier = Modifier
@@ -110,7 +129,7 @@ fun BalanceInfoBlock() {
         horizontalArrangement = Arrangement.spacedBy(39.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = "$", fontSize = 22.sp, color = Color.Black, modifier = Modifier.padding(0.dp))
+        Text(text = "$", fontSize = 22.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(0.dp))
 
         Text(
             text = "2679", style = TextStyle(
@@ -124,5 +143,41 @@ fun BalanceInfoBlock() {
                 .width(90.23077.dp)
                 .height(29.dp)
         )
+    }
+}
+
+@Composable
+fun TopUpFloatBtn() {
+    IconButton(
+        modifier = Modifier
+            .shadow(
+                elevation = 3.dp,
+                spotColor = Color(0x4D000000),
+                ambientColor = Color(0x4D000000)
+            )
+            .shadow(
+                elevation = 8.dp,
+                spotColor = Color(0x26000000),
+                ambientColor = Color(0x26000000)
+            )
+            .padding(0.dp)
+            .width(139.dp)
+            .height(56.dp)
+            .background(color = Color(0xFFE3E9E9), shape = RoundedCornerShape(size = 16.dp)),
+        onClick = { /*TODO*/ }
+    )
+    {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "", modifier = Modifier.width(24.dp))
+            Text(text = "充值 Token", style = TextStyle(
+                lineHeight = 20.sp,
+                fontSize = 16.sp,
+                fontWeight = FontWeight(400),
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            ))
+        }
     }
 }
