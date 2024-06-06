@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -70,10 +72,10 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                     Text("用户名")
                 },
                 leadingIcon = {
-                    Icon(Icons.Outlined.AccountCircle, contentDescription = null)
+                    Icon(Icons.Outlined.AccountCircle, contentDescription = "用户名")
                 },
                 trailingIcon = {
-
+                    Icon(Icons.Outlined.Cancel, contentDescription = "清空")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,6 +88,12 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                 onValueChange = { password = it },
                 label = {
                     Text("密码")
+                },
+                leadingIcon = {
+                    Icon(Icons.Outlined.Lock, contentDescription = "密码")
+                },
+                trailingIcon = {
+                    Icon(Icons.Outlined.Cancel, contentDescription = "清空")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
