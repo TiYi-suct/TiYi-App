@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +36,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tiyi.tiyi_app.R
@@ -102,6 +106,7 @@ data class LoginInfo(
 fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
     var username by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
+    var passwordVisible by remember { mutableStateOf(false) }
     Surface(
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 4.dp,
@@ -148,11 +153,21 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                     Icon(Icons.Outlined.Lock, contentDescription = "密码")
                 },
                 trailingIcon = {
-                    IconButton(onClick = { password = TextFieldValue("") }) {
-                        Icon(Icons.Outlined.Cancel, contentDescription = "清空")
+                    Row {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            if (passwordVisible)
+                                Icon(Icons.Outlined.VisibilityOff, contentDescription = "隐藏密码")
+                            else
+                                Icon(Icons.Outlined.Visibility, contentDescription = "显示密码")
+                        }
+                        IconButton(onClick = { password = TextFieldValue("") }) {
+                            Icon(Icons.Outlined.Cancel, contentDescription = "清空")
+                        }
                     }
                 },
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible)
+                    VisualTransformation.None
+                else PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
