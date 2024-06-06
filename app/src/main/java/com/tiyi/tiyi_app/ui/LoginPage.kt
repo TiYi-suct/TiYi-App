@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -92,10 +93,10 @@ data class LoginInfo(
 fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
     var username by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
-    Box(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .clip(RoundedCornerShape(16.dp))
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        tonalElevation = 4.dp,
+        shadowElevation = 8.dp,
     ) {
         Column(
             modifier = Modifier
