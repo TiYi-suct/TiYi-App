@@ -114,16 +114,6 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
     }
 }
 
-@Composable
-fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
-    Scaffold(modifier = modifier) { innerPadding ->
-        // 使用 innerPadding 作为内边距
-        Button(onClick = { onLoginClick() }, modifier = Modifier.padding(innerPadding)) {
-            Text(text = "登录")
-        }
-    }
-}
-
 data class BottomItemData(
     val label: String,
     val icon: ImageVector,
