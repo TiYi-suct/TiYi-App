@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -128,7 +129,9 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                     Icon(Icons.Outlined.AccountCircle, contentDescription = "用户名")
                 },
                 trailingIcon = {
-                    Icon(Icons.Outlined.Cancel, contentDescription = "清空")
+                    IconButton(onClick = { username = TextFieldValue("") }) {
+                        Icon(Icons.Outlined.Cancel, contentDescription = "清空")
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,7 +148,9 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                     Icon(Icons.Outlined.Lock, contentDescription = "密码")
                 },
                 trailingIcon = {
-                    Icon(Icons.Outlined.Cancel, contentDescription = "清空")
+                    IconButton(onClick = { password = TextFieldValue("") }) {
+                        Icon(Icons.Outlined.Cancel, contentDescription = "清空")
+                    }
                 },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
