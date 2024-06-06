@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,18 +55,24 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
         ) {
             Text(text = "登录")
             Spacer(modifier = Modifier.height(16.dp))
-            BasicTextField(
+            OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
+                label = {
+                        Text("用户名")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
                     .padding(8.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            BasicTextField(
+            OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
+                label = {
+                        Text("密码")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
