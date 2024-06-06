@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Cancel
@@ -32,8 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -111,6 +116,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
     var username by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var passwordVisible by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     Surface(
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 4.dp,
@@ -142,6 +148,15 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                         Icon(Icons.Outlined.Cancel, contentDescription = "清空")
                     }
                 },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                        focusManager.moveFocus(focusDirection = FocusDirection.Down)
+                    }
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -172,6 +187,15 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                 visualTransformation = if (passwordVisible)
                     VisualTransformation.None
                 else PasswordVisualTransformation(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        onLoginClick(LoginInfo(username.text, password.text))
+                    }
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
