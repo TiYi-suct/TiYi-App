@@ -67,6 +67,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
             Text(
                 text = "登录",
                 style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -119,8 +120,6 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
 @Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun LoginBlockPreview() {
     TiYiAppTheme {
-        Surface {
-            LoginBlock { }
-        }
+        LoginBlock { }
     }
 }
