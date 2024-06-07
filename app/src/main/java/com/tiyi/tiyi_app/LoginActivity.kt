@@ -31,6 +31,11 @@ class LoginActivity : ComponentActivity() {
             )
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        finish()
+    }
 }
 
 @Composable
