@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.ui
+package com.tiyi.tiyi_app.screen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image

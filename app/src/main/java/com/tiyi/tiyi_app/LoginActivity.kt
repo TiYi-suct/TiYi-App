@@ -10,7 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.tiyi.tiyi_app.ui.LoginScreen
+import com.tiyi.tiyi_app.screen.LoginScreen
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 class LoginActivity : ComponentActivity() {
