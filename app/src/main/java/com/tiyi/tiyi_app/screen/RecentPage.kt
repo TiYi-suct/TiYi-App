@@ -49,7 +49,7 @@ val fakeTags = listOf(
 )
 
 val fakeSongs = Array(100) {
-    MusicInfo(it, "$it-${Random(it)}")
+    MusicInfo(it, "$it-${Random(it).nextBytes(18)}")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +91,11 @@ fun RecentPage(modifier: Modifier) {
             }
             LazyColumn {
                 items(fakeSongs) {
-                    MusicItem(it)
+                    MusicItem(
+                        it,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
@@ -107,7 +111,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
         ),
         modifier = modifier.padding(8.dp)
     ) {
-        Text(musicInfo.title)
+        Text(musicInfo.title.repeat(3))
     }
 }
 
@@ -117,8 +121,10 @@ fun TagItem(tag: String, modifier: Modifier) {
     FilterChip(
         onClick = { selected = !selected },
         label = {
-            Text(tag,
-                style=MaterialTheme.typography.bodySmall)
+            Text(
+                tag,
+                style = MaterialTheme.typography.bodySmall
+            )
         },
         selected = selected,
         leadingIcon = if (selected) {
