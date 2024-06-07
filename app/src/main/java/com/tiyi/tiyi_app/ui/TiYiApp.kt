@@ -32,7 +32,7 @@ import com.tiyi.tiyi_app.screen.RecentPage
 @Preview
 @Composable
 fun TiYiApp() {
-    val isLogin = remember { mutableStateOf(false) }
+    val isLogin = remember { mutableStateOf(true) }
     if (isLogin.value) {
         MainScreen(
             onLoginClick = { isLogin.value = false },
