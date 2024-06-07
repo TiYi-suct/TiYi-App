@@ -78,7 +78,7 @@ fun ProfileInfoBlock() {
             .width(348.dp)
             .height(136.dp)
             .background(
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(size = 12.dp)
             ) // 颜色暂时设为 secondary，待适配黑暗模式
     ) {
@@ -103,7 +103,7 @@ fun ProfileInfoBlock() {
                         fontSize = 32.sp,
                         lineHeight = 40.sp,
                         fontWeight = FontWeight(400),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center,
                     )
                 )
@@ -113,7 +113,7 @@ fun ProfileInfoBlock() {
                         fontSize = 14.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight(400),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center,
                         letterSpacing = 0.25.sp,
                     )
@@ -131,14 +131,14 @@ fun BalanceInfoBlock() {
         horizontalArrangement = Arrangement.spacedBy(39.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = "$", fontSize = 22.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(0.dp))
+        Text(text = "$", fontSize = 22.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(0.dp))
 
         Text(
             text = "2679", style = TextStyle(
                 fontSize = 22.sp,
                 lineHeight = 28.sp,
                 fontWeight = FontWeight(400),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Right,
                 baselineShift = BaselineShift(-0.12F)
             ), modifier = Modifier
