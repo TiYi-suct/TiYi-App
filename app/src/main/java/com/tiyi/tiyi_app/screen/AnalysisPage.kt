@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,10 +22,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -50,6 +55,9 @@ fun AnalysisPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun FileUploadUI() {
+    // Temp variable
+    val items = listOf("Crazy Car", "Forgive", "Happy", "Sad", "Sleepy", "开心游乐场", "可爱动物园", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "S")
+
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
@@ -103,16 +111,47 @@ fun FileUploadUI() {
                 Text(text = "Selected file: $it", color = Color.Black)
             }
 
-            val items = listOf("List item", "List item", "List item")
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = 72.dp)  // 确保底部有足够的空间给按钮
-            ) {
-                items(items) { item ->
-                    ListItem(itemText = item)
-                    Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "已上载", modifier = Modifier
+                .align(Alignment.Start)
+                .padding(start = 16.dp))
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(top = 20.dp,bottom = 72.dp)  // 确保底部有足够的空间给按钮
+                ) {
+                    items(items) { item ->
+                        ListItem(itemText = item)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
+
+                // Top gradient overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(MaterialTheme.colorScheme.background, Color.Transparent)
+                            )
+                        )
+                )
+
+                // Bottom gradient overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(Color.Transparent,MaterialTheme.colorScheme.background.copy(alpha = 0.5f), MaterialTheme.colorScheme.background)
+                            )
+                        )
+                )
             }
+
         }
 
         Button(
@@ -132,19 +171,21 @@ fun ListItem(itemText: String) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(8.dp)
+            .clip(RoundedCornerShape(8.dp)),
+
     ) {
         Box(
             modifier = Modifier
                 .size(32.dp)
-                .background(Color(0xFF03DAC5), shape = CircleShape),
+                .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "A", color = Color.White, fontSize = 18.sp, textAlign = TextAlign.Center)
+            Text(text = itemText.first().toString(), color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp, textAlign = TextAlign.Center)
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = itemText, modifier = Modifier.weight(1f))
-        Icon(imageVector = Icons.Outlined.Check, contentDescription = "Uploaded")
+        Text(text = itemText, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
+        Icon(imageVector = Icons.Outlined.Check, contentDescription = "Uploaded", tint = MaterialTheme.colorScheme.primary)
     }
 }
