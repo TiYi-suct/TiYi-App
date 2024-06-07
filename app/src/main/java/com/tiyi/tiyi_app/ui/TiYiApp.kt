@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +36,6 @@ fun TiYiApp() {
     val isLogin = remember { mutableStateOf(false) }
     if (isLogin.value) {
         MainScreen(
-            onLoginClick = { isLogin.value = false },
             modifier = Modifier
                 .fillMaxSize()
         )
@@ -50,11 +50,11 @@ fun TiYiApp() {
 }
 
 @Composable
-fun MainScreen(onLoginClick: () -> Unit, modifier: Modifier) {
+fun MainScreen(modifier: Modifier) {
     val navController = rememberNavController()
 
     var currentSelect by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     val menuData = listOf(
@@ -86,7 +86,7 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
     val currentRoute = currentDestination?.destination?.route
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
 
-        items.forEachIndexed { index, item ->
+        items.forEachIndexed { _, item ->
             NavigationBarItem(
                 icon = {
                     Icon(imageVector = item.icon, contentDescription = item.label)
