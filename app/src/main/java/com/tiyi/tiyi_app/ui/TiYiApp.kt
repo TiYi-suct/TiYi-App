@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +34,6 @@ fun TiYiApp() {
     val isLogin = remember { mutableStateOf(true) }
     if (isLogin.value) {
         MainScreen(
-            onLoginClick = { isLogin.value = false },
             modifier = Modifier
                 .fillMaxSize()
         )
@@ -50,12 +48,8 @@ fun TiYiApp() {
 }
 
 @Composable
-fun MainScreen(onLoginClick: () -> Unit, modifier: Modifier) {
+fun MainScreen(modifier: Modifier) {
     val navController = rememberNavController()
-
-    var currentSelect by remember {
-        mutableStateOf(0)
-    }
 
     val menuData = listOf(
         BottomItemData("最近文件", Icons.Outlined.CheckCircle, "RecentPage"),
@@ -86,7 +80,7 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
     val currentRoute = currentDestination?.destination?.route
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
 
-        items.forEachIndexed { index, item ->
+        items.forEachIndexed { _, item ->
             NavigationBarItem(
                 icon = {
                     Icon(imageVector = item.icon, contentDescription = item.label)
