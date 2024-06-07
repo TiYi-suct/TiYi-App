@@ -2,15 +2,21 @@ package com.tiyi.tiyi_app.screen
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Menu
@@ -31,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tiyi.tiyi_app.data.MusicInfo
@@ -48,8 +55,19 @@ val fakeTags = listOf(
     "轻音乐",
 )
 
+fun generateRandomString(length: Int): String {
+    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    return (1..length)
+        .map { chars.random() }
+        .joinToString("")
+}
+
 val fakeSongs = Array(100) {
-    MusicInfo(it, "$it-${Random(it).nextBytes(18)}")
+    MusicInfo(
+        it, generateRandomString(
+            Random(it).nextInt(1, 10)
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +122,7 @@ fun RecentPage(modifier: Modifier) {
 
 @Composable
 fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
+
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
@@ -111,7 +130,26 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
         ),
         modifier = modifier.padding(8.dp)
     ) {
-        Text(musicInfo.title.repeat(3))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                Text(
+                    text = musicInfo.title.first().toString(),
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(musicInfo.title.repeat(3))
+        }
     }
 }
 
