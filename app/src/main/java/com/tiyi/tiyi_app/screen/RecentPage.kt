@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.PlusOne
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -121,6 +122,11 @@ fun RecentPage(modifier: Modifier) {
                 }
                 item {
                     AssistChip(
+                        colors = AssistChipDefaults.assistChipColors(
+                            labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            leadingIconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
                         onClick = {},
                         leadingIcon = {
                             Icon(Icons.Filled.PlusOne, contentDescription = "搜索")
