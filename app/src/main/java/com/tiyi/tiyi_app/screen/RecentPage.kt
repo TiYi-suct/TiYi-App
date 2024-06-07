@@ -1,7 +1,12 @@
 package com.tiyi.tiyi_app.screen
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -169,12 +174,16 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                 )
             }
         }
-        if (isExpended) {
+        AnimatedVisibility(
+            visible = isExpended,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+            modifier = Modifier.align(Alignment.End)
+        ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .padding(8.dp)
-                    .align(Alignment.End),
             ) {
                 Button(
                     onClick = {},
