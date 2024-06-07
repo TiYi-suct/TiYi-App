@@ -1,26 +1,47 @@
 package com.tiyi.tiyi_app.screen
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+
+val fakeTags = listOf(
+    "流行",
+    "摇滚",
+    "古典",
+    "电子",
+    "爵士",
+    "民谣",
+    "说唱",
+    "轻音乐",
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,11 +70,41 @@ fun RecentPage(modifier: Modifier) {
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
             ) { }
-            Text(text = "Recent")
-            Text(text = "Recent")
-            Text(text = "Recent")
+            LazyRow(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+            ) {
+                items(fakeTags) { tag ->
+                    TagItem(tag = tag, modifier = Modifier.padding(horizontal = 4.dp))
+                }
+            }
         }
     }
+}
+
+@Composable
+fun TagItem(tag: String, modifier: Modifier) {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        onClick = { selected = !selected },
+        label = {
+            Text(tag,
+                style=MaterialTheme.typography.bodySmall)
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                )
+            }
+        } else {
+            null
+        },
+        modifier = modifier
+            .animateContentSize()
+    )
 }
 
 @Composable
