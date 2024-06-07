@@ -65,7 +65,10 @@ fun generateRandomString(length: Int): String {
 val fakeSongs = Array(100) {
     MusicInfo(
         it, generateRandomString(
-            Random(it).nextInt(1, 10)
+            Random(it).nextInt(15, 30)
+        ),
+        generateRandomString(
+            Random(it).nextInt(5, 10)
         )
     )
 }
@@ -148,7 +151,17 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = Modifier.size(16.dp))
-            Text(musicInfo.title.repeat(3))
+            Column {
+                Text(
+                    musicInfo.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    musicInfo.description,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
