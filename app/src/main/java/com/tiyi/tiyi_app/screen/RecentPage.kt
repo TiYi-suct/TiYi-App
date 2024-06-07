@@ -41,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -132,7 +133,7 @@ fun RecentPage(modifier: Modifier) {
 
 @Composable
 fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
-    var isExpended by remember { mutableStateOf(false) }
+    var isExpended by rememberSaveable { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
