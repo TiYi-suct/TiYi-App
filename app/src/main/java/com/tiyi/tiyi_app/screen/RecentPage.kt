@@ -24,8 +24,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.PlusOne
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -116,6 +118,18 @@ fun RecentPage(modifier: Modifier) {
             ) {
                 items(fakeTags) { tag ->
                     TagItem(tag = tag, modifier = Modifier.padding(horizontal = 4.dp))
+                }
+                item {
+                    AssistChip(
+                        onClick = {},
+                        leadingIcon = {
+                            Icon(Icons.Filled.PlusOne, contentDescription = "搜索")
+                        },
+                        label = {
+                            Text("添加")
+                        },
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
                 }
             }
             LazyColumn {
