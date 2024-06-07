@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -148,27 +150,21 @@ fun BalanceInfoBlock() {
 
 @Composable
 fun TopUpFloatBtn() {
-    IconButton(
+    Surface(
         modifier = Modifier
-            .shadow(
-                elevation = 3.dp,
-                spotColor = Color(0x4D000000),
-                ambientColor = Color(0x4D000000)
-            )
-            .shadow(
-                elevation = 8.dp,
-                spotColor = Color(0x26000000),
-                ambientColor = Color(0x26000000)
-            )
+
             .padding(0.dp)
             .width(139.dp)
             .height(56.dp)
-            .background(color = Color(0xFFE3E9E9), shape = RoundedCornerShape(size = 16.dp)),
-        onClick = { /*TODO*/ }
+            .clickable { /*TODO*/ },
+            shape = RoundedCornerShape(size = 16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 4.dp,
     )
     {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
         ) {
             Icon(imageVector = Icons.Filled.Add, contentDescription = "", modifier = Modifier.width(24.dp))
             Text(text = "充值 Token", style = TextStyle(
