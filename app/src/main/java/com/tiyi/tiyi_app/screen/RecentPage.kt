@@ -145,6 +145,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
+                    .padding(8.dp)
                     .size(50.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
