@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -72,6 +73,8 @@ fun RecentPage(modifier: Modifier) {
                 trailingIcon = {
                     Icon(Icons.Outlined.Search, contentDescription = "搜索")
                 },
+                tonalElevation = 8.dp,
+                shadowElevation = 4.dp,
                 modifier = Modifier
                     .offset(y = (-16).dp)
                     .padding(horizontal = 16.dp, vertical = 0.dp)
@@ -98,6 +101,10 @@ fun RecentPage(modifier: Modifier) {
 @Composable
 fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
     Card(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp,
+            pressedElevation = 2.dp
+        ),
         modifier = modifier.padding(8.dp)
     ) {
         Text(musicInfo.title)
