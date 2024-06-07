@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -30,7 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tiyi.tiyi_app.data.MusicInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+import kotlin.random.Random
 
 val fakeTags = listOf(
     "流行",
@@ -42,6 +46,10 @@ val fakeTags = listOf(
     "说唱",
     "轻音乐",
 )
+
+val fakeSongs = Array(100) {
+    MusicInfo(it, "$it-${Random(it)}")
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +86,21 @@ fun RecentPage(modifier: Modifier) {
                     TagItem(tag = tag, modifier = Modifier.padding(horizontal = 4.dp))
                 }
             }
+            LazyColumn {
+                items(fakeSongs) {
+                    MusicItem(it)
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.padding(8.dp)
+    ) {
+        Text(musicInfo.title)
     }
 }
 
