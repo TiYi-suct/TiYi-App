@@ -1,15 +1,24 @@
 package com.tiyi.tiyi_app.screen
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@Preview(name="AnalysisPage", showSystemUi = true)
+@Preview(name = "AnalysisPage", showSystemUi = true)
 @Composable
 fun AnalysisPage(modifier: Modifier = Modifier.fillMaxSize()) {
     FileUploadUI()
@@ -30,6 +39,13 @@ fun AnalysisPage(modifier: Modifier = Modifier.fillMaxSize()) {
 
 @Composable
 fun FileUploadUI() {
+    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    val filePickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                selectedFileUri = result.data?.data
+            }
+        }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -47,12 +63,23 @@ fun FileUploadUI() {
                     .drawBehind {
                         val stroke = Stroke(
                             width = 2.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 10.dp.toPx()), 0f)
+                            pathEffect = PathEffect.dashPathEffect(
+                                floatArrayOf(
+                                    10.dp.toPx(),
+                                    10.dp.toPx()
+                                ), 0f
+                            )
                         )
                         drawRoundRect(
                             color = Color.Gray,
                             style = stroke
                         )
+                    }
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "*/*"
+                        }
+                        filePickerLauncher.launch(intent)
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -60,6 +87,10 @@ fun FileUploadUI() {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            selectedFileUri?.let {
+                Text(text = "Selected file: $it", color = Color.Black)
+            }
 
             val items = listOf("List item", "List item", "List item")
             LazyColumn(
@@ -103,6 +134,6 @@ fun ListItem(itemText: String) {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = itemText, modifier = Modifier.weight(1f))
-        Checkbox(checked = true, onCheckedChange = null)
+        Icon(imageVector = Icons.Outlined.Check, contentDescription = "Uploaded")
     }
 }
