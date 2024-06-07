@@ -47,8 +47,6 @@ fun LoginActivityContent(
     TiYiAppTheme {
         Surface {
             LoginScreen(
-                onLoginClick = onLoginClick,
-                onRegisterClick = onRegisterClick,
                 modifier = Modifier.fillMaxSize()
             )
         }

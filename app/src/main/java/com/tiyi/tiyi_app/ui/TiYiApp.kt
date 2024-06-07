@@ -40,8 +40,6 @@ fun TiYiApp() {
         )
     } else {
         LoginScreen(
-            onLoginClick = { isLogin.value = true },
-            onRegisterClick = { },
             modifier = Modifier
                 .fillMaxSize()
         )
