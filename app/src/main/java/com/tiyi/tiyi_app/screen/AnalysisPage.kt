@@ -118,7 +118,7 @@ fun FileUploadUI() {
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(top = 20.dp,bottom = 72.dp)  // 确保底部有足够的空间给按钮
+                    contentPadding = PaddingValues(top = 30.dp,bottom = 72.dp)  // 确保底部有足够的空间给按钮
                 ) {
                     items(items) { item ->
                         ListItem(itemText = item)
@@ -130,10 +130,10 @@ fun FileUploadUI() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(20.dp)
+                        .height(40.dp)
                         .background(
                             brush = Brush.verticalGradient(
-                                colors = listOf(MaterialTheme.colorScheme.background, Color.Transparent)
+                                colors = listOf(MaterialTheme.colorScheme.background,MaterialTheme.colorScheme.background.copy(alpha = 0.7f), Color.Transparent)
                             )
                         )
                 )
