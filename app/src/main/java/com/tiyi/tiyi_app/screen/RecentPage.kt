@@ -143,7 +143,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = musicInfo.title.first().toString(),
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             }
