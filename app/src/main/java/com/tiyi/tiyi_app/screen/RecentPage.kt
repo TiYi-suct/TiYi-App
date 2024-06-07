@@ -21,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -125,13 +127,16 @@ fun RecentPage(modifier: Modifier) {
 
 @Composable
 fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
-
+    var isExpended by remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
             pressedElevation = 2.dp
         ),
-        modifier = modifier.padding(8.dp)
+        onClick = { isExpended = !isExpended },
+        modifier = modifier
+            .padding(8.dp)
+            .animateContentSize()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -161,6 +166,48 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                     musicInfo.description,
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+        }
+        if (isExpended) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.End),
+            ) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(
+                        "删除",
+                        color = MaterialTheme.colorScheme.onError
+                    )
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(
+                        "标签",
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        "分析",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
     }
