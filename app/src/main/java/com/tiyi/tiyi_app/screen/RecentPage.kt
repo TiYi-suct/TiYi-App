@@ -1,8 +1,11 @@
 package com.tiyi.tiyi_app.screen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
@@ -22,8 +25,12 @@ import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
-    Surface(modifier = modifier.fillMaxSize()) {
-        Column {
+    Surface(
+        modifier = modifier.fillMaxSize()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Top
+        ) {
             SearchBar(
                 query = "",
                 onQueryChange = { },
@@ -37,13 +44,14 @@ fun RecentPage(modifier: Modifier) {
                     Icon(Icons.Outlined.Search, contentDescription = "搜索")
                 },
                 modifier = Modifier
-                    .padding(16.dp)
+                    .offset(y = (-16).dp)
+                    .padding(horizontal = 16.dp, vertical = 0.dp)
+                    .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = "Recent")
-                Text(text = "Recent")
-                Text(text = "Recent")
-            }
+            ) { }
+            Text(text = "Recent")
+            Text(text = "Recent")
+            Text(text = "Recent")
         }
     }
 }
