@@ -13,6 +13,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,28 +22,28 @@ import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        SearchBar(
-            query = "",
-            onQueryChange = { },
-            onSearch = { },
-            active = false,
-            onActiveChange = {},
-            leadingIcon = {
-                Icon(Icons.Outlined.Menu, contentDescription = "菜单")
-            },
-            trailingIcon = {
-                Icon(Icons.Outlined.Search, contentDescription = "搜索")
-            },
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Text(text = "Recent")
-            Text(text = "Recent")
-            Text(text = "Recent")
+    Surface(modifier = modifier.fillMaxSize()) {
+        Column {
+            SearchBar(
+                query = "",
+                onQueryChange = { },
+                onSearch = { },
+                active = false,
+                onActiveChange = {},
+                leadingIcon = {
+                    Icon(Icons.Outlined.Menu, contentDescription = "菜单")
+                },
+                trailingIcon = {
+                    Icon(Icons.Outlined.Search, contentDescription = "搜索")
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Recent")
+                Text(text = "Recent")
+                Text(text = "Recent")
+            }
         }
     }
 }
