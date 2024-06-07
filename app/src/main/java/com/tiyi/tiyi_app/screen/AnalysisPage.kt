@@ -1,39 +1,24 @@
 package com.tiyi.tiyi_app.screen
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.database.Cursor
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.provider.OpenableColumns
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,12 +27,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
-@Preview(name = "AnalysisPage", showSystemUi = true)
+@Preview(name = "NIGHT MODE", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun AnalysisPage(modifier: Modifier = Modifier) {
     FileUploadUI()
@@ -55,16 +43,23 @@ fun AnalysisPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun FileUploadUI() {
-    // Temp variable
-    val items = listOf("Crazy Car", "Forgive", "Happy", "Sad", "Sleepy", "开心游乐场", "可爱动物园", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "Sad", "Sleepy", "Happy", "S")
+    var uploadedFileUri by remember { mutableStateOf<Uri?>(null) }
+    var uploadedFileName by remember { mutableStateOf<String?>(null) }
+    var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
+    var selectedItems by remember { mutableStateOf(setOf<Uri>()) }
 
-    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
-    val filePickerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                selectedFileUri = result.data?.data
+    val context = LocalContext.current
+    val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                uploadedFileUri = uri
+                val fileName = getFileName(context, uri)
+                uploadedFileName = fileName
+                uploadedItems = uploadedItems + (fileName to uri)
             }
         }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -83,16 +78,10 @@ fun FileUploadUI() {
                         val stroke = Stroke(
                             width = 2.dp.toPx(),
                             pathEffect = PathEffect.dashPathEffect(
-                                floatArrayOf(
-                                    10.dp.toPx(),
-                                    10.dp.toPx()
-                                ), 0f
+                                floatArrayOf(10.dp.toPx(), 10.dp.toPx()), 0f
                             )
                         )
-                        drawRoundRect(
-                            color = Color.Gray,
-                            style = stroke
-                        )
+                        drawRoundRect(color = Color.Gray, style = stroke)
                     }
                     .clickable {
                         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
@@ -102,43 +91,47 @@ fun FileUploadUI() {
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "选择文件", color = Color.Gray)
+                Text(text = "上传文件", color = Color.Gray)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            selectedFileUri?.let {
-                Text(text = "Selected file: $it", color = Color.Black)
-            }
-
-            Text(text = "已上载", modifier = Modifier
+            Text(text = "已上传", modifier = Modifier
                 .align(Alignment.Start)
                 .padding(start = 16.dp))
 
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(top = 30.dp,bottom = 72.dp)  // 确保底部有足够的空间给按钮
+                    contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
-                    items(items) { item ->
-                        ListItem(itemText = item)
+                    items(uploadedItems) { item ->
+                        ListItem(itemText = item.first, itemUri = item.second, isSelected = selectedItems.contains(item.second)) { isChecked ->
+                            selectedItems = if (isChecked) {
+                                selectedItems + item.second
+                            } else {
+                                selectedItems - item.second
+                            }
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
 
-                // Top gradient overlay
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
                         .background(
                             brush = Brush.verticalGradient(
-                                colors = listOf(MaterialTheme.colorScheme.background,MaterialTheme.colorScheme.background.copy(alpha = 0.7f), Color.Transparent)
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.background,
+                                    MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
+                                    Color.Transparent
+                                )
                             )
                         )
                 )
 
-                // Bottom gradient overlay
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -146,16 +139,19 @@ fun FileUploadUI() {
                         .align(Alignment.BottomCenter)
                         .background(
                             brush = Brush.verticalGradient(
-                                colors = listOf(Color.Transparent,MaterialTheme.colorScheme.background.copy(alpha = 0.5f), MaterialTheme.colorScheme.background)
+                                colors = listOf(
+                                    Color.Transparent,
+                                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                                    MaterialTheme.colorScheme.background
+                                )
                             )
                         )
                 )
             }
-
         }
 
         Button(
-            onClick = { /* Handle analysis start */ },
+            onClick = { Log.d("Analysis","selectedItem: $selectedItems") },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
@@ -165,16 +161,27 @@ fun FileUploadUI() {
     }
 }
 
+@SuppressLint("Range")
+fun getFileName(context: Context, uri: Uri): String {
+    var fileName: String? = null
+    val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
+    cursor?.use {
+        if (it.moveToFirst()) {
+            fileName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+        }
+    }
+    return fileName ?: uri.lastPathSegment ?: "Unknown file"
+}
+
 @Composable
-fun ListItem(itemText: String) {
+fun ListItem(itemText: String, itemUri: Uri, isSelected: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(8.dp)
-            .clip(RoundedCornerShape(8.dp)),
-
+            .clip(RoundedCornerShape(8.dp))
     ) {
         Box(
             modifier = Modifier
@@ -186,6 +193,6 @@ fun ListItem(itemText: String) {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = itemText, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
-        Icon(imageVector = Icons.Outlined.Check, contentDescription = "Uploaded", tint = MaterialTheme.colorScheme.primary)
+        Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
     }
 }
