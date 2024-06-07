@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,9 +42,9 @@ fun TiYiApp() {
     } else {
         LoginScreen(
             onLoginClick = { isLogin.value = true },
+            onRegisterClick = { },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp) // 设置固定内边距
         )
     }
 }
@@ -106,16 +104,6 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
                         }
                     }
                 })
-        }
-    }
-}
-
-@Composable
-fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
-    Scaffold(modifier = modifier) { innerPadding ->
-        // 使用 innerPadding 作为内边距
-        Button(onClick = { onLoginClick() }, modifier = Modifier.padding(innerPadding)) {
-            Text(text = "登录")
         }
     }
 }
