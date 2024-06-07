@@ -48,7 +48,7 @@ fun TiYiApp() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier) {
+fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     val menuData = listOf(
