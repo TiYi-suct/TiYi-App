@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ResponseModel(
+data class CommonResponseModel(
     @SerialName("code")
     val code: Int,
 
@@ -29,4 +29,6 @@ data class UserInfoModel(
     @SerialName("signature")
     val signature: String
 )
+
+
 
