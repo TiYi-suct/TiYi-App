@@ -1,7 +1,5 @@
 package com.tiyi.tiyi_app.data
-
-import com.tiyi.tiyi_app.model.CommonResponseModel
-
+@Suppress("unused")
 interface TiYiPhotosRepository {
-    suspend fun userLogin(): CommonResponseModel
+
 }

@@ -1,14 +1,18 @@
 package com.tiyi.tiyi_app.network
 
 import com.tiyi.tiyi_app.model.AnalysisItemsModel
-import com.tiyi.tiyi_app.model.AudioInfoListModel
-import com.tiyi.tiyi_app.model.AudioInfoModel
-import com.tiyi.tiyi_app.model.AudioUploadModel
+import com.tiyi.tiyi_app.model.AudioDetailsModel
+import com.tiyi.tiyi_app.model.AudioListModel
+import com.tiyi.tiyi_app.model.AudioUploadResponseModel
 import com.tiyi.tiyi_app.model.CommonResponseModel
 import com.tiyi.tiyi_app.model.ConsumptionCheckModel
 import com.tiyi.tiyi_app.model.FileResponseModel
+import com.tiyi.tiyi_app.model.LabelRequest
 import com.tiyi.tiyi_app.model.ListTagModel
+import com.tiyi.tiyi_app.model.LoginRequest
 import com.tiyi.tiyi_app.model.RechargeItemsModel
+import com.tiyi.tiyi_app.model.RegisterRequest
+import com.tiyi.tiyi_app.model.UserDetailsModel
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.Body
@@ -19,45 +23,47 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+@Suppress("unused") // Hide from IDE warning
 interface MusicApiService {
     // User API start
-    @GET("user/login")
-    fun userLogin(): CommonResponseModel
+    @POST("user/login")
+    fun loginUser(@Body loginRequest: LoginRequest): CommonResponseModel
 
     @POST("user/register")
-    fun userRegister(): CommonResponseModel
+    fun registerUser(@Body registerRequest: RegisterRequest): CommonResponseModel
 
     @GET("user")
-    fun getUserInfo(): CommonResponseModel
+    fun getUserDetails(): UserDetailsModel
 
     // User API end
 
     // Music API start
     @POST("audio/upload")
-    fun uploadMusic(): AudioUploadModel
+    fun uploadAudio(@Body file: RequestBody): AudioUploadResponseModel
 
     @PUT("audio/labeling")
-    fun labelingMusic(): CommonResponseModel
+    fun labelAudio(@Body labelRequest: LabelRequest): CommonResponseModel
 
     @GET("audio")
-    fun getMusicInfo(): AudioInfoModel
+    fun getAudioDetails(@Query("audio_id") audioId: String): AudioDetailsModel
+
+    @DELETE("audio")
+    fun deleteAudio(@Query("audio_id") audioId: String): CommonResponseModel
 
     @GET("audio/list")
-    fun getMusicList(): AudioInfoListModel
+    fun listAudios(@Query("name") name: String?, @Query("tags") tags: String?): AudioListModel
 
-    @DELETE
-    fun deleteMusic(): CommonResponseModel
     // Music API end
 
     // Tag API start
     @POST("audio_tags")
-    fun addTag(): CommonResponseModel
+    fun addTag(@Query("tag_name") tagName: String): CommonResponseModel
 
     @GET("audio_tags")
-    fun listTag(): ListTagModel
+    fun listTags(): ListTagModel
 
     @DELETE("audio_tags")
-    fun deleteTag(): ListTagModel
+    fun deleteTag(@Query("tag_name") tagName: String): ListTagModel
     // Tag API end
 
     // Coin API start
