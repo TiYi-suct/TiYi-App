@@ -3,6 +3,7 @@ package com.tiyi.tiyi_app
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.tiyi.tiyi_app.model.LoginStatus
 import com.tiyi.tiyi_app.model.LoginViewModel
 import com.tiyi.tiyi_app.screen.LoginScreen
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
@@ -28,12 +30,26 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         lifecycleScope.launch {
-            loginViewModel.loginSuccess.collect { success ->
-                if (!success) {
-                    return@collect
-                }
-                Intent(this@LoginActivity, MainActivity::class.java).also {
-                    startActivity(it)
+            loginViewModel.loginStatus.collect { status ->
+                when (status) {
+                    is LoginStatus.Error -> {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "登录失败: ${status.message}",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+
+                    LoginStatus.Success -> {
+                        Intent(this@LoginActivity, MainActivity::class.java).also {
+                            startActivity(it)
+                        }
+                    }
+
+                    else -> {
+                        // Do nothing
+                    }
                 }
             }
         }
