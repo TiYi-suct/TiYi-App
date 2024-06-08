@@ -14,6 +14,9 @@ class LoginViewModel: ViewModel() {
     private var _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
+    private var _loginSuccess = MutableStateFlow(false)
+    val loginSuccess: StateFlow<Boolean> = _loginSuccess.asStateFlow()
+
     fun setLoginInfo(info: LoginInfo) {
         _username.value = info.username
         _password.value = info.password
@@ -26,10 +29,12 @@ class LoginViewModel: ViewModel() {
     fun login() {
         // Login logic
         Log.d(TAG, "login: ${username.value} ${password.value}")
+        _loginSuccess.value = true
     }
 
     fun register() {
         // Register logic
         Log.d(TAG, "register: ${username.value} ${password.value}")
+        _loginSuccess.value = false
     }
 }
