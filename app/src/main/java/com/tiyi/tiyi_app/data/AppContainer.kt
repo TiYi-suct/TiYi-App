@@ -21,7 +21,7 @@ object AppContainer {
         retrofit.create(MusicApiService::class.java)
     }
 
-    val userRepository: UserRepository by lazy {
-        UserRepository(musicApiService)
+    val networkRepository: NetworkRepository by lazy {
+        NetworkRepository(musicApiService)
     }
 }
