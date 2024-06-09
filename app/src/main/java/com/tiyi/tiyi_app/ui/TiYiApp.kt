@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tiyi.tiyi_app.screen.AnalysisPage
+import com.tiyi.tiyi_app.screen.LoginScreen
 import com.tiyi.tiyi_app.screen.ProfilePage
 import com.tiyi.tiyi_app.screen.RecentPage
 
@@ -39,8 +40,6 @@ fun TiYiApp() {
         )
     } else {
         LoginScreen(
-            onLoginClick = { isLogin.value = true },
-            onRegisterClick = { },
             modifier = Modifier
                 .fillMaxSize()
         )

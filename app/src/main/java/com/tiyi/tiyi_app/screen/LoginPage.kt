@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.ui
+package com.tiyi.tiyi_app.screen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -44,16 +44,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.R
+import com.tiyi.tiyi_app.model.LoginViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit,
     modifier: Modifier
 ) {
+    val loginModel: LoginViewModel = viewModel()
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = modifier.fillMaxSize()
@@ -78,8 +79,8 @@ fun LoginScreen(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
                 LoginBlock { loginInfo ->
-                    println("Login: $loginInfo")
-                    onLoginClick()
+                    loginModel.setLoginInfo(loginInfo)
+                    loginModel.login()
                 }
                 Spacer(modifier = Modifier.height(64.dp))
                 OutlinedButton(
@@ -87,7 +88,7 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     onClick = {
-                        onRegisterClick()
+                        loginModel.register()
                     },
                 ) {
                     Text(text = "注册")
@@ -102,7 +103,7 @@ fun LoginScreen(
 @Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun LoginScreenPreview() {
     TiYiAppTheme {
-        LoginScreen({}, {}, Modifier.fillMaxWidth())
+        LoginScreen(Modifier.fillMaxWidth())
     }
 }
 
