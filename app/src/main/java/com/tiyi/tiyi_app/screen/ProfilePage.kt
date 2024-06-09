@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,12 +20,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -38,14 +48,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.R
+import com.tiyi.tiyi_app.dto.UserDetailsModel
+import com.tiyi.tiyi_app.model.ProfileViewModel
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
-    Scaffold(floatingActionButton = { TopUpFloatBtn() }, modifier = modifier.padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
+    val profileViewModel: ProfileViewModel = viewModel()
+    val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
+
+    if (showTopUpDialog.value) {
+        TopUpDialog(
+            onDismiss = { showTopUpDialog.value = false },
+            onTopUp = { rechargeId ->
+                profileViewModel.createOrder(rechargeId, {
+                    // handle success
+                    showTopUpDialog.value = false
+                }, {
+                    // handle error
+                })
+            }
+        )
+    }
+
+    Scaffold(
+        floatingActionButton = { TopUpFloatBtn(onClick = { showTopUpDialog.value = true }) },
+        modifier = modifier.padding(start = 10.dp, top = 10.dp, end = 10.dp)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -61,6 +94,10 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
 
 @Composable
 fun ProfileInfoBlock() {
+    val profileViewModel: ProfileViewModel = viewModel()
+    val userDetailsState: State<UserDetailsModel.UserDetails?> =
+        profileViewModel.userDetails.collectAsState()
+
     Box(
         modifier = Modifier
             .shadow(
@@ -78,7 +115,7 @@ fun ProfileInfoBlock() {
             .background(
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(size = 12.dp)
-            ) // 颜色暂时设为 secondary，待适配黑暗模式
+            )
     ) {
         Row(
             modifier = Modifier
@@ -97,7 +134,7 @@ fun ProfileInfoBlock() {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    text = "Username", style = TextStyle(
+                    text = userDetailsState.value?.username ?: "Username", style = TextStyle(
                         fontSize = 32.sp,
                         lineHeight = 40.sp,
                         fontWeight = FontWeight(400),
@@ -107,7 +144,8 @@ fun ProfileInfoBlock() {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Lorem ipsum dolor sit porttitor", style = TextStyle(
+                    text = userDetailsState.value?.signature ?: "Lorem ipsum dolor sit portion",
+                    style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight(400),
@@ -123,6 +161,10 @@ fun ProfileInfoBlock() {
 
 @Composable
 fun BalanceInfoBlock() {
+    val profileViewModel: ProfileViewModel = viewModel()
+    val userDetails: State<UserDetailsModel.UserDetails?> =
+        profileViewModel.userDetails.collectAsState()
+
     Row(
         modifier = Modifier
             .width(138.dp),
@@ -132,7 +174,7 @@ fun BalanceInfoBlock() {
         Text(text = "$", fontSize = 22.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(0.dp))
 
         Text(
-            text = "2679", style = TextStyle(
+            text = userDetails.value?.musicCoin?.toString() ?: "Unknown Coin", style = TextStyle(
                 fontSize = 22.sp,
                 lineHeight = 28.sp,
                 fontWeight = FontWeight(400),
@@ -147,13 +189,13 @@ fun BalanceInfoBlock() {
 }
 
 @Composable
-fun TopUpFloatBtn() {
+fun TopUpFloatBtn(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .padding(0.dp)
             .width(139.dp)
             .height(56.dp)
-            .clickable { /*TODO*/ },
+            .clickable { onClick() },
             shape = RoundedCornerShape(size = 16.dp),
             color = MaterialTheme.colorScheme.surface,
             shadowElevation = 4.dp,
@@ -173,4 +215,40 @@ fun TopUpFloatBtn() {
             ))
         }
     }
+}
+
+@Composable
+fun TopUpDialog(onDismiss: () -> Unit, onTopUp: (String) -> Unit) {
+    val profileViewModel: ProfileViewModel = viewModel()
+    val rechargeItems by profileViewModel.rechargeItems.collectAsState()
+
+    LaunchedEffect(Unit) {
+        profileViewModel.loadRechargeItems()
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "选择充值额度") },
+        text = {
+            Column {
+                rechargeItems.forEach { item ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onTopUp(item.id.toString()) }
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = item.title, modifier = Modifier.weight(1f))
+                        Text(text = "${item.price}元")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
 }
