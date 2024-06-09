@@ -163,7 +163,7 @@ fun EditTagDialog(
             LazyColumn(
                 modifier = Modifier.heightIn(max = 240.dp)
             ) {
-                itemsIndexed(availableTagList) {index, tag ->
+                itemsIndexed(availableTagList) { index, tag ->
                     ListItem(
                         headlineContent = {
                             Text(tag)
@@ -235,7 +235,16 @@ fun EditTagDialogPreview() {
                 "Description",
                 listOf("流行", "摇滚")
             ),
-            availableTagList = listOf("流行", "摇滚", "古典", "电子", "爵士", "民谣", "说唱", "轻音乐"),
+            availableTagList = listOf(
+                "流行",
+                "摇滚",
+                "古典",
+                "电子",
+                "爵士",
+                "民谣",
+                "说唱",
+                "轻音乐"
+            ),
             onDismiss = {},
             onEdit = {}
         )
@@ -391,7 +400,9 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                     .padding(8.dp)
             ) {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        recentViewModel.deleteMusic(musicInfo)
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
@@ -415,7 +426,9 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                     )
                 }
                 Button(
-                    onClick = {},
+                    onClick = {
+                        recentViewModel.analysisMusic(musicInfo)
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
