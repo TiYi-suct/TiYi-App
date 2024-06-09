@@ -37,6 +37,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,12 +52,86 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.data.MusicInfo
 import com.tiyi.tiyi_app.model.RecentViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+
+@Composable
+fun NewTagDialog(
+    onDismiss: () -> Unit, addTag: (tagName: String) -> Unit
+) {
+    var tagName by remember { mutableStateOf("") }
+    Dialog(
+        onDismissRequest = { onDismiss() },
+    ) {
+        Card(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 8.dp,
+            ),
+        ) {
+            Text(
+                text = "新建标签",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+            OutlinedTextField(
+                value = tagName,
+                onValueChange = { tagName = it },
+                label = {
+                    Text("标签名")
+                },
+                modifier = Modifier.padding(16.dp)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.End)
+            ) {
+                OutlinedButton(
+                    onClick = { onDismiss() },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = SolidColor(MaterialTheme.colorScheme.error)
+                    )
+                ) {
+                    Text("取消")
+                }
+                Button(
+                    onClick = {
+                        addTag(tagName)
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        "确定",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun NewTagDialogPreview() {
+    TiYiAppTheme {
+        NewTagDialog({}, {})
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +139,14 @@ fun RecentPage(modifier: Modifier) {
     val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
+
+    var newTagDialogVisible by remember { mutableStateOf(false) }
+    if (newTagDialogVisible) {
+        NewTagDialog(
+            onDismiss = { newTagDialogVisible = false },
+            addTag = { recentViewModel.addTag(it) }
+        )
+    }
     Surface(
         modifier = modifier.fillMaxSize()
     ) {
@@ -103,7 +187,9 @@ fun RecentPage(modifier: Modifier) {
                             leadingIconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                             containerColor = MaterialTheme.colorScheme.secondaryContainer
                         ),
-                        onClick = {},
+                        onClick = {
+                            newTagDialogVisible = true
+                        },
                         leadingIcon = {
                             Icon(Icons.Filled.PlusOne, contentDescription = "添加标签")
                         },
