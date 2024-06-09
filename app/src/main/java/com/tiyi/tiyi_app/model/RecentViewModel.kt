@@ -74,12 +74,12 @@ class RecentViewModel: ViewModel() {
 
     fun updateSelectedTagList(tagList: List<String>) {
         Log.d(TAG, "updateSelectedTagList: $tagList")
-        _recentList.value = TODO("Fetch recent list with selected tags")
+        _recentList.value
     }
 
     fun searchMusic(query: String) {
         Log.d(TAG, "searchMusic: $query")
-        _recentList.value = TODO("Fetch recent list with query")
+        _recentList.value
     }
 
     fun removeTag(tag: String) {
