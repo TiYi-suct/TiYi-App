@@ -182,7 +182,8 @@ fun EditTagDialog(
                 }
             }
             Row(
-                Modifier
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
                     .align(Alignment.End)
                     .padding(16.dp)
             ) {
