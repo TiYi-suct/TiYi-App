@@ -46,7 +46,10 @@ class RecentViewModel: ViewModel() {
                 ),
                 generateRandomString(
                     Random(it).nextInt(5, 10)
-                )
+                ),
+                List(Random(it).nextInt(1, 5)) {
+                    fakeTags.random()
+                }
             )
         }
 
