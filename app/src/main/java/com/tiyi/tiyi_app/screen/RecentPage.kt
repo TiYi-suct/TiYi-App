@@ -105,7 +105,7 @@ fun RecentPage(modifier: Modifier) {
                         ),
                         onClick = {},
                         leadingIcon = {
-                            Icon(Icons.Filled.PlusOne, contentDescription = "搜索")
+                            Icon(Icons.Filled.PlusOne, contentDescription = "添加标签")
                         },
                         label = {
                             Text("添加")
