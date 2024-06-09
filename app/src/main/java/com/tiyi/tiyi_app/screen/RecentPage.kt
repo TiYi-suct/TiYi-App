@@ -55,35 +55,6 @@ import com.tiyi.tiyi_app.data.MusicInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import kotlin.random.Random
 
-val fakeTags = listOf(
-    "流行",
-    "摇滚",
-    "古典",
-    "电子",
-    "爵士",
-    "民谣",
-    "说唱",
-    "轻音乐",
-)
-
-fun generateRandomString(length: Int): String {
-    val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    return (1..length)
-        .map { chars.random() }
-        .joinToString("")
-}
-
-val fakeSongs = Array(100) {
-    MusicInfo(
-        it, generateRandomString(
-            Random(it).nextInt(15, 30)
-        ),
-        generateRandomString(
-            Random(it).nextInt(5, 10)
-        )
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
