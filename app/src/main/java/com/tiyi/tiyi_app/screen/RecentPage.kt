@@ -345,6 +345,7 @@ fun RecentPage(modifier: Modifier) {
                             } else {
                                 selectedTags - tag
                             }
+                            recentViewModel.updateSelectedTagList(selectedTags)
                         },
                         modifier = Modifier.padding(horizontal = 4.dp)
                     )
@@ -371,6 +372,7 @@ fun RecentPage(modifier: Modifier) {
             }
             LazyColumn {
                 items(songs) { music ->
+                    // 后端返回之前在前端先过滤
                     if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
                         return@items
                     MusicItem(

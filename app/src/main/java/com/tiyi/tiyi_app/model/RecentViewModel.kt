@@ -18,6 +18,9 @@ class RecentViewModel: ViewModel() {
     private val _recentList = MutableStateFlow(listOf<MusicInfo>())
     val recentList = _recentList.asStateFlow()
 
+    private val _selectedTagList = MutableStateFlow(listOf<String>())
+    val selectedTagList = _selectedTagList.asStateFlow()
+
     init {
         val fakeTags = listOf(
             "流行",
@@ -67,6 +70,10 @@ class RecentViewModel: ViewModel() {
 
     fun analysisMusic(musicInfo: MusicInfo) {
         Log.d(TAG, "analysisMusic: $musicInfo")
+    }
+
+    fun updateSelectedTagList(tagList: List<String>) {
+        _recentList.value = TODO("Fetch recent list with selected tags")
     }
 
     fun removeTag(tag: String) {
