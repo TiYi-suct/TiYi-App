@@ -257,6 +257,7 @@ fun RecentPage(modifier: Modifier) {
     val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
+    var selectedTags by remember { mutableStateOf(emptyList<String>()) }
 
     var newTagDialogVisible by remember { mutableStateOf(false) }
     if (newTagDialogVisible) {
@@ -296,7 +297,16 @@ fun RecentPage(modifier: Modifier) {
                     .padding(horizontal = 8.dp)
             ) {
                 items(tags) { tag ->
-                    TagItem(tag = tag, modifier = Modifier.padding(horizontal = 4.dp))
+                    TagItem(
+                        tag = tag, onSelectedChange = {
+                            selectedTags = if (it) {
+                                selectedTags + tag
+                            } else {
+                                selectedTags - tag
+                            }
+                        },
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
                 }
                 item {
                     AssistChip(
@@ -319,9 +329,11 @@ fun RecentPage(modifier: Modifier) {
                 }
             }
             LazyColumn {
-                items(songs) {
+                items(songs) { music ->
+                    if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
+                        return@items
                     MusicItem(
-                        it,
+                        music,
                         modifier = Modifier
                             .fillMaxWidth()
                     )
@@ -444,10 +456,13 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TagItem(tag: String, modifier: Modifier) {
+fun TagItem(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier) {
     var selected by remember { mutableStateOf(false) }
     FilterChip(
-        onClick = { selected = !selected },
+        onClick = {
+            selected = !selected
+            onSelectedChange(selected)
+        },
         label = {
             Text(
                 tag,
