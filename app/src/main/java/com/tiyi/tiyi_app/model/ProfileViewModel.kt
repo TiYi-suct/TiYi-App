@@ -3,8 +3,6 @@ package com.tiyi.tiyi_app.model
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tiyi.tiyi_app.data.NetworkRepository
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +21,7 @@ class ProfileViewModel() : ViewModel() {
     val rechargeItems: StateFlow<List<RechargeItemsModel.RechargeItem>> = _rechargeItems
 
     init {
-//        fetchUserDetails()
+        fetchUserDetails()
     }
 
     private fun fetchUserDetails() {
@@ -92,6 +90,13 @@ class ProfileViewModel() : ViewModel() {
 
     fun createOrder(rechargeId: String, onSuccess: () -> Unit, onError: () -> Unit) {
         Log.d(TAG, "createOrder: $rechargeId")
+
+        if (rechargeId == "1") {
+            onError()
+        } else {
+            onSuccess()
+            fetchUserDetails()
+        }
 
 //        viewModelScope.launch {
 //            try {

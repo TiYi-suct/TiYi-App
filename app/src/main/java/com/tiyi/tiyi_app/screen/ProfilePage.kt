@@ -2,6 +2,7 @@ package com.tiyi.tiyi_app.screen
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,13 +34,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -60,16 +61,16 @@ import com.tiyi.tiyi_app.model.ProfileViewModel
 fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
     val profileViewModel: ProfileViewModel = viewModel()
     val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     if (showTopUpDialog.value) {
         TopUpDialog(
             onDismiss = { showTopUpDialog.value = false },
             onTopUp = { rechargeId ->
                 profileViewModel.createOrder(rechargeId, {
-                    // handle success
                     showTopUpDialog.value = false
                 }, {
-                    // handle error
+                    Toast.makeText(context, "Top up failed", Toast.LENGTH_SHORT).show()
                 })
             }
         )
