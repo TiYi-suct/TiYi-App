@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.model
+package com.tiyi.tiyi_app.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
