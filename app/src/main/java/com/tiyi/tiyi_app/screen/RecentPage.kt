@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,9 +34,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -144,31 +147,43 @@ fun EditTagDialog(
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
-        Card {
+        Card(
+            colors = CardDefaults.cardColors().copy(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+        ) {
             Text(
                 text = "编辑标签",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp)
             )
             LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.heightIn(max = 240.dp)
             ) {
                 items(availableTagList) { tag ->
                     ListItem(
-                        itemText = tag,
-                        isSelected = selectedTags.contains(tag),
-                        onCheckedChange = {
-                            selectedTags = if (it) {
-                                selectedTags + tag
-                            } else {
-                                selectedTags - tag
-                            }
-                        }
+                        headlineContent = {
+                            Text(tag)
+                        },
+                        trailingContent = {
+                            Checkbox(
+                                checked = selectedTags.contains(tag),
+                                onCheckedChange = {
+                                    selectedTags = if (it) {
+                                        selectedTags + tag
+                                    } else {
+                                        selectedTags - tag
+                                    }
+                                }
+                            )
+                        },
+                        tonalElevation = 8.dp,
                     )
                 }
             }
             Row(
-                Modifier.align(Alignment.End)
+                Modifier
+                    .align(Alignment.End)
                     .padding(16.dp)
             ) {
                 OutlinedButton(
@@ -213,7 +228,7 @@ fun EditTagDialogPreview() {
                 "Description",
                 listOf("流行", "摇滚")
             ),
-            availableTagList = listOf("流行", "摇滚", "古典", "电子"),
+            availableTagList = listOf("流行", "摇滚", "古典", "电子", "爵士", "民谣", "说唱", "轻音乐"),
             onDismiss = {},
             onEdit = {}
         )
