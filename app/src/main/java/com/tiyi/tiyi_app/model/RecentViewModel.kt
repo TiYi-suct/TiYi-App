@@ -57,6 +57,10 @@ class RecentViewModel: ViewModel() {
         Log.d(TAG, "addTag: $tag")
     }
 
+    fun editTagFor(musicInfo: MusicInfo, newTags: List<String>) {
+        Log.d(TAG, "editTagFor: $musicInfo, $newTags")
+    }
+
     fun removeTag(tag: String) {
         Log.d(TAG, "removeTag: $tag")
     }

@@ -325,6 +325,19 @@ fun RecentPage(modifier: Modifier) {
 @Composable
 fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
     var isExpended by rememberSaveable { mutableStateOf(false) }
+    var editTagDialogVisible by remember { mutableStateOf(false) }
+    val recentViewModel: RecentViewModel = viewModel()
+    val tagList by recentViewModel.tagList.collectAsState()
+    if (editTagDialogVisible) {
+        EditTagDialog(
+            musicInfo = musicInfo,
+            availableTagList = tagList,
+            onDismiss = { editTagDialogVisible = false },
+            onEdit = { tags ->
+                recentViewModel.editTagFor(musicInfo, tags)
+            }
+        )
+    }
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
@@ -389,7 +402,9 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                     )
                 }
                 Button(
-                    onClick = {},
+                    onClick = {
+                        editTagDialogVisible = true
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
