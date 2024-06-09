@@ -76,7 +76,7 @@ fun NewTagDialog(
         ) {
             Text(
                 text = "新建标签",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp)
             )
             OutlinedTextField(
@@ -85,7 +85,7 @@ fun NewTagDialog(
                 label = {
                     Text("标签名")
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Row(
