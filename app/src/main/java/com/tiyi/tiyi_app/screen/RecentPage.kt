@@ -41,6 +41,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,13 +52,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.data.MusicInfo
+import com.tiyi.tiyi_app.model.RecentViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
+    val recentViewModel: RecentViewModel = viewModel()
+    val tags by recentViewModel.tagList.collectAsState()
+    val songs by recentViewModel.recentList.collectAsState()
     Surface(
         modifier = modifier.fillMaxSize()
     ) {
@@ -88,7 +93,7 @@ fun RecentPage(modifier: Modifier) {
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
             ) {
-                items(fakeTags) { tag ->
+                items(tags) { tag ->
                     TagItem(tag = tag, modifier = Modifier.padding(horizontal = 4.dp))
                 }
                 item {
@@ -110,7 +115,7 @@ fun RecentPage(modifier: Modifier) {
                 }
             }
             LazyColumn {
-                items(fakeSongs) {
+                items(songs) {
                     MusicItem(
                         it,
                         modifier = Modifier
