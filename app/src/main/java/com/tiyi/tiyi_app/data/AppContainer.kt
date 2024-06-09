@@ -6,9 +6,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
-class AppContainer {
+object AppContainer {
     private val baseUrl = "http://dev-cn.your-api-server.com/"
-
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
