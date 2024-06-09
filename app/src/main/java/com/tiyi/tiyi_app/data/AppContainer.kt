@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 
 @Suppress("unused")
 object AppContainer {
-    private val baseUrl = "http://dev-cn.your-api-server.com/"
+    private val baseUrl = "http://pi3943.natappfree.cc/"
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()

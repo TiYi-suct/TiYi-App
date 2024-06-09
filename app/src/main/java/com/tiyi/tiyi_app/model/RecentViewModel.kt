@@ -2,9 +2,12 @@ package com.tiyi.tiyi_app.model
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.tiyi.tiyi_app.data.AppContainer
 import com.tiyi.tiyi_app.data.MusicInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class RecentViewModel: ViewModel() {
@@ -33,7 +36,11 @@ class RecentViewModel: ViewModel() {
             "轻音乐",
         )
 
-        _tagList.value = fakeTags
+        viewModelScope.launch {
+            val result = AppContainer.networkRepository.listTags()
+            Log.d(TAG, "test: $result")
+            _tagList.value = result.data
+        }
 
         fun generateRandomString(length: Int): String {
             val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"

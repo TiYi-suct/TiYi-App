@@ -18,6 +18,8 @@ import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -59,7 +61,8 @@ interface MusicApiService {
     fun addTag(@Query("tag_name") tagName: String): CommonResponseModel
 
     @GET("audio_tags")
-    fun listTags(): ListTagModel
+    @Headers("Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2FkIjoibWFza2lyYSIsImV4cCI6MTcxODE2NDg4OH0.zC5NBTJUJP6M0p79RzcPiLotNgx8ij1GpM7-PjfExmU")
+    suspend fun listTags(): ListTagModel
 
     @DELETE("audio_tags")
     fun deleteTag(@Query("tag_name") tagName: String): ListTagModel
