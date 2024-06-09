@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
+@Suppress("unused")
 object AppContainer {
     private val baseUrl = "http://dev-cn.your-api-server.com/"
 
