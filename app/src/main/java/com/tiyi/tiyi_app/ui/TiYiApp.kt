@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,47 +16,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tiyi.tiyi_app.screen.AnalysisPage
+import com.tiyi.tiyi_app.screen.LoginScreen
 import com.tiyi.tiyi_app.screen.ProfilePage
 import com.tiyi.tiyi_app.screen.RecentPage
 
 @Preview
 @Composable
 fun TiYiApp() {
-    val isLogin = remember { mutableStateOf(false) }
+    val isLogin = remember { mutableStateOf(true) }
     if (isLogin.value) {
         MainScreen(
-            onLoginClick = { isLogin.value = false },
             modifier = Modifier
                 .fillMaxSize()
         )
     } else {
         LoginScreen(
-            onLoginClick = { isLogin.value = true },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp) // 设置固定内边距
         )
     }
 }
 
 @Composable
-fun MainScreen(onLoginClick: () -> Unit, modifier: Modifier) {
+fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-
-    var currentSelect by remember {
-        mutableStateOf(0)
-    }
 
     val menuData = listOf(
         BottomItemData("最近文件", Icons.Outlined.CheckCircle, "RecentPage"),
@@ -88,7 +79,7 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
     val currentRoute = currentDestination?.destination?.route
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
 
-        items.forEachIndexed { index, item ->
+        items.forEachIndexed { _, item ->
             NavigationBarItem(
                 icon = {
                     Icon(imageVector = item.icon, contentDescription = item.label)
@@ -106,16 +97,6 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
                         }
                     }
                 })
-        }
-    }
-}
-
-@Composable
-fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier) {
-    Scaffold(modifier = modifier) { innerPadding ->
-        // 使用 innerPadding 作为内边距
-        Button(onClick = { onLoginClick() }, modifier = Modifier.padding(innerPadding)) {
-            Text(text = "登录")
         }
     }
 }
