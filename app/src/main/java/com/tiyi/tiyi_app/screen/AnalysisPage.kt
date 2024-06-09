@@ -122,7 +122,7 @@ fun FileUploadUI() {
                     contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
                     items(uploadedItems) { item ->
-                        ListItem(
+                        AnalysisListItem(
                             itemText = item.first,
                             isSelected = selectedItems.contains(item.second)
                         ) { isChecked ->
@@ -193,7 +193,7 @@ fun getFileName(context: Context, uri: Uri): String {
 }
 
 @Composable
-fun ListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun AnalysisListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

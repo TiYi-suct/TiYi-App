@@ -23,7 +23,6 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-@Suppress("unused") // Hide from IDE warning
 interface MusicApiService {
     // User API start
     @POST("user/login")
