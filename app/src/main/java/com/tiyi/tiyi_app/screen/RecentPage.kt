@@ -32,7 +32,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.PlusOne
-import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -45,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -169,7 +169,7 @@ fun EditTagDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                for(tag in selectedTags) {
+                for (tag in selectedTags) {
                     AssistChip(
                         onClick = {
                             selectedTags = selectedTags - tag
@@ -299,6 +299,7 @@ fun RecentPage(modifier: Modifier) {
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
+    var query by remember { mutableStateOf("") }
 
     var newTagDialogVisible by remember { mutableStateOf(false) }
     if (newTagDialogVisible) {
@@ -314,16 +315,23 @@ fun RecentPage(modifier: Modifier) {
             verticalArrangement = Arrangement.Top
         ) {
             SearchBar(
-                query = "",
-                onQueryChange = { },
-                onSearch = { },
+                query = query,
+                onQueryChange = { query = it },
+                onSearch = { recentViewModel.searchMusic(query) },
                 active = false,
                 onActiveChange = {},
-                leadingIcon = {
-                    Icon(Icons.Outlined.Menu, contentDescription = "菜单")
-                },
                 trailingIcon = {
-                    Icon(Icons.Outlined.Search, contentDescription = "搜索")
+                    IconButton(
+                        onClick = { recentViewModel.searchMusic(query) }
+                    ) {
+                        Icon(Icons.Outlined.Search, contentDescription = "搜索")
+                    }
+                },
+                placeholder = {
+                    Text(
+                        "搜索音频",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 },
                 tonalElevation = 8.dp,
                 shadowElevation = 4.dp,
