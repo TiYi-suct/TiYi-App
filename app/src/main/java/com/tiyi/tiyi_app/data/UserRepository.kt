@@ -1,10 +1,10 @@
 package com.tiyi.tiyi_app.data
 
-import com.tiyi.tiyi_app.model.LoginRequest
-import com.tiyi.tiyi_app.model.RegisterRequest
+import com.tiyi.tiyi_app.dto.LoginRequest
+import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.network.MusicApiService
-import com.tiyi.tiyi_app.model.CommonResponseModel
-import com.tiyi.tiyi_app.model.UserDetailsModel
+import com.tiyi.tiyi_app.dto.CommonResponseModel
+import com.tiyi.tiyi_app.dto.UserDetailsModel
 
 @Suppress("unused")
 class UserRepository(private val apiService: MusicApiService) {
