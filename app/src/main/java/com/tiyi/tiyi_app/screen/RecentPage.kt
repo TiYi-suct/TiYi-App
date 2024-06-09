@@ -133,6 +133,93 @@ fun NewTagDialogPreview() {
     }
 }
 
+@Composable
+fun EditTagDialog(
+    musicInfo: MusicInfo,
+    availableTagList: List<String>,
+    onDismiss: () -> Unit,
+    onEdit: (List<String>) -> Unit
+) {
+    var selectedTags by remember { mutableStateOf(musicInfo.tags) }
+    Dialog(
+        onDismissRequest = { onDismiss() },
+    ) {
+        Card {
+            Text(
+                text = "编辑标签",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                items(availableTagList) { tag ->
+                    ListItem(
+                        itemText = tag,
+                        isSelected = selectedTags.contains(tag),
+                        onCheckedChange = {
+                            selectedTags = if (it) {
+                                selectedTags + tag
+                            } else {
+                                selectedTags - tag
+                            }
+                        }
+                    )
+                }
+            }
+            Row(
+                Modifier.align(Alignment.End)
+                    .padding(16.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { onDismiss() },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = SolidColor(MaterialTheme.colorScheme.error)
+                    )
+                ) {
+                    Text("取消")
+                }
+                Button(
+                    onClick = {
+                        onEdit(selectedTags)
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        "确定",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(name = "EditTagDialog")
+@Preview(name = "EditTagDialog-Night", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun EditTagDialogPreview() {
+    TiYiAppTheme {
+        EditTagDialog(
+            musicInfo = MusicInfo(
+                0,
+                "Title",
+                "Description",
+                listOf("流行", "摇滚")
+            ),
+            availableTagList = listOf("流行", "摇滚", "古典", "电子"),
+            onDismiss = {},
+            onEdit = {}
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
