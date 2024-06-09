@@ -8,9 +8,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.PlusOne
 import androidx.compose.material.icons.outlined.Menu
@@ -139,6 +143,7 @@ fun NewTagDialogPreview() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EditTagDialog(
     musicInfo: MusicInfo,
@@ -160,27 +165,64 @@ fun EditTagDialog(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp)
             )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                for(tag in selectedTags) {
+                    AssistChip(
+                        onClick = {
+                            selectedTags = selectedTags - tag
+                        },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Done icon",
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            leadingIconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            trailingIconContentColor = MaterialTheme.colorScheme.error
+                        ),
+                        label = {
+                            Text(
+                                tag,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        })
+
+                }
+            }
             LazyColumn(
                 modifier = Modifier.heightIn(max = 240.dp)
             ) {
                 itemsIndexed(availableTagList) { index, tag ->
+                    val selected = selectedTags.contains(tag)
+                    fun toggle() {
+                        selectedTags = if (selected) {
+                            selectedTags - tag
+                        } else {
+                            selectedTags + tag
+                        }
+                    }
                     ListItem(
                         headlineContent = {
                             Text(tag)
                         },
                         trailingContent = {
                             Checkbox(
-                                checked = selectedTags.contains(tag),
+                                checked = selected,
                                 onCheckedChange = {
-                                    selectedTags = if (it) {
-                                        selectedTags + tag
-                                    } else {
-                                        selectedTags - tag
-                                    }
+                                    toggle()
                                 }
                             )
                         },
                         tonalElevation = 8.dp,
+                        modifier = Modifier.clickable {
+                            toggle()
+                        }
                     )
                     if (index < availableTagList.lastIndex) {
                         HorizontalDivider(modifier = Modifier.height(1.dp))
