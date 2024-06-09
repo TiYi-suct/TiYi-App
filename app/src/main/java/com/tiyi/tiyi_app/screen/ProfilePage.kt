@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import com.tiyi.tiyi_app.model.ProfileViewModel
@@ -124,8 +126,15 @@ fun ProfileInfoBlock() {
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val avatarUrl = userDetailsState.value?.avatar
+            val painter: Painter = if (!avatarUrl.isNullOrBlank()) {
+                rememberAsyncImagePainter(model = avatarUrl)
+            } else {
+                painterResource(id = R.drawable.ic_launcher_foreground)
+            }
+
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painter,
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(90.dp)
