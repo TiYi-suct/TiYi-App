@@ -232,7 +232,6 @@ fun EditTagDialogPreview() {
             musicInfo = MusicInfo(
                 0,
                 "Title",
-                "Description",
                 listOf("流行", "摇滚")
             ),
             availableTagList = listOf(
