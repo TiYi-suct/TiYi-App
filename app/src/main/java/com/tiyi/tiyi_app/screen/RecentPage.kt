@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
@@ -37,6 +39,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -160,7 +163,7 @@ fun EditTagDialog(
             LazyColumn(
                 modifier = Modifier.heightIn(max = 240.dp)
             ) {
-                items(availableTagList) { tag ->
+                itemsIndexed(availableTagList) {index, tag ->
                     ListItem(
                         headlineContent = {
                             Text(tag)
@@ -179,6 +182,9 @@ fun EditTagDialog(
                         },
                         tonalElevation = 8.dp,
                     )
+                    if (index < availableTagList.lastIndex) {
+                        HorizontalDivider(modifier = Modifier.height(1.dp))
+                    }
                 }
             }
             Row(
