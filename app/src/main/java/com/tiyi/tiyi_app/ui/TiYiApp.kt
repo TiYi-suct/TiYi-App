@@ -8,12 +8,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -61,18 +61,16 @@ fun TiYiApp() {
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val mainViewModel: MainViewModel = viewModel()
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val error by mainViewModel.error.collectAsState()
 
     LaunchedEffect(error) {
-        if (error == null)
-            return@LaunchedEffect
-        scope.launch {
-            snackbarHostState.showSnackbar(
-                message = error!!,
-                duration = SnackbarDuration.Short
-            )
+        error?.let {
+            scope.launch {
+                snackbarHostState.showSnackbar(it)
+                mainViewModel.clearError()
+            }
         }
     }
 
@@ -84,17 +82,29 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     Scaffold(modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-        Column {
-            val loading by mainViewModel.loading.collectAsState()
-            if (loading) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    mainViewModel.submitError("test")
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.CheckCircle,
+                    contentDescription = "FloatingActionButton"
                 )
             }
-            BottomNavigationBar(navController = navController, items = menuData)
-        }
-    }) { innerPadding ->
+        },
+        bottomBar = {
+            Column {
+                val loading by mainViewModel.loading.collectAsState()
+                if (loading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                BottomNavigationBar(navController = navController, items = menuData)
+            }
+        }) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = "RecentPage",
@@ -102,7 +112,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            composable("RecentPage") { RecentPage(Modifier.fillMaxSize()) }
+            composable("RecentPage") { RecentPage(
+                submitError = mainViewModel::submitError,
+                Modifier.fillMaxSize()
+            ) }
             composable("ProfilePage") { ProfilePage(Modifier.fillMaxSize()) }
             composable("AnalysisPage") { AnalysisPage(Modifier.fillMaxSize()) }
         }

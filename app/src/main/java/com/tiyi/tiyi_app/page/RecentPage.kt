@@ -298,7 +298,10 @@ fun EditTagDialogPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun RecentPage(modifier: Modifier) {
+fun RecentPage(
+    submitError: (String) -> Unit,
+    modifier: Modifier=Modifier
+) {
     val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
@@ -329,7 +332,9 @@ fun RecentPage(modifier: Modifier) {
                 onActiveChange = {},
                 trailingIcon = {
                     IconButton(
-                        onClick = { recentViewModel.searchMusic(query) }
+                        onClick = {
+                            submitError("搜索功能暂未实现")
+                        }
                     ) {
                         Icon(Icons.Outlined.Search, contentDescription = "搜索")
                     }
@@ -556,15 +561,4 @@ fun TagItem(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier
         modifier = modifier
             .animateContentSize()
     )
-}
-
-@Composable
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun RecentPagePreview() {
-    TiYiAppTheme {
-        Surface {
-            RecentPage(modifier = Modifier)
-        }
-    }
 }
