@@ -50,6 +50,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 
 @Preview(name = "NIGHT MODE", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
@@ -63,18 +65,20 @@ fun FileUploadUI() {
     var uploadedFileName by remember { mutableStateOf<String?>(null) }
     var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
     var selectedItems by remember { mutableStateOf(setOf<Uri>()) }
+    val viewModel: AnalysisViewModel = viewModel()
 
     val context = LocalContext.current
-    val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                uploadedFileUri = uri
-                val fileName = getFileName(context, uri)
-                uploadedFileName = fileName
-                uploadedItems = uploadedItems + (fileName to uri)
+    val filePickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    uploadedFileUri = uri
+                    val fileName = getFileName(context, uri)
+                    uploadedFileName = fileName
+                    uploadedItems = uploadedItems + (fileName to uri)
+                }
             }
         }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -112,9 +116,11 @@ fun FileUploadUI() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "已上传", modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp))
+            Text(
+                text = "已上传", modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
@@ -170,7 +176,11 @@ fun FileUploadUI() {
         }
 
         Button(
-            onClick = { Log.d("Analysis","selectedItem: $selectedItems") },
+            onClick = {
+                uploadedFileUri?.let { uri ->
+                    viewModel.uploadFile(uri)
+                }
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
@@ -208,10 +218,19 @@ fun AnalysisListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Bo
                 .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = itemText.first().toString(), color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp, textAlign = TextAlign.Center)
+            Text(
+                text = itemText.first().toString(),
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center
+            )
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = itemText, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = itemText,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface
+        )
         Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
     }
 }
