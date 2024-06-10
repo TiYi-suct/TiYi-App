@@ -75,6 +75,9 @@ class NetworkRepository(private val apiService: MusicApiService) {
     suspend fun listAudios(name: String?, tags: String?): Result<AudioListModel> =
         safeApiCall { apiService.listAudios(name, tags) }
 
+    suspend fun listTags(): Result<ListTagModel> =
+        safeApiCall { apiService.listTags() }
+
     suspend fun addTag(tagName: String): Result<CommonResponseModel> =
         safeApiCall { apiService.addTag(tagName) }
 
