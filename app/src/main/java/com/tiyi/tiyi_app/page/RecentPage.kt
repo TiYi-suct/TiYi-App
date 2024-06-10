@@ -49,7 +49,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -303,7 +302,6 @@ fun RecentPage(modifier: Modifier) {
     val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
-    val loading by recentViewModel.loading.collectAsState()
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
     var query by remember { mutableStateOf("") }
 
@@ -347,11 +345,6 @@ fun RecentPage(modifier: Modifier) {
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
             ) { }
-            if (loading) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
 
             val visibleTransitionState = remember {
                 MutableTransitionState(false).apply {
