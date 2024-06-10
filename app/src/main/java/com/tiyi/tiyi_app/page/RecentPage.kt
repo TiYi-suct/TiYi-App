@@ -277,7 +277,7 @@ fun EditTagDialogPreview() {
     TiYiAppTheme {
         EditTagDialog(
             musicInfo = MusicInfo(
-                0,
+                "0",
                 "Title",
                 listOf("流行", "摇滚")
             ),
