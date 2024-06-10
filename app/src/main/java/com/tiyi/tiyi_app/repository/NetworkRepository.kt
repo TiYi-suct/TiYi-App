@@ -72,7 +72,7 @@ class NetworkRepository(private val apiService: MusicApiService) {
     suspend fun deleteAudio(audioId: String): Result<CommonResponseModel> =
         safeApiCall { apiService.deleteAudio(audioId) }
 
-    suspend fun listAudios(name: String?, tags: String?): Result<AudioListModel> =
+    suspend fun listAudios(name: String? = null, tags: String? = null): Result<AudioListModel> =
         safeApiCall { apiService.listAudios(name, tags) }
 
     suspend fun listTags(): Result<ListTagModel> =
