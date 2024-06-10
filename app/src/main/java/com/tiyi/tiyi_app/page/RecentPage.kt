@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
@@ -330,22 +331,7 @@ fun RecentPage(
     }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        bottomBar = {
-            AnimatedVisibility(
-                visible = loading,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        modifier = modifier.fillMaxSize()
-    ) { _ ->
-        Column(
-            verticalArrangement = Arrangement.Top
-        ) {
+        topBar = {
             SearchBar(
                 query = query,
                 onQueryChange = {
@@ -374,8 +360,29 @@ fun RecentPage(
                     .offset(y = (-16).dp)
                     .padding(horizontal = 16.dp, vertical = 0.dp)
                     .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
             ) { }
+        },
+        bottomBar = {
+            AnimatedVisibility(
+                visible = loading,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        modifier = modifier.fillMaxSize()
+    ) { innerPadding ->
+        Column(
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+        ) {
+            Log.d("test", "RecentPage: padding $innerPadding")
 
             val visibleTransitionState = remember {
                 MutableTransitionState(false).apply {
