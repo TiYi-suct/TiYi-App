@@ -1,19 +1,24 @@
 package com.tiyi.tiyi_app.model
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.tiyi.tiyi_app.data.AppContainer
+import com.tiyi.tiyi_app.TiyiApplication
 import com.tiyi.tiyi_app.data.MusicInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class RecentViewModel: ViewModel() {
+class RecentViewModel(
+    application: Application
+): AndroidViewModel(application) {
     companion object {
         private const val TAG = "RecentViewModel"
     }
+
+    private val tiyiApplication = application as TiyiApplication
 
     private val _tagList = MutableStateFlow(listOf<String>())
     val tagList = _tagList.asStateFlow()
@@ -37,7 +42,7 @@ class RecentViewModel: ViewModel() {
         )
 
         viewModelScope.launch {
-            val result = AppContainer.networkRepository.listTags()
+            val result = tiyiApplication.networkRepository.listTags()
             Log.d(TAG, "test: $result")
             _tagList.value = result.data
         }
