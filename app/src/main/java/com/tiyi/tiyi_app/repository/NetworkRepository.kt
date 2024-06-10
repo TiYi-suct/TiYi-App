@@ -15,90 +15,93 @@ import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
+import com.tiyi.tiyi_app.pojo.CorruptedApiException
+import com.tiyi.tiyi_app.pojo.Result
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.HttpException
+import java.net.ConnectException
 
-@Suppress("unused")
+fun HttpException.handleHttpException(): Result<Nothing> {
+    return when (this.code()) {
+        400 -> Result.BadRequest(this)
+        401 -> Result.Unauthorized(this)
+        500 -> Result.ServerInternalError(this)
+        else -> throw CorruptedApiException()
+    }
+}
+
+suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T> = try {
+    Result.Success(apiCall())
+} catch (httpException: HttpException) {
+    httpException.handleHttpException()
+} catch (networkException: ConnectException) {
+    Result.NetworkError(networkException)
+}
+
 class NetworkRepository(private val apiService: MusicApiService) {
 
     // User API
-    suspend fun loginUser(loginRequest: LoginRequest): CommonResponseModel {
+    suspend fun loginUser(loginRequest: LoginRequest): Result<CommonResponseModel> = try {
         val response = apiService.loginUser(loginRequest)
         if (response.code == 0) {
             TokenManager.setToken(response.data)
         }
-        return response
+        Result.Success(response)
+    } catch (httpException: HttpException) {
+        throw CorruptedApiException()
+    } catch (networkException: ConnectException) {
+        Result.NetworkError(networkException)
     }
 
-    suspend fun registerUser(registerRequest: RegisterRequest): CommonResponseModel {
-        return apiService.registerUser(registerRequest)
-    }
+    suspend fun registerUser(registerRequest: RegisterRequest): Result<CommonResponseModel> =
+        safeApiCall { apiService.registerUser(registerRequest) }
 
-    suspend fun getUserDetails(): UserDetailsModel {
-        return apiService.getUserDetails()
-    }
+    suspend fun getUserDetails(): Result<UserDetailsModel> =
+        safeApiCall { apiService.getUserDetails() }
 
-    // Music API
-    suspend fun uploadAudio(file: RequestBody): AudioUploadResponseModel {
-        return apiService.uploadAudio(file)
-    }
+    suspend fun uploadAudio(file: RequestBody): Result<AudioUploadResponseModel> =
+        safeApiCall { apiService.uploadAudio(file) }
 
-    suspend fun labelAudio(labelRequest: LabelRequest): CommonResponseModel {
-        return apiService.labelAudio(labelRequest)
-    }
+    suspend fun labelAudio(labelRequest: LabelRequest): Result<CommonResponseModel> =
+        safeApiCall { apiService.labelAudio(labelRequest) }
 
-    suspend fun getAudioDetails(audioId: String): AudioDetailsModel {
-        return apiService.getAudioDetails(audioId)
-    }
+    suspend fun getAudioDetails(audioId: String): Result<AudioDetailsModel> =
+        safeApiCall { apiService.getAudioDetails(audioId) }
 
-    suspend fun deleteAudio(audioId: String): CommonResponseModel {
-        return apiService.deleteAudio(audioId)
-    }
+    suspend fun deleteAudio(audioId: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.deleteAudio(audioId) }
 
-    suspend fun listAudios(name: String?, tags: String?): AudioListModel {
-        return apiService.listAudios(name, tags)
-    }
+    suspend fun listAudios(name: String?, tags: String?): Result<AudioListModel> =
+        safeApiCall { apiService.listAudios(name, tags) }
 
-    // Tag API
-    suspend fun addTag(tagName: String): CommonResponseModel {
-        return apiService.addTag(tagName)
-    }
+    suspend fun listTags(): Result<ListTagModel> =
+        safeApiCall { apiService.listTags() }
 
-    suspend fun listTags(): ListTagModel {
-        return apiService.listTags()
-    }
+    suspend fun addTag(tagName: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.addTag(tagName) }
 
-    suspend fun deleteTag(tagName: String): ListTagModel {
-        return apiService.deleteTag(tagName)
-    }
+    suspend fun deleteTag(tagName: String): Result<ListTagModel> =
+        safeApiCall { apiService.deleteTag(tagName) }
 
-    // Coin API
-    suspend fun getOrderInfo(rechargeId: String): CommonResponseModel {
-        return apiService.getOrderInfo(rechargeId)
-    }
+    suspend fun getOrderInfo(rechargeId: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.getOrderInfo(rechargeId) }
 
-    suspend fun getAnalysisItems(): AnalysisItemsModel {
-        return apiService.getAnalysisItems()
-    }
+    suspend fun getAnalysisItems(): Result<AnalysisItemsModel> =
+        safeApiCall { apiService.getAnalysisItems() }
 
-    suspend fun getRechargeItems(): RechargeItemsModel {
-        return apiService.getRechargeItems()
-    }
+    suspend fun getRechargeItems(): Result<RechargeItemsModel> =
+        safeApiCall { apiService.getRechargeItems() }
 
-    suspend fun checkMusicCoinConsumption(itemNames: String): ConsumptionCheckModel {
-        return apiService.checkMusicCoinConsumption(itemNames)
-    }
+    suspend fun checkMusicCoinConsumption(itemNames: String): Result<ConsumptionCheckModel> =
+        safeApiCall { apiService.checkMusicCoinConsumption(itemNames) }
 
-    suspend fun getOrderInfoStr(rechargeId: String): CommonResponseModel {
-        return apiService.getOrderInfoStr(rechargeId)
-    }
+    suspend fun getOrderInfoStr(rechargeId: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.getOrderInfoStr(rechargeId) }
 
-    // File API
-    suspend fun uploadFile(file: RequestBody): FileResponseModel {
-        return apiService.uploadFile(file)
-    }
+    suspend fun uploadFile(file: RequestBody): Result<FileResponseModel> =
+        safeApiCall { apiService.uploadFile(file) }
 
-    suspend fun downloadFile(filename: String): ResponseBody {
-        return apiService.downloadFile(filename)
-    }
+    suspend fun downloadFile(filename: String): Result<ResponseBody> =
+        safeApiCall { apiService.downloadFile(filename) }
 }
