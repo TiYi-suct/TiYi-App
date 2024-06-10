@@ -24,7 +24,7 @@ class NetworkRepository(private val apiService: MusicApiService) {
     // User API
     suspend fun loginUser(loginRequest: LoginRequest): CommonResponseModel {
         val response = apiService.loginUser(loginRequest)
-        if (response.code == 200) {
+        if (response.code == 0) {
             TokenManager.setToken(response.data)
         }
         return response
