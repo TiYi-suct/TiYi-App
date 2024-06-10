@@ -59,6 +59,16 @@ class RecentViewModel(
         fetchAudioList()
     }
 
+    fun refreshAudioList(
+        name: String? = null,
+        tags: List<String>? = null
+    ) = viewModelScope.launch {
+        _loading.value = true
+        clearError()
+        fetchAudioList(name, tags)
+        _loading.value = false
+    }
+
     private suspend fun fetchAudioList(
         name: String? = null,
         tags: List<String>? = null
@@ -76,6 +86,7 @@ class RecentViewModel(
                     )
                 }
             }
+
             else -> submitError(result.message)
         }
     }
@@ -88,6 +99,7 @@ class RecentViewModel(
                     throw CorruptedApiException()
                 _tagList.value = response.data
             }
+
             else -> submitError(result.message)
         }
     }
@@ -110,11 +122,11 @@ class RecentViewModel(
 
     fun updateSelectedTagList(tagList: List<String>) {
         Log.d(TAG, "updateSelectedTagList: $tagList")
-        _recentList.value
+        refreshAudioList(tags = tagList)
     }
 
     fun searchMusic(query: String) {
         Log.d(TAG, "searchMusic: $query")
-        _recentList.value
+        refreshAudioList(query)
     }
 }
