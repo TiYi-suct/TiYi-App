@@ -9,7 +9,6 @@ import com.tiyi.tiyi_app.pojo.MusicInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class RecentViewModel(
     application: Application
@@ -29,22 +28,16 @@ class RecentViewModel(
     private val _selectedTagList = MutableStateFlow(listOf<String>())
     val selectedTagList = _selectedTagList.asStateFlow()
 
-    init {
-        val fakeTags = listOf(
-            "流行",
-            "摇滚",
-            "古典",
-            "电子",
-            "爵士",
-            "民谣",
-            "说唱",
-            "轻音乐",
-        )
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
 
+    init {
         viewModelScope.launch {
+            _loading.value = true
             val result = tiyiApplication.networkRepository.listTags()
             Log.d(TAG, "test: $result")
             _tagList.value = result.data
+            _loading.value = false
         }
 
         fun generateRandomString(length: Int): String {
@@ -53,19 +46,6 @@ class RecentViewModel(
                 .map { chars.random() }
                 .joinToString("")
         }
-
-        val fakeSongs = Array(100) {
-            MusicInfo(
-                it, generateRandomString(
-                    Random(it).nextInt(15, 30)
-                ),
-                List(Random(it).nextInt(1, 5)) {
-                    fakeTags.random()
-                }
-            )
-        }
-
-        _recentList.value = fakeSongs.toList()
     }
 
     fun addTag(tag: String) {
