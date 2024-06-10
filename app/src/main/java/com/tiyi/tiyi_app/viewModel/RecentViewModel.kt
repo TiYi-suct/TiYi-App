@@ -105,6 +105,19 @@ class RecentViewModel(
 
     fun addTag(tag: String) {
         Log.d(TAG, "addTag: $tag")
+        viewModelScope.launch {
+            when (val result = networkRepository.addTag(tag)) {
+                is Result.Success -> {
+                    val response = result.data
+                    if (response.code != 0) {
+                        submitError(response.msg)
+                        return@launch
+                    }
+                    _tagList.value += tag
+                }
+                else -> submitError(result.message)
+            }
+        }
     }
 
     fun editTagFor(musicInfo: MusicInfo, newTags: List<String>) {
