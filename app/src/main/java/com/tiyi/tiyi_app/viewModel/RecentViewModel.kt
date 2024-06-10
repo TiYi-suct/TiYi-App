@@ -67,7 +67,7 @@ class RecentViewModel(
     ) = viewModelScope.launch {
         _loading.value = true
         clearError()
-        fetchAudioList(name, tags)
+        fetchAudioList(name, tags ?: _selectedTagList.value)
         _loading.value = false
     }
 
@@ -179,6 +179,7 @@ class RecentViewModel(
 
     fun updateSelectedTagList(tagList: List<String>) {
         Log.d(TAG, "updateSelectedTagList: $tagList")
+        _selectedTagList.value = tagList
         refreshAudioList(tags = tagList)
     }
 
