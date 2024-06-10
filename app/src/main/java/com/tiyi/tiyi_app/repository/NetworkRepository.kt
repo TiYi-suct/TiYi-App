@@ -15,19 +15,27 @@ import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
+import com.tiyi.tiyi_app.pojo.CorruptedApiException
+import com.tiyi.tiyi_app.pojo.Result
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.HttpException
+import java.net.ConnectException
 
 @Suppress("unused")
 class NetworkRepository(private val apiService: MusicApiService) {
 
     // User API
-    suspend fun loginUser(loginRequest: LoginRequest): CommonResponseModel {
+    suspend fun loginUser(loginRequest: LoginRequest): Result<CommonResponseModel> = try {
         val response = apiService.loginUser(loginRequest)
         if (response.code == 0) {
             TokenManager.setToken(response.data)
         }
-        return response
+        Result.Success(response)
+    } catch (httpException: HttpException) {
+        throw CorruptedApiException()
+    } catch (networkException: ConnectException) {
+        Result.NetworkError(networkException)
     }
 
     suspend fun registerUser(registerRequest: RegisterRequest): CommonResponseModel {
