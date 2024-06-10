@@ -5,9 +5,11 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.dto.LabelRequest
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.MusicInfo
 import com.tiyi.tiyi_app.pojo.Result
+import com.tiyi.tiyi_app.utils.within
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -39,9 +41,9 @@ class RecentViewModel(
 
     init {
         viewModelScope.launch {
-            _loading.value = true
-            fetchTagAndRecentList()
-            _loading.value = false
+            _loading.within {
+                fetchTagAndRecentList()
+            }
         }
     }
 
@@ -50,17 +52,30 @@ class RecentViewModel(
         Log.d(TAG, "submitError: $message")
     }
 
-    private fun clearError() {
+    fun clearError() {
         _error.value = null
     }
 
     private suspend fun fetchTagAndRecentList() {
         fetchTagList()
-        fetchRecentList()
+        fetchAudioList()
     }
 
-    private suspend fun fetchRecentList() {
-        when (val result = networkRepository.listAudios()) {
+    fun refreshAudioList(
+        name: String? = null,
+        tags: List<String>? = null
+    ) = viewModelScope.launch {
+        _loading.value = true
+        clearError()
+        fetchAudioList(name, tags)
+        _loading.value = false
+    }
+
+    private suspend fun fetchAudioList(
+        name: String? = null,
+        tags: List<String>? = null
+    ) {
+        when (val result = networkRepository.listAudios(name, tags?.joinToString(","))) {
             is Result.Success -> {
                 val response = result.data
                 if (response.code != 0)
@@ -73,6 +88,7 @@ class RecentViewModel(
                     )
                 }
             }
+
             else -> submitError(result.message)
         }
     }
@@ -85,20 +101,76 @@ class RecentViewModel(
                     throw CorruptedApiException()
                 _tagList.value = response.data
             }
+
             else -> submitError(result.message)
         }
     }
 
     fun addTag(tag: String) {
         Log.d(TAG, "addTag: $tag")
+        viewModelScope.launch {
+            when (val result = networkRepository.addTag(tag)) {
+                is Result.Success -> {
+                    val response = result.data
+                    if (response.code != 0) {
+                        submitError(response.msg)
+                        return@launch
+                    }
+                    _loading.within {
+                        fetchTagList()
+                    }
+                }
+
+                else -> submitError(result.message)
+            }
+        }
     }
 
     fun editTagFor(musicInfo: MusicInfo, newTags: List<String>) {
         Log.d(TAG, "editTagFor: $musicInfo, $newTags")
+        viewModelScope.launch {
+            when (val result = networkRepository.labelAudio(
+                LabelRequest(
+                    musicInfo.id,
+                    newTags.joinToString(
+                        ","
+                    )
+                )
+            )) {
+                is Result.Success -> {
+                    val response = result.data
+                    if (response.code != 0) {
+                        submitError(response.msg)
+                        return@launch
+                    }
+                    _loading.within {
+                        fetchAudioList()
+                    }
+                }
+
+                else -> submitError(result.message)
+            }
+        }
     }
 
     fun deleteMusic(musicInfo: MusicInfo) {
         Log.d(TAG, "deleteMusic: $musicInfo")
+        viewModelScope.launch {
+            when (val result = networkRepository.deleteAudio(musicInfo.id)) {
+                is Result.Success -> {
+                    val response = result.data
+                    if (response.code != 0) {
+                        submitError(response.msg)
+                        return@launch
+                    }
+                    _loading.within {
+                        fetchAudioList()
+                    }
+                }
+
+                else -> submitError(result.message)
+            }
+        }
     }
 
     fun analysisMusic(musicInfo: MusicInfo) {
@@ -107,11 +179,11 @@ class RecentViewModel(
 
     fun updateSelectedTagList(tagList: List<String>) {
         Log.d(TAG, "updateSelectedTagList: $tagList")
-        _recentList.value
+        refreshAudioList(tags = tagList)
     }
 
     fun searchMusic(query: String) {
         Log.d(TAG, "searchMusic: $query")
-        _recentList.value
+        refreshAudioList(query)
     }
 }

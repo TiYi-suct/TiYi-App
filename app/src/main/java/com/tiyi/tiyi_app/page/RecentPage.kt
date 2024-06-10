@@ -20,17 +20,19 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -54,14 +56,18 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,6 +81,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.pojo.MusicInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.RecentViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun NewTagDialog(
@@ -299,13 +306,35 @@ fun EditTagDialogPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun RecentPage(modifier: Modifier) {
+fun RecentPage(
+    modifier: Modifier = Modifier
+) {
     val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
     val loading by recentViewModel.loading.collectAsState()
+    val error by recentViewModel.error.collectAsState()
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
     var query by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
+
+//    LaunchedEffect(songs) {
+//        listState.animateScrollToItem(0)
+//    }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    fun showSnackBar(message: String) = coroutineScope.launch {
+        snackbarHostState.currentSnackbarData?.dismiss()
+        snackbarHostState.showSnackbar(message)
+    }
+
+    LaunchedEffect(error) {
+        error?.let {
+            showSnackBar(it)
+            recentViewModel.clearError()
+        }
+    }
 
     var newTagDialogVisible by remember { mutableStateOf(false) }
     if (newTagDialogVisible) {
@@ -314,15 +343,15 @@ fun RecentPage(modifier: Modifier) {
             addTag = { recentViewModel.addTag(it) }
         )
     }
-    Surface(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Top
-        ) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = {
             SearchBar(
                 query = query,
-                onQueryChange = { query = it },
+                onQueryChange = {
+                    query = it
+                    recentViewModel.searchMusic(query)
+                },
                 onSearch = { recentViewModel.searchMusic(query) },
                 active = false,
                 onActiveChange = {},
@@ -342,17 +371,31 @@ fun RecentPage(modifier: Modifier) {
                 tonalElevation = 8.dp,
                 shadowElevation = 4.dp,
                 modifier = Modifier
-                    .offset(y = (-16).dp)
                     .padding(horizontal = 16.dp, vertical = 0.dp)
                     .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
             ) { }
-            if (loading) {
+        },
+        bottomBar = {
+            AnimatedVisibility(
+                visible = loading,
+                enter = expandHorizontally(),
+                exit = shrinkHorizontally()
+            ) {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-
+        },
+        modifier = modifier.fillMaxSize()
+            .imePadding()
+    ) { innerPadding ->
+        Column(
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+        ) {
             val visibleTransitionState = remember {
                 MutableTransitionState(false).apply {
                     targetState = true
@@ -404,8 +447,11 @@ fun RecentPage(modifier: Modifier) {
                     )
                 }
             }
-            LazyColumn {
-                items(songs) { music ->
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                items(songs, key = {it.id}) { music ->
                     // 后端返回之前在前端先过滤
                     if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
                         return@items
@@ -413,6 +459,7 @@ fun RecentPage(modifier: Modifier) {
                         music,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .animateItemPlacement()
                     )
                 }
             }
@@ -560,15 +607,4 @@ fun TagItem(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier
         modifier = modifier
             .animateContentSize()
     )
-}
-
-@Composable
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun RecentPagePreview() {
-    TiYiAppTheme {
-        Surface {
-            RecentPage(modifier = Modifier)
-        }
-    }
 }
