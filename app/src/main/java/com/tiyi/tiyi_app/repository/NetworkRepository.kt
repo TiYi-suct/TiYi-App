@@ -22,7 +22,15 @@ import okhttp3.ResponseBody
 import retrofit2.HttpException
 import java.net.ConnectException
 
-@Suppress("unused")
+fun HttpException.handleHttpException(): Result<Nothing> {
+    return when (this.code()) {
+        400 -> Result.BadRequest(this)
+        401 -> Result.Unauthorized(this)
+        500 -> Result.ServerInternalError(this)
+        else -> throw CorruptedApiException()
+    }
+}
+
 class NetworkRepository(private val apiService: MusicApiService) {
 
     // User API
@@ -72,8 +80,13 @@ class NetworkRepository(private val apiService: MusicApiService) {
         return apiService.addTag(tagName)
     }
 
-    suspend fun listTags(): ListTagModel {
-        return apiService.listTags()
+    suspend fun listTags(): Result<ListTagModel> = try {
+        val response = apiService.listTags()
+        Result.Success(response)
+    } catch (httpException: HttpException) {
+        httpException.handleHttpException()
+    } catch (networkException: ConnectException) {
+        Result.NetworkError(networkException)
     }
 
     suspend fun deleteTag(tagName: String): ListTagModel {
