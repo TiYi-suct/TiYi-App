@@ -444,7 +444,7 @@ fun RecentPage(
             LazyColumn(
                 modifier = Modifier.fillMaxHeight()
             ) {
-                items(songs) { music ->
+                items(songs, key = {it.id}) { music ->
                     // 后端返回之前在前端先过滤
                     if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
                         return@items
@@ -452,6 +452,7 @@ fun RecentPage(
                         music,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .animateItemPlacement()
                     )
                 }
             }
