@@ -363,8 +363,8 @@ fun RecentPage(
         bottomBar = {
             AnimatedVisibility(
                 visible = loading,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
+                enter = expandHorizontally(),
+                exit = shrinkHorizontally()
             ) {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth()
