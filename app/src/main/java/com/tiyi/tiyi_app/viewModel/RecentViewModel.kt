@@ -47,6 +47,7 @@ class RecentViewModel(
 
     private fun submitError(message: String) {
         _error.value = message
+        Log.d(TAG, "submitError: $message")
     }
 
     private fun clearError() {
