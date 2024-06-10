@@ -1,6 +1,8 @@
 package com.tiyi.tiyi_app.page
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -29,11 +31,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,9 +54,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.alipay.sdk.app.PayTask
 import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import com.tiyi.tiyi_app.viewModel.ProfileViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -64,16 +71,30 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
     val profileViewModel: ProfileViewModel = viewModel()
     val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
+    val activity = context as? Activity
+    val scope = rememberCoroutineScope()
 
     if (showTopUpDialog.value) {
         TopUpDialog(
             onDismiss = { showTopUpDialog.value = false },
             onTopUp = { rechargeId ->
-                profileViewModel.createOrder(rechargeId, {
+
+                profileViewModel.createOrder(rechargeId, { orderInfoStr ->
                     showTopUpDialog.value = false
+                    activity?.let { activity ->
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val payTask = PayTask(activity)
+                            val result = payTask.payV2(orderInfoStr, true)
+                            withContext(Dispatchers.Main) {
+                                handlePayResult(context, result)
+                            }
+                        }
+
+                    }
                 }, {
-                    Toast.makeText(context, "Top up failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "系统繁忙", Toast.LENGTH_SHORT).show()
                 })
+
             }
         )
     }
@@ -91,6 +112,27 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
             ProfileInfoBlock()
             Spacer(modifier = Modifier.height(16.dp))
             BalanceInfoBlock()
+        }
+    }
+}
+
+fun handlePayResult(context: Context, result: Map<String, String>) {
+    val resultStatus = result["resultStatus"]
+    when (resultStatus) {
+        "9000" -> {
+            Toast.makeText(context, "支付成功", Toast.LENGTH_SHORT).show()
+        }
+
+        "6001" -> {
+            Toast.makeText(context, "取消支付", Toast.LENGTH_SHORT).show()
+        }
+
+        "4000" -> {
+            Toast.makeText(context, "支付失败", Toast.LENGTH_SHORT).show()
+        }
+
+        else -> {
+            Toast.makeText(context, "支付错误", Toast.LENGTH_SHORT).show()
         }
     }
 }
@@ -181,7 +223,12 @@ fun BalanceInfoBlock() {
         horizontalArrangement = Arrangement.spacedBy(39.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = "$", fontSize = 22.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(0.dp))
+        Text(
+            text = "$",
+            fontSize = 22.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(0.dp)
+        )
 
         Text(
             text = userDetails.value?.musicCoin?.toString() ?: "Unknown Coin", style = TextStyle(
@@ -206,35 +253,37 @@ fun TopUpFloatBtn(onClick: () -> Unit) {
             .width(139.dp)
             .height(56.dp)
             .clickable { onClick() },
-            shape = RoundedCornerShape(size = 16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 4.dp,
+        shape = RoundedCornerShape(size = 16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 4.dp,
     )
     {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
         ) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = "", modifier = Modifier.width(24.dp))
-            Text(text = "充值 Token", style = TextStyle(
-                lineHeight = 20.sp,
-                fontSize = 16.sp,
-                fontWeight = FontWeight(400),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-            ))
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "",
+                modifier = Modifier.width(24.dp)
+            )
+            Text(
+                text = "充值 Token", style = TextStyle(
+                    lineHeight = 20.sp,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight(400),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+            )
         }
     }
 }
 
 @Composable
-fun TopUpDialog(onDismiss: () -> Unit, onTopUp: (String) -> Unit) {
+fun TopUpDialog(onDismiss: () -> Unit, onTopUp: (Int) -> Unit) {
     val profileViewModel: ProfileViewModel = viewModel()
     val rechargeItems by profileViewModel.rechargeItems.collectAsState()
-
-    LaunchedEffect(Unit) {
-        profileViewModel.loadRechargeItems()
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -245,7 +294,7 @@ fun TopUpDialog(onDismiss: () -> Unit, onTopUp: (String) -> Unit) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onTopUp(item.id.toString()) }
+                            .clickable { onTopUp(item.id) }
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {

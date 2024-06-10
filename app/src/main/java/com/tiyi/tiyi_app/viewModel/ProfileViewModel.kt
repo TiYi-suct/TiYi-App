@@ -1,18 +1,27 @@
 package com.tiyi.tiyi_app.viewModel
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.UserDetailsModel
+import com.tiyi.tiyi_app.pojo.Result
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ProfileViewModel() : ViewModel() {
+class ProfileViewModel(
+    application: Application
+) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "ProfileViewModel"
     }
+
+    private val tiyiApplication = application as TiyiApplication
+    private val networkRepository = tiyiApplication.networkRepository
 
     private val _userDetails = MutableStateFlow<UserDetailsModel.UserDetails?>(null)
     val userDetails: StateFlow<UserDetailsModel.UserDetails?> get() = _userDetails
@@ -22,6 +31,7 @@ class ProfileViewModel() : ViewModel() {
 
     init {
         fetchUserDetails()
+        loadRechargeItems()
     }
 
     private fun fetchUserDetails() {
@@ -47,31 +57,19 @@ class ProfileViewModel() : ViewModel() {
 //        }
     }
 
-    fun loadRechargeItems() {
+    private fun loadRechargeItems() {
         Log.d(TAG, "loadRechargeItems: ")
         viewModelScope.launch {
-            // 模拟返回假数据
-            val fakeRechargeItems = listOf(
-                RechargeItemsModel.RechargeItem(
-                    id = 1,
-                    title = "10 Tokens",
-                    amount = 10,
-                    price = 1
-                ),
-                RechargeItemsModel.RechargeItem(
-                    id = 2,
-                    title = "50 Tokens",
-                    amount = 50,
-                    price = 5
-                ),
-                RechargeItemsModel.RechargeItem(
-                    id = 3,
-                    title = "100 Tokens",
-                    amount = 100,
-                    price = 10
-                )
-            )
-            _rechargeItems.value = fakeRechargeItems
+            when (val result = networkRepository.getRechargeItems()) {
+                is Result.Success -> {
+                    val response = result.data
+                    _rechargeItems.value = response.data
+                }
+
+                else -> {
+                    Log.d(TAG, "获取充值项异常")
+                }
+            }
         }
 
 //        viewModelScope.launch {
@@ -88,15 +86,23 @@ class ProfileViewModel() : ViewModel() {
 //        }
     }
 
-    fun createOrder(rechargeId: String, onSuccess: () -> Unit, onError: () -> Unit) {
+    fun createOrder(rechargeId: Int, onSuccess: (String) -> Unit, onError: () -> Unit) {
         Log.d(TAG, "createOrder: $rechargeId")
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = networkRepository.getOrderInfo(rechargeId)) {
+                is Result.Success -> {
+                    val response = result.data
+                    Log.d("test", response.data)
+                    onSuccess(response.data)
+                    fetchUserDetails()
+                }
 
-        if (rechargeId == "1") {
-            onError()
-        } else {
-            onSuccess()
-            fetchUserDetails()
+                else -> {
+                    onError()
+                }
+            }
         }
+
 
 //        viewModelScope.launch {
 //            try {

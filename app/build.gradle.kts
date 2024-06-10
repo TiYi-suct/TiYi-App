@@ -83,4 +83,6 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation("com.google.code.gson:gson:2.10.1")
+
+    api("com.alipay.sdk:alipaysdk-android:+@aar")
 }

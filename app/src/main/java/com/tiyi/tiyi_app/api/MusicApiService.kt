@@ -66,8 +66,8 @@ interface MusicApiService {
     // Tag API end
 
     // Coin API start
-    @GET("pay/order_info")
-    suspend fun getOrderInfo(@Query("recharge_id") rechargeId: String): CommonResponseModel
+    @GET("pay/order_info_str")
+    suspend fun getOrderInfo(@Query("recharge_id") rechargeId: Int): CommonResponseModel
 
     @GET("analysis_item")
     suspend fun getAnalysisItems(): AnalysisItemsModel
