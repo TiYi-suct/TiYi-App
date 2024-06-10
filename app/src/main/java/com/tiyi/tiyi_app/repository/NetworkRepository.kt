@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.repository
 
 import com.tiyi.tiyi_app.api.MusicApiService
+import com.tiyi.tiyi_app.application.TokenManager
 import com.tiyi.tiyi_app.dto.AnalysisItemsModel
 import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
@@ -14,7 +15,6 @@ import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
-import com.tiyi.tiyi_app.application.TokenManager
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 
@@ -24,7 +24,7 @@ class NetworkRepository(private val apiService: MusicApiService) {
     // User API
     suspend fun loginUser(loginRequest: LoginRequest): CommonResponseModel {
         val response = apiService.loginUser(loginRequest)
-        if (response.code == 200) {
+        if (response.code == 0) {
             TokenManager.setToken(response.data)
         }
         return response
