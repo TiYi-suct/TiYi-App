@@ -8,7 +8,6 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -28,8 +27,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +68,11 @@ fun FileUploadUI() {
     var uploadedFileName by remember { mutableStateOf<String?>(null) }
     var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
     var selectedItems by remember { mutableStateOf(setOf<Uri>()) }
+    var uploading by remember { mutableStateOf(false) }
+    var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
+
     val viewModel: AnalysisViewModel = viewModel()
+
 
     val context = LocalContext.current
     val filePickerLauncher =
@@ -130,7 +137,9 @@ fun FileUploadUI() {
                     items(uploadedItems) { item ->
                         AnalysisListItem(
                             itemText = item.first,
-                            isSelected = selectedItems.contains(item.second)
+                            isSelected = selectedItems.contains(item.second),
+                            isUploading = uploading && selectedItems.contains(item.second),
+                            uploadSuccess = uploadSuccess[item.second] ?: false
                         ) { isChecked ->
                             selectedItems = if (isChecked) {
                                 selectedItems + item.second
@@ -177,8 +186,12 @@ fun FileUploadUI() {
 
         Button(
             onClick = {
-                uploadedFileUri?.let { uri ->
-                    viewModel.uploadFile(uri)
+                selectedItems.forEach { uri ->
+                    uploading = true
+                    viewModel.uploadFile(uri) {
+                        uploading = false
+                        uploadSuccess = uploadSuccess + (uri to it)
+                    }
                 }
             },
             modifier = Modifier
@@ -203,7 +216,13 @@ fun getFileName(context: Context, uri: Uri): String {
 }
 
 @Composable
-fun AnalysisListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun AnalysisListItem(
+    itemText: String,
+    isSelected: Boolean,
+    isUploading: Boolean,
+    uploadSuccess: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -231,6 +250,12 @@ fun AnalysisListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Bo
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.onSurface
         )
-        Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
+        if (isUploading) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp))
+        } else if (uploadSuccess) {
+            Icon(Icons.Filled.CheckCircle, contentDescription = "Uploaded", tint = Color.Green)
+        } else {
+            Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
+        }
     }
 }
