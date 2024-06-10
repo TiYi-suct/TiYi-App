@@ -86,7 +86,6 @@ class RecentViewModel(
                     )
                 }
             }
-
             else -> submitError(result.message)
         }
     }
