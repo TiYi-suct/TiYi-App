@@ -32,12 +32,23 @@ class RecentViewModel(
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
+
     init {
         viewModelScope.launch {
             _loading.value = true
             fetchTagAndRecentList()
             _loading.value = false
         }
+    }
+
+    private fun submitError(message: String) {
+        _error.value = message
+    }
+
+    private fun clearError() {
+        _error.value = null
     }
 
     private suspend fun fetchTagAndRecentList() {
