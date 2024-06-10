@@ -12,12 +12,13 @@ import kotlinx.coroutines.launch
 
 class RecentViewModel(
     application: Application
-): AndroidViewModel(application) {
+) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "RecentViewModel"
     }
 
     private val tiyiApplication = application as TiyiApplication
+    private val networkRepository = tiyiApplication.networkRepository
 
     private val _tagList = MutableStateFlow(listOf<String>())
     val tagList = _tagList.asStateFlow()
@@ -34,10 +35,30 @@ class RecentViewModel(
     init {
         viewModelScope.launch {
             _loading.value = true
-            val result = tiyiApplication.networkRepository.listTags()
-            _tagList.value = result.data
+            fetchTagAndRecentList()
             _loading.value = false
         }
+    }
+
+    private suspend fun fetchTagAndRecentList() {
+        fetchTagList()
+        fetchRecentList()
+    }
+
+    private suspend fun fetchRecentList() {
+        val response = networkRepository.listAudios()
+        _recentList.value = response.data.map {
+            MusicInfo(
+                it.audioId,
+                it.name,
+                it.tags
+            )
+        }
+    }
+
+    private suspend fun fetchTagList() {
+        val response = networkRepository.listTags()
+        _tagList.value = response.data
     }
 
     fun addTag(tag: String) {
@@ -64,17 +85,5 @@ class RecentViewModel(
     fun searchMusic(query: String) {
         Log.d(TAG, "searchMusic: $query")
         _recentList.value
-    }
-
-    fun removeTag(tag: String) {
-        Log.d(TAG, "removeTag: $tag")
-    }
-
-    fun fetchRecentList() {
-        Log.d(TAG, "fetchRecentList")
-    }
-
-    fun searchRecentList(query: String) {
-        Log.d(TAG, "searchRecentList: $query")
     }
 }
