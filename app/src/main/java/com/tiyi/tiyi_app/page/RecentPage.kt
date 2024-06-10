@@ -61,6 +61,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -318,7 +319,15 @@ fun RecentPage(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     fun showSnackBar(message: String) = coroutineScope.launch {
+        snackbarHostState.currentSnackbarData?.dismiss()
         snackbarHostState.showSnackbar(message)
+    }
+
+    LaunchedEffect(error) {
+        error?.let {
+            showSnackBar(it)
+            recentViewModel.clearError()
+        }
     }
 
     var newTagDialogVisible by remember { mutableStateOf(false) }

@@ -50,7 +50,7 @@ class RecentViewModel(
         Log.d(TAG, "submitError: $message")
     }
 
-    private fun clearError() {
+    fun clearError() {
         _error.value = null
     }
 
