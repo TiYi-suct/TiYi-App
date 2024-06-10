@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -315,6 +316,11 @@ fun RecentPage(
     val error by recentViewModel.error.collectAsState()
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
     var query by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
+
+//    LaunchedEffect(songs) {
+//        listState.animateScrollToItem(0)
+//    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -442,9 +448,10 @@ fun RecentPage(
                 }
             }
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxHeight()
             ) {
-                items(songs.reversed(), key = {it.id}) { music ->
+                items(songs, key = {it.id}) { music ->
                     // 后端返回之前在前端先过滤
                     if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
                         return@items
