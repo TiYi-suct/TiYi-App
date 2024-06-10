@@ -1,14 +1,13 @@
-package com.tiyi.tiyi_app
+package com.tiyi.tiyi_app.application
 
 import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tiyi.tiyi_app.config.getServiceUrl
-import com.tiyi.tiyi_app.data.NetworkRepository
-import com.tiyi.tiyi_app.data.TokenManager
+import com.tiyi.tiyi_app.repository.NetworkRepository
 import com.tiyi.tiyi_app.dto.LoginRequest
-import com.tiyi.tiyi_app.network.MusicApiService
+import com.tiyi.tiyi_app.api.MusicApiService
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor

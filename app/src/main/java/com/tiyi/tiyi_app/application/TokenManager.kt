@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.data
+package com.tiyi.tiyi_app.application
 
 import android.content.Context
 import android.content.SharedPreferences

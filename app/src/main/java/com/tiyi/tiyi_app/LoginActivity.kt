@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.tiyi.tiyi_app.model.LoginStatus
-import com.tiyi.tiyi_app.model.LoginViewModel
-import com.tiyi.tiyi_app.screen.LoginScreen
+import com.tiyi.tiyi_app.viewModel.LoginStatus
+import com.tiyi.tiyi_app.viewModel.LoginViewModel
+import com.tiyi.tiyi_app.page.LoginScreen
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import kotlinx.coroutines.launch
 

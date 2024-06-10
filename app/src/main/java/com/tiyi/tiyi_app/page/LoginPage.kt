@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.screen
+package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -46,7 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.R
-import com.tiyi.tiyi_app.model.LoginViewModel
+import com.tiyi.tiyi_app.viewModel.LoginViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 
