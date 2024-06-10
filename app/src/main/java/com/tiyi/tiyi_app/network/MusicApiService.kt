@@ -26,7 +26,7 @@ import retrofit2.http.Query
 interface MusicApiService {
     // User API start
     @POST("user/login")
-    fun loginUser(@Body loginRequest: LoginRequest): CommonResponseModel
+    suspend fun loginUser(@Body loginRequest: LoginRequest): CommonResponseModel
 
     @POST("user/register")
     fun registerUser(@Body registerRequest: RegisterRequest): CommonResponseModel
@@ -59,7 +59,7 @@ interface MusicApiService {
     fun addTag(@Query("tag_name") tagName: String): CommonResponseModel
 
     @GET("audio_tags")
-    fun listTags(): ListTagModel
+    suspend fun listTags(): ListTagModel
 
     @DELETE("audio_tags")
     fun deleteTag(@Query("tag_name") tagName: String): ListTagModel
