@@ -56,11 +56,14 @@ class RecentViewModel(
 
     private suspend fun fetchTagAndRecentList() {
         fetchTagList()
-        fetchRecentList()
+        fetchAudioList()
     }
 
-    private suspend fun fetchRecentList() {
-        when (val result = networkRepository.listAudios()) {
+    private suspend fun fetchAudioList(
+        name: String? = null,
+        tags: List<String>? = null
+    ) {
+        when (val result = networkRepository.listAudios(name, tags?.joinToString(","))) {
             is Result.Success -> {
                 val response = result.data
                 if (response.code != 0)
