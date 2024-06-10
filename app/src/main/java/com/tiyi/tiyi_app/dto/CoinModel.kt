@@ -28,7 +28,7 @@ data class RechargeItemsModel(
         @SerialName("id") val id: Int,
         @SerialName("title") val title: String,
         @SerialName("amount") val amount: Int,
-        @SerialName("price") val price: Int
+        @SerialName("price") val price: Double
     )
 }
 

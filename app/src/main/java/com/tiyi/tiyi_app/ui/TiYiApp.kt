@@ -67,7 +67,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "RecentPage",
+            startDestination = "ProfilePage",
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
