@@ -3,6 +3,7 @@ package com.tiyi.tiyi_app
 import android.app.Application
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.tiyi.tiyi_app.config.getServiceUrl
 import com.tiyi.tiyi_app.data.NetworkRepository
 import com.tiyi.tiyi_app.data.TokenManager
 import com.tiyi.tiyi_app.network.MusicApiService
@@ -34,7 +35,7 @@ class TiyiApplication : Application() {
         // 创建 retrofitAuth 实例
         val retrofitAuth = Retrofit.Builder()
             .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-            .baseUrl("http://dev-cn.your-api-server.com/")
+            .baseUrl(getServiceUrl(this))
             .client(client)
             .build()
 
