@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.screen
+package com.tiyi.tiyi_app.page
 
 import android.annotation.SuppressLint
 import android.app.Activity

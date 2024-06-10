@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.data
+package com.tiyi.tiyi_app.pojo
 
 data class MusicInfo(
     val id: Int,

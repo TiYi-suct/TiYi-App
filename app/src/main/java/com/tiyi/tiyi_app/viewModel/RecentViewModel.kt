@@ -1,11 +1,11 @@
-package com.tiyi.tiyi_app.model
+package com.tiyi.tiyi_app.viewModel
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.tiyi.tiyi_app.TiyiApplication
-import com.tiyi.tiyi_app.data.MusicInfo
+import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.pojo.MusicInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

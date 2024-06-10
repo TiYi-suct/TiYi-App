@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.screen
+package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
@@ -67,8 +67,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tiyi.tiyi_app.data.MusicInfo
-import com.tiyi.tiyi_app.model.RecentViewModel
+import com.tiyi.tiyi_app.pojo.MusicInfo
+import com.tiyi.tiyi_app.viewModel.RecentViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 @Composable

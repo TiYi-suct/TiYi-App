@@ -1,19 +1,20 @@
-package com.tiyi.tiyi_app.data
+package com.tiyi.tiyi_app.repository
 
+import com.tiyi.tiyi_app.api.MusicApiService
 import com.tiyi.tiyi_app.dto.AnalysisItemsModel
 import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
 import com.tiyi.tiyi_app.dto.AudioUploadResponseModel
-import com.tiyi.tiyi_app.dto.LoginRequest
-import com.tiyi.tiyi_app.dto.RegisterRequest
-import com.tiyi.tiyi_app.network.MusicApiService
 import com.tiyi.tiyi_app.dto.CommonResponseModel
 import com.tiyi.tiyi_app.dto.ConsumptionCheckModel
 import com.tiyi.tiyi_app.dto.FileResponseModel
 import com.tiyi.tiyi_app.dto.LabelRequest
 import com.tiyi.tiyi_app.dto.ListTagModel
+import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
+import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
+import com.tiyi.tiyi_app.application.TokenManager
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 

@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.network
+package com.tiyi.tiyi_app.api
 
 import com.tiyi.tiyi_app.dto.AnalysisItemsModel
 import com.tiyi.tiyi_app.dto.AudioDetailsModel

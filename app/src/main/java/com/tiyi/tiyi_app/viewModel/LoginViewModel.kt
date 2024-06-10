@@ -1,8 +1,8 @@
-package com.tiyi.tiyi_app.model
+package com.tiyi.tiyi_app.viewModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.tiyi.tiyi_app.screen.LoginInfo
+import com.tiyi.tiyi_app.page.LoginInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

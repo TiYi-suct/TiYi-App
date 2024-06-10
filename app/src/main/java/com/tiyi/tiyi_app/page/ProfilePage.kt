@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.screen
+package com.tiyi.tiyi_app.page
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -54,7 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.dto.UserDetailsModel
-import com.tiyi.tiyi_app.model.ProfileViewModel
+import com.tiyi.tiyi_app.viewModel.ProfileViewModel
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

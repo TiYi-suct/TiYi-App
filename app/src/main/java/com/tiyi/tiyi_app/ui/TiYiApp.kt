@@ -24,10 +24,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.tiyi.tiyi_app.screen.AnalysisPage
-import com.tiyi.tiyi_app.screen.LoginScreen
-import com.tiyi.tiyi_app.screen.ProfilePage
-import com.tiyi.tiyi_app.screen.RecentPage
+import com.tiyi.tiyi_app.page.AnalysisPage
+import com.tiyi.tiyi_app.page.LoginScreen
+import com.tiyi.tiyi_app.page.ProfilePage
+import com.tiyi.tiyi_app.page.RecentPage
 
 @Preview
 @Composable

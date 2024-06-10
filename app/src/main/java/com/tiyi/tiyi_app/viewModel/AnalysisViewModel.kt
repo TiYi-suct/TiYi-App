@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.model
+package com.tiyi.tiyi_app.viewModel
 
 import androidx.lifecycle.ViewModel
 
