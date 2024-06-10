@@ -6,7 +6,9 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.tiyi.tiyi_app.config.getServiceUrl
 import com.tiyi.tiyi_app.data.NetworkRepository
 import com.tiyi.tiyi_app.data.TokenManager
+import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.network.MusicApiService
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -44,6 +46,24 @@ class TiyiApplication : Application() {
 
         // Initialize NetworkRepository
         networkRepository = NetworkRepository(musicApiService)
+
+        loginDebugAccount()
+    }
+
+    private fun loginDebugAccount() = runBlocking {
+        if (TokenManager.getToken() != null)
+            return@runBlocking
+        val response = networkRepository.loginUser(
+            LoginRequest(
+                "maskira",
+                "0717"
+            )
+        )
+        if (response.code != 200) {
+            // 登录失败
+            return@runBlocking
+        }
+        TokenManager.setToken(response.data)
     }
 
     private class AuthInterceptor : Interceptor {

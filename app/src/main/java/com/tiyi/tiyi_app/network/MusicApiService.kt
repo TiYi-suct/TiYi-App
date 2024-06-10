@@ -18,7 +18,6 @@ import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -28,7 +27,7 @@ import retrofit2.http.Query
 interface MusicApiService {
     // User API start
     @POST("user/login")
-    fun loginUser(@Body loginRequest: LoginRequest): CommonResponseModel
+    suspend fun loginUser(@Body loginRequest: LoginRequest): CommonResponseModel
 
     @POST("user/register")
     fun registerUser(@Body registerRequest: RegisterRequest): CommonResponseModel
