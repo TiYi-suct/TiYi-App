@@ -16,4 +16,6 @@ sealed class Result<out T> {
 }
 
 // Not as promised in the API document
-class CorruptedApiException : RuntimeException()
+class CorruptedApiException(
+    message: String = "Impossible Api response"
+): RuntimeException(message)
