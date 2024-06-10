@@ -31,6 +31,14 @@ fun HttpException.handleHttpException(): Result<Nothing> {
     }
 }
 
+suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T> = try {
+    Result.Success(apiCall())
+} catch (httpException: HttpException) {
+    httpException.handleHttpException()
+} catch (networkException: ConnectException) {
+    Result.NetworkError(networkException)
+}
+
 class NetworkRepository(private val apiService: MusicApiService) {
 
     // User API
@@ -46,80 +54,51 @@ class NetworkRepository(private val apiService: MusicApiService) {
         Result.NetworkError(networkException)
     }
 
-    suspend fun registerUser(registerRequest: RegisterRequest): CommonResponseModel {
-        return apiService.registerUser(registerRequest)
-    }
+    suspend fun registerUser(registerRequest: RegisterRequest): Result<CommonResponseModel> =
+        safeApiCall { apiService.registerUser(registerRequest) }
 
-    suspend fun getUserDetails(): UserDetailsModel {
-        return apiService.getUserDetails()
-    }
+    suspend fun getUserDetails(): Result<UserDetailsModel> =
+        safeApiCall { apiService.getUserDetails() }
 
-    // Music API
-    suspend fun uploadAudio(file: RequestBody): AudioUploadResponseModel {
-        return apiService.uploadAudio(file)
-    }
+    suspend fun uploadAudio(file: RequestBody): Result<AudioUploadResponseModel> =
+        safeApiCall { apiService.uploadAudio(file) }
 
-    suspend fun labelAudio(labelRequest: LabelRequest): CommonResponseModel {
-        return apiService.labelAudio(labelRequest)
-    }
+    suspend fun labelAudio(labelRequest: LabelRequest): Result<CommonResponseModel> =
+        safeApiCall { apiService.labelAudio(labelRequest) }
 
-    suspend fun getAudioDetails(audioId: String): AudioDetailsModel {
-        return apiService.getAudioDetails(audioId)
-    }
+    suspend fun getAudioDetails(audioId: String): Result<AudioDetailsModel> =
+        safeApiCall { apiService.getAudioDetails(audioId) }
 
-    suspend fun deleteAudio(audioId: String): CommonResponseModel {
-        return apiService.deleteAudio(audioId)
-    }
+    suspend fun deleteAudio(audioId: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.deleteAudio(audioId) }
 
-    suspend fun listAudios(name: String?, tags: String?): AudioListModel {
-        return apiService.listAudios(name, tags)
-    }
+    suspend fun listAudios(name: String?, tags: String?): Result<AudioListModel> =
+        safeApiCall { apiService.listAudios(name, tags) }
 
-    // Tag API
-    suspend fun addTag(tagName: String): CommonResponseModel {
-        return apiService.addTag(tagName)
-    }
+    suspend fun addTag(tagName: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.addTag(tagName) }
 
-    suspend fun listTags(): Result<ListTagModel> = try {
-        val response = apiService.listTags()
-        Result.Success(response)
-    } catch (httpException: HttpException) {
-        httpException.handleHttpException()
-    } catch (networkException: ConnectException) {
-        Result.NetworkError(networkException)
-    }
+    suspend fun deleteTag(tagName: String): Result<ListTagModel> =
+        safeApiCall { apiService.deleteTag(tagName) }
 
-    suspend fun deleteTag(tagName: String): ListTagModel {
-        return apiService.deleteTag(tagName)
-    }
+    suspend fun getOrderInfo(rechargeId: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.getOrderInfo(rechargeId) }
 
-    // Coin API
-    suspend fun getOrderInfo(rechargeId: String): CommonResponseModel {
-        return apiService.getOrderInfo(rechargeId)
-    }
+    suspend fun getAnalysisItems(): Result<AnalysisItemsModel> =
+        safeApiCall { apiService.getAnalysisItems() }
 
-    suspend fun getAnalysisItems(): AnalysisItemsModel {
-        return apiService.getAnalysisItems()
-    }
+    suspend fun getRechargeItems(): Result<RechargeItemsModel> =
+        safeApiCall { apiService.getRechargeItems() }
 
-    suspend fun getRechargeItems(): RechargeItemsModel {
-        return apiService.getRechargeItems()
-    }
+    suspend fun checkMusicCoinConsumption(itemNames: String): Result<ConsumptionCheckModel> =
+        safeApiCall { apiService.checkMusicCoinConsumption(itemNames) }
 
-    suspend fun checkMusicCoinConsumption(itemNames: String): ConsumptionCheckModel {
-        return apiService.checkMusicCoinConsumption(itemNames)
-    }
+    suspend fun getOrderInfoStr(rechargeId: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.getOrderInfoStr(rechargeId) }
 
-    suspend fun getOrderInfoStr(rechargeId: String): CommonResponseModel {
-        return apiService.getOrderInfoStr(rechargeId)
-    }
+    suspend fun uploadFile(file: RequestBody): Result<FileResponseModel> =
+        safeApiCall { apiService.uploadFile(file) }
 
-    // File API
-    suspend fun uploadFile(file: RequestBody): FileResponseModel {
-        return apiService.uploadFile(file)
-    }
-
-    suspend fun downloadFile(filename: String): ResponseBody {
-        return apiService.downloadFile(filename)
-    }
+    suspend fun downloadFile(filename: String): Result<ResponseBody> =
+        safeApiCall { apiService.downloadFile(filename) }
 }
