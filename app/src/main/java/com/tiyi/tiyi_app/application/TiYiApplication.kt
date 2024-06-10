@@ -4,10 +4,10 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.tiyi.tiyi_app.config.getServiceUrl
-import com.tiyi.tiyi_app.repository.NetworkRepository
-import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.api.MusicApiService
+import com.tiyi.tiyi_app.config.getServiceUrl
+import com.tiyi.tiyi_app.dto.LoginRequest
+import com.tiyi.tiyi_app.repository.NetworkRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -60,12 +60,7 @@ class TiyiApplication : Application() {
                 "0717"
             )
         )
-        if (response.code != 0) {
-            // 登录失败
-            return@runBlocking
-        }
-        TokenManager.setToken(response.data)
-        Log.d("login", "loginDebugAccount: ${TokenManager.getToken()}")
+        Log.d("login", "loginDebugAccount: $response")
     }
 
     private class AuthInterceptor : Interceptor {
