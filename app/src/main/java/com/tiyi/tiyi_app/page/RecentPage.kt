@@ -320,7 +320,10 @@ fun RecentPage(modifier: Modifier) {
         ) {
             SearchBar(
                 query = query,
-                onQueryChange = { query = it },
+                onQueryChange = {
+                    query = it
+                    recentViewModel.searchMusic(query)
+                },
                 onSearch = { recentViewModel.searchMusic(query) },
                 active = false,
                 onActiveChange = {},
