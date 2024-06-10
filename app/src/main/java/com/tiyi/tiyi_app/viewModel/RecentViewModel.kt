@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.dto.LabelRequest
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.MusicInfo
 import com.tiyi.tiyi_app.pojo.Result
@@ -122,6 +123,30 @@ class RecentViewModel(
 
     fun editTagFor(musicInfo: MusicInfo, newTags: List<String>) {
         Log.d(TAG, "editTagFor: $musicInfo, $newTags")
+        viewModelScope.launch {
+            when (val result = networkRepository.labelAudio(
+                LabelRequest(
+                    musicInfo.id,
+                    newTags.joinToString(","
+                )
+            ))) {
+                is Result.Success -> {
+                    val response = result.data
+                    if (response.code != 0) {
+                        submitError(response.msg)
+                        return@launch
+                    }
+                    _recentList.value = _recentList.value.map {
+                        if (it.id == musicInfo.id) {
+                            it.copy(tags = newTags)
+                        } else {
+                            it
+                        }
+                    }
+                }
+                else -> submitError(result.message)
+            }
+        }
     }
 
     fun deleteMusic(musicInfo: MusicInfo) {
