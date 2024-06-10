@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.repository
 
 import com.tiyi.tiyi_app.api.MusicApiService
+import com.tiyi.tiyi_app.application.TokenManager
 import com.tiyi.tiyi_app.dto.AnalysisItemsModel
 import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
@@ -14,7 +15,6 @@ import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
-import com.tiyi.tiyi_app.application.TokenManager
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 
@@ -55,7 +55,7 @@ class NetworkRepository(private val apiService: MusicApiService) {
         return apiService.deleteAudio(audioId)
     }
 
-    suspend fun listAudios(name: String?, tags: String?): AudioListModel {
+    suspend fun listAudios(name: String? = null, tags: String? = null): AudioListModel {
         return apiService.listAudios(name, tags)
     }
 
