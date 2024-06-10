@@ -1,7 +1,6 @@
 package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
@@ -26,7 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -357,7 +356,6 @@ fun RecentPage(
                 tonalElevation = 8.dp,
                 shadowElevation = 4.dp,
                 modifier = Modifier
-                    .offset(y = (-16).dp)
                     .padding(horizontal = 16.dp, vertical = 0.dp)
                     .fillMaxWidth()
             ) { }
@@ -374,6 +372,7 @@ fun RecentPage(
             }
         },
         modifier = modifier.fillMaxSize()
+            .imePadding()
     ) { innerPadding ->
         Column(
             verticalArrangement = Arrangement.Top,
@@ -382,8 +381,6 @@ fun RecentPage(
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
         ) {
-            Log.d("test", "RecentPage: padding $innerPadding")
-
             val visibleTransitionState = remember {
                 MutableTransitionState(false).apply {
                     targetState = true

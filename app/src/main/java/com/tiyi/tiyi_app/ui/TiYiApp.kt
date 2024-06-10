@@ -1,5 +1,6 @@
 package com.tiyi.tiyi_app.ui
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -69,6 +70,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             startDestination = "RecentPage",
             modifier = Modifier
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
         ) {
             composable("RecentPage") { RecentPage(Modifier.fillMaxSize()) }
