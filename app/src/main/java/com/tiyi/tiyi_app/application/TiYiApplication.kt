@@ -25,6 +25,10 @@ class TiyiApplication : Application() {
         initialize(this)
     }
 
+    val json = Json {
+        ignoreUnknownKeys = true
+    }
+
     private fun initialize(context: Context) {
         // 初始化 TokenManager
         TokenManager.init(context)
@@ -36,7 +40,7 @@ class TiyiApplication : Application() {
 
         // 创建 retrofitAuth 实例
         val retrofitAuth = Retrofit.Builder()
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .baseUrl(getServiceUrl(this))
             .client(client)
             .build()
