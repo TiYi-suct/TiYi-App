@@ -45,7 +45,7 @@ object AppContainer {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
             val newRequest = request.newBuilder()
-                .addHeader("Authorization", "Bearer ${TokenManager.getToken()}")
+                .addHeader("Authorization", "${TokenManager.getToken()}")
                 .build()
             return chain.proceed(newRequest)
         }
