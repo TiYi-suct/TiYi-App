@@ -13,7 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import retrofit2.Retrofit
 
-class MyApplication : Application() {
+class TiyiApplication : Application() {
     lateinit var networkRepository: NetworkRepository
         private set
 
@@ -54,5 +54,4 @@ class MyApplication : Application() {
             return chain.proceed(newRequest)
         }
     }
-
 }
