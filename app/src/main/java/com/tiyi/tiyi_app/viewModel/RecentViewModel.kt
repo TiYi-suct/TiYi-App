@@ -74,12 +74,18 @@ class RecentViewModel(
             }
             else -> submitError(result.message)
         }
-
     }
 
     private suspend fun fetchTagList() {
-        val response = networkRepository.listTags()
-        _tagList.value = response.data
+        when (val result = networkRepository.listTags()) {
+            is Result.Success -> {
+                val response = result.data
+                if (response.code != 0)
+                    throw CorruptedApiException()
+                _tagList.value = response.data
+            }
+            else -> submitError(result.message)
+        }
     }
 
     fun addTag(tag: String) {
