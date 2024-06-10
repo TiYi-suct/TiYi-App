@@ -3,10 +3,14 @@ package com.tiyi.tiyi_app.page
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +49,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -68,8 +73,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.pojo.MusicInfo
-import com.tiyi.tiyi_app.viewModel.RecentViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+import com.tiyi.tiyi_app.viewModel.RecentViewModel
 
 @Composable
 fun NewTagDialog(
@@ -292,12 +297,13 @@ fun EditTagDialogPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
     val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
+    val loading by recentViewModel.loading.collectAsState()
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
     var query by remember { mutableStateOf("") }
 
@@ -341,22 +347,40 @@ fun RecentPage(modifier: Modifier) {
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
             ) { }
+            if (loading) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            val visibleTransitionState = remember {
+                MutableTransitionState(false).apply {
+                    targetState = true
+                }
+            }
             LazyRow(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
             ) {
-                items(tags) { tag ->
-                    TagItem(
-                        tag = tag, onSelectedChange = {
-                            selectedTags = if (it) {
-                                selectedTags + tag
-                            } else {
-                                selectedTags - tag
-                            }
-                            recentViewModel.updateSelectedTagList(selectedTags)
-                        },
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
+                items(tags, key = { it }) { tag ->
+                    AnimatedVisibility(
+                        visibleState = visibleTransitionState,
+                        enter = fadeIn() + expandHorizontally(),
+                        exit = fadeOut() + shrinkHorizontally()
+                    ) {
+                        TagItem(
+                            tag = tag, onSelectedChange = {
+                                selectedTags = if (it) {
+                                    selectedTags + tag
+                                } else {
+                                    selectedTags - tag
+                                }
+                                recentViewModel.updateSelectedTagList(selectedTags)
+                            },
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
                 }
                 item {
                     AssistChip(
@@ -374,7 +398,9 @@ fun RecentPage(modifier: Modifier) {
                         label = {
                             Text("添加")
                         },
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .animateItemPlacement()
                     )
                 }
             }
