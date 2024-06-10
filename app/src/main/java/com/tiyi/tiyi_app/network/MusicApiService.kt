@@ -29,64 +29,64 @@ interface MusicApiService {
     suspend fun loginUser(@Body loginRequest: LoginRequest): CommonResponseModel
 
     @POST("user/register")
-    fun registerUser(@Body registerRequest: RegisterRequest): CommonResponseModel
+    suspend fun registerUser(@Body registerRequest: RegisterRequest): CommonResponseModel
 
     @GET("user")
-    fun getUserDetails(): UserDetailsModel
+    suspend fun getUserDetails(): UserDetailsModel
 
     // User API end
 
     // Music API start
     @POST("audio/upload")
-    fun uploadAudio(@Body file: RequestBody): AudioUploadResponseModel
+    suspend fun uploadAudio(@Body file: RequestBody): AudioUploadResponseModel
 
     @PUT("audio/labeling")
-    fun labelAudio(@Body labelRequest: LabelRequest): CommonResponseModel
+    suspend fun labelAudio(@Body labelRequest: LabelRequest): CommonResponseModel
 
     @GET("audio")
-    fun getAudioDetails(@Query("audio_id") audioId: String): AudioDetailsModel
+    suspend fun getAudioDetails(@Query("audio_id") audioId: String): AudioDetailsModel
 
     @DELETE("audio")
-    fun deleteAudio(@Query("audio_id") audioId: String): CommonResponseModel
+    suspend fun deleteAudio(@Query("audio_id") audioId: String): CommonResponseModel
 
     @GET("audio/list")
-    fun listAudios(@Query("name") name: String?, @Query("tags") tags: String?): AudioListModel
+    suspend fun listAudios(@Query("name") name: String?, @Query("tags") tags: String?): AudioListModel
 
     // Music API end
 
     // Tag API start
     @POST("audio_tags")
-    fun addTag(@Query("tag_name") tagName: String): CommonResponseModel
+    suspend fun addTag(@Query("tag_name") tagName: String): CommonResponseModel
 
     @GET("audio_tags")
     suspend fun listTags(): ListTagModel
 
     @DELETE("audio_tags")
-    fun deleteTag(@Query("tag_name") tagName: String): ListTagModel
+    suspend fun deleteTag(@Query("tag_name") tagName: String): ListTagModel
     // Tag API end
 
     // Coin API start
     @GET("pay/order_info")
-    fun getOrderInfo(@Query("recharge_id") rechargeId: String): CommonResponseModel
+    suspend fun getOrderInfo(@Query("recharge_id") rechargeId: String): CommonResponseModel
 
     @GET("analysis_item")
-    fun getAnalysisItems(): AnalysisItemsModel
+    suspend fun getAnalysisItems(): AnalysisItemsModel
 
     @GET("recharge_item")
-    fun getRechargeItems(): RechargeItemsModel
+    suspend fun getRechargeItems(): RechargeItemsModel
 
     @GET("analysis_item/consumption")
-    fun checkMusicCoinConsumption(@Query("item_names") itemNames: String): ConsumptionCheckModel
+    suspend fun checkMusicCoinConsumption(@Query("item_names") itemNames: String): ConsumptionCheckModel
 
     @GET("pay/order_info_str")
-    fun getOrderInfoStr(@Query("recharge_id") rechargeId: String): CommonResponseModel
+    suspend fun getOrderInfoStr(@Query("recharge_id") rechargeId: String): CommonResponseModel
     // Coin API end
 
     // File API Start
     @POST("file")
-    fun uploadFile(@Body file: RequestBody): FileResponseModel
+    suspend fun uploadFile(@Body file: RequestBody): FileResponseModel
 
     @GET("file/{filename}")
-    fun downloadFile(@Path("filename") filename: String): ResponseBody
+    suspend fun downloadFile(@Path("filename") filename: String): ResponseBody
     // File API End
 }
