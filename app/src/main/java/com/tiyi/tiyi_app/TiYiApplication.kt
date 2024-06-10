@@ -48,11 +48,11 @@ class TiyiApplication : Application() {
         // Initialize NetworkRepository
         networkRepository = NetworkRepository(musicApiService)
 
-        loginDebugAccount()
+        loginDebugAccount(true)
     }
 
-    private fun loginDebugAccount() = runBlocking {
-        if (TokenManager.getToken() != null)
+    private fun loginDebugAccount(alwaysLoginAgain: Boolean = false) = runBlocking {
+        if (!alwaysLoginAgain && TokenManager.getToken() != null)
             return@runBlocking
         Log.d("login", "loginDebugAccount: before login")
         val response = networkRepository.loginUser(
