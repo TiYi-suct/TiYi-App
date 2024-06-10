@@ -88,6 +88,7 @@ class RecentViewModel(
                     )
                 }
             }
+
             else -> submitError(result.message)
         }
     }
@@ -115,8 +116,11 @@ class RecentViewModel(
                         submitError(response.msg)
                         return@launch
                     }
-                    _tagList.value += tag
+                    _loading.within {
+                        fetchTagList()
+                    }
                 }
+
                 else -> submitError(result.message)
             }
         }
@@ -128,17 +132,22 @@ class RecentViewModel(
             when (val result = networkRepository.labelAudio(
                 LabelRequest(
                     musicInfo.id,
-                    newTags.joinToString(","
+                    newTags.joinToString(
+                        ","
+                    )
                 )
-            ))) {
+            )) {
                 is Result.Success -> {
                     val response = result.data
                     if (response.code != 0) {
                         submitError(response.msg)
                         return@launch
                     }
-                    fetchTagList()
+                    _loading.within {
+                        fetchAudioList()
+                    }
                 }
+
                 else -> submitError(result.message)
             }
         }
@@ -154,8 +163,11 @@ class RecentViewModel(
                         submitError(response.msg)
                         return@launch
                     }
-                    fetchAudioList()
+                    _loading.within {
+                        fetchAudioList()
+                    }
                 }
+
                 else -> submitError(result.message)
             }
         }
