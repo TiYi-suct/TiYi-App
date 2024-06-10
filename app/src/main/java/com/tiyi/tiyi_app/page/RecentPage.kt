@@ -342,7 +342,7 @@ fun RecentPage(
             }
         },
         modifier = modifier.fillMaxSize()
-    ) {
+    ) { _ ->
         Column(
             verticalArrangement = Arrangement.Top
         ) {
