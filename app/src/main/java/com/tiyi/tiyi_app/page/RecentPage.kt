@@ -3,10 +3,14 @@ package com.tiyi.tiyi_app.page
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -293,7 +297,7 @@ fun EditTagDialogPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun RecentPage(modifier: Modifier) {
     val recentViewModel: RecentViewModel = viewModel()
@@ -348,22 +352,35 @@ fun RecentPage(modifier: Modifier) {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
+            val visibleTransitionState = remember {
+                MutableTransitionState(false).apply {
+                    targetState = true
+                }
+            }
             LazyRow(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
             ) {
-                items(tags) { tag ->
-                    TagItem(
-                        tag = tag, onSelectedChange = {
-                            selectedTags = if (it) {
-                                selectedTags + tag
-                            } else {
-                                selectedTags - tag
-                            }
-                            recentViewModel.updateSelectedTagList(selectedTags)
-                        },
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
+                items(tags, key = { it }) { tag ->
+                    AnimatedVisibility(
+                        visibleState = visibleTransitionState,
+                        enter = fadeIn() + expandHorizontally(),
+                        exit = fadeOut() + shrinkHorizontally()
+                    ) {
+                        TagItem(
+                            tag = tag, onSelectedChange = {
+                                selectedTags = if (it) {
+                                    selectedTags + tag
+                                } else {
+                                    selectedTags - tag
+                                }
+                                recentViewModel.updateSelectedTagList(selectedTags)
+                            },
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
                 }
                 item {
                     AssistChip(
@@ -381,7 +398,9 @@ fun RecentPage(modifier: Modifier) {
                         label = {
                             Text("添加")
                         },
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .animateItemPlacement()
                     )
                 }
             }
