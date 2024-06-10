@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.MusicInfo
+import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -57,14 +59,22 @@ class RecentViewModel(
     }
 
     private suspend fun fetchRecentList() {
-        val response = networkRepository.listAudios()
-        _recentList.value = response.data.map {
-            MusicInfo(
-                it.audioId,
-                it.name,
-                it.tags
-            )
+        when (val result = networkRepository.listAudios()) {
+            is Result.Success -> {
+                val response = result.data
+                if (response.code != 0)
+                    throw CorruptedApiException()
+                _recentList.value = response.data.map {
+                    MusicInfo(
+                        id = it.audioId,
+                        title = it.name,
+                        tags = it.tags,
+                    )
+                }
+            }
+            else -> submitError(result.message)
         }
+
     }
 
     private suspend fun fetchTagList() {
