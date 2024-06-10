@@ -9,6 +9,7 @@ import com.tiyi.tiyi_app.dto.LabelRequest
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.MusicInfo
 import com.tiyi.tiyi_app.pojo.Result
+import com.tiyi.tiyi_app.utils.within
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -40,9 +41,9 @@ class RecentViewModel(
 
     init {
         viewModelScope.launch {
-            _loading.value = true
-            fetchTagAndRecentList()
-            _loading.value = false
+            _loading.within {
+                fetchTagAndRecentList()
+            }
         }
     }
 
@@ -136,13 +137,7 @@ class RecentViewModel(
                         submitError(response.msg)
                         return@launch
                     }
-                    _recentList.value = _recentList.value.map {
-                        if (it.id == musicInfo.id) {
-                            it.copy(tags = newTags)
-                        } else {
-                            it
-                        }
-                    }
+                    fetchTagList()
                 }
                 else -> submitError(result.message)
             }
@@ -151,6 +146,19 @@ class RecentViewModel(
 
     fun deleteMusic(musicInfo: MusicInfo) {
         Log.d(TAG, "deleteMusic: $musicInfo")
+        viewModelScope.launch {
+            when (val result = networkRepository.deleteAudio(musicInfo.id)) {
+                is Result.Success -> {
+                    val response = result.data
+                    if (response.code != 0) {
+                        submitError(response.msg)
+                        return@launch
+                    }
+                    fetchAudioList()
+                }
+                else -> submitError(result.message)
+            }
+        }
     }
 
     fun analysisMusic(musicInfo: MusicInfo) {
