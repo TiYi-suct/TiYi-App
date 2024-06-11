@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,6 +30,7 @@ import com.tiyi.tiyi_app.page.AnalysisPage
 import com.tiyi.tiyi_app.page.LoginScreen
 import com.tiyi.tiyi_app.page.ProfilePage
 import com.tiyi.tiyi_app.page.RecentPage
+import com.tiyi.tiyi_app.viewModel.RecentViewModel
 
 @Preview
 @Composable
@@ -50,6 +52,7 @@ fun TiYiApp() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val recentViewModel: RecentViewModel = viewModel()
 
     val menuData = listOf(
         BottomItemData("最近文件", Icons.Outlined.CheckCircle, "RecentPage"),
@@ -61,6 +64,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             BottomNavigationBar(
+                onRecentItemClicked = {recentViewModel.refreshTagAndAudioList()},
                 navController = navController,
                 items = menuData
             )
@@ -73,7 +77,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
         ) {
-            composable("RecentPage") { RecentPage(Modifier.fillMaxSize()) }
+            composable("RecentPage") { RecentPage(recentViewModel, Modifier.fillMaxSize()) }
             composable("ProfilePage") { ProfilePage(Modifier.fillMaxSize()) }
             composable("AnalysisPage") { AnalysisPage(Modifier.fillMaxSize()) }
         }
@@ -81,7 +85,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController, items: List<BottomItemData>) {
+fun BottomNavigationBar(
+    onRecentItemClicked: () -> Unit,
+    navController: NavController, items: List<BottomItemData>) {
     val currentDestination by navController.currentBackStackEntryAsState()
     val currentRoute = currentDestination?.destination?.route
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
@@ -94,6 +100,9 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
                 label = { Text(text = item.label) },
                 selected = currentRoute == item.route,
                 onClick = {
+                    if (item.route == "RecentPage") {
+                        onRecentItemClicked()
+                    }
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
                             launchSingleTop = true
