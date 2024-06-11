@@ -281,6 +281,7 @@ fun AnalysisPlayBottomBar(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(16.dp)
+                .padding(bottom = 16.dp)
         ) {
             Slider(
                 value = playProgress,
