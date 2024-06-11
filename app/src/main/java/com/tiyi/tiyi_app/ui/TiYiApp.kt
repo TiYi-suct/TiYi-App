@@ -30,7 +30,6 @@ import com.tiyi.tiyi_app.page.LoginScreen
 import com.tiyi.tiyi_app.page.ProfilePage
 import com.tiyi.tiyi_app.page.RecentPage
 import com.tiyi.tiyi_app.page.UploadPage
-import com.tiyi.tiyi_app.viewModel.RecentViewModel
 
 @Preview
 @Composable
@@ -71,7 +70,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "ProfilePage",
+            startDestination = "RecentPage",
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
