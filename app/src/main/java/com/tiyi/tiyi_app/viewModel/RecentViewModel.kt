@@ -173,10 +173,6 @@ class RecentViewModel(
         }
     }
 
-    fun analysisMusic(musicInfo: MusicInfo) {
-        Log.d(TAG, "analysisMusic: $musicInfo")
-    }
-
     fun updateSelectedTagList(tagList: List<String>) {
         Log.d(TAG, "updateSelectedTagList: $tagList")
         refreshAudioList(tags = tagList)

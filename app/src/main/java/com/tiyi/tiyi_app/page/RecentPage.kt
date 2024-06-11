@@ -1,5 +1,6 @@
 package com.tiyi.tiyi_app.page
 
+import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -74,10 +75,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tiyi.tiyi_app.AnalysisActivity
 import com.tiyi.tiyi_app.pojo.MusicInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.RecentViewModel
@@ -480,6 +483,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
     var isExpended by rememberSaveable { mutableStateOf(false) }
     var editTagDialogVisible by remember { mutableStateOf(false) }
     val recentViewModel: RecentViewModel = viewModel()
+    val context = LocalContext.current
     val tagList by recentViewModel.tagList.collectAsState()
     if (editTagDialogVisible) {
         EditTagDialog(
@@ -571,7 +575,11 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                 }
                 Button(
                     onClick = {
-                        recentViewModel.analysisMusic(musicInfo)
+                        Intent(context, AnalysisActivity::class.java).apply {
+                            putExtra("id", musicInfo.id)
+                            putExtra("title", musicInfo.title)
+                            context.startActivity(this)
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
