@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -58,6 +59,8 @@ fun AnalysisPage(
 ) {
     val analysisViewModel: AnalysisViewModel = viewModel()
     val analysisItems by analysisViewModel.analysisItems.collectAsState()
+    val transpositionSteps by analysisViewModel.transpositionSteps.collectAsState()
+    val mfccFactor by analysisViewModel.mfccFactor.collectAsState()
     val error by analysisViewModel.error.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -86,9 +89,58 @@ fun AnalysisPage(
         LazyColumn(
             modifier.padding(paddingValues)
         ) {
-            items(10) {
-                AnalysisItemPreview()
+            items(analysisItems.keys.toList()) { analysisItem ->
+                val checked = analysisItems[analysisItem]!!
+                AnalysisItem(
+                    analysisName = analysisItem.title,
+                    analysisDescription = analysisItem.description,
+                    checked = checked,
+                    price = analysisItem.price,
+                    onCheckedChange = { analysisViewModel.updateAnalysisItemSelection(analysisItem, !checked) },
+                    extendedControl = { modifier ->
+                        DrawerOfAnalysisId(
+                            analysisId = analysisItem.id,
+                            transpositionSteps = transpositionSteps,
+                            onTranspositionStepsChange = { analysisViewModel.updateTranspositionSteps(it) },
+                            mfccFactor = mfccFactor,
+                            onMfccFactorChange = { analysisViewModel.updateMfccFactor(it) },
+                            modifier = modifier
+                        )
+                    }
+                )
             }
+        }
+    }
+}
+
+@Composable
+fun DrawerOfAnalysisId(
+    analysisId: Int,
+    transpositionSteps: Int,
+    onTranspositionStepsChange: (Int) -> Unit,
+    mfccFactor: Int,
+    onMfccFactorChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (analysisId) {
+        2 -> {
+            TranspositionStepsDrawer(
+                transpositionSteps = transpositionSteps,
+                onTranspositionStepsChange = onTranspositionStepsChange,
+                modifier = modifier
+            )
+        }
+
+        5 -> {
+            MfccFactorDrawer(
+                mfccFactor = mfccFactor,
+                onMfccFactorChange = onMfccFactorChange,
+                modifier = modifier
+            )
+        }
+
+        else -> {
+
         }
     }
 }
@@ -101,7 +153,7 @@ fun MfccFactorDrawer(
 ) {
     Column(
         modifier = modifier
-    ){
+    ) {
         Text(
             "MFCC 系数",
             style = MaterialTheme.typography.titleMedium,

@@ -21,7 +21,7 @@ class AnalysisViewModel(
     private val tiyiApplication = application as TiyiApplication
     private val networkRepository = tiyiApplication.networkRepository
 
-    private val _analysisItems = MutableStateFlow<List<AnalysisItemInfo>>(emptyList())
+    private val _analysisItems = MutableStateFlow<Map<AnalysisItemInfo, Boolean>>(emptyMap())
     val analysisItems = _analysisItems.asStateFlow()
 
     private val _transpositionSteps = MutableStateFlow(2)
@@ -44,19 +44,26 @@ class AnalysisViewModel(
                 is Result.Success -> {
                     val response = result.data
                     Log.d(TAG, "fetchAnalysisItem: $response")
-                    _analysisItems.value = response.data.map {
+                    _analysisItems.value = response.data.associate {
                         AnalysisItemInfo(
                             id = it.id,
                             title = it.name,
                             description = it.description,
                             price = it.price
-                        )
+                        ) to false
                     }
                 }
                 else -> {
                     submitError(message = result.message)
                 }
             }
+        }
+    }
+
+    fun updateAnalysisItemSelection(item: AnalysisItemInfo, isSelected: Boolean) {
+        Log.d(TAG, "updateAnalysisItemSelection: $item, $isSelected")
+        _analysisItems.value = _analysisItems.value.toMutableMap().apply {
+            this[item] = isSelected
         }
     }
 
