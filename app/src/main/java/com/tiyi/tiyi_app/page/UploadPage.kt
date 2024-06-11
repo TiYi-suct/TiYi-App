@@ -38,6 +38,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -94,14 +95,24 @@ fun FileUploadUI() {
                     }
                     filePickerLauncher.launch(intent)
                 },
-                modifier = Modifier.align(Alignment.Center)
-            ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "Add file",
-                    modifier = Modifier.size(200.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                colors = IconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            ) {
+                Column {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Add file",
+                        modifier = Modifier.size(200.dp),
+                    )
+                }
             }
         } else {
             Column(
