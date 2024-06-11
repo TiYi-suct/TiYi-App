@@ -41,6 +41,9 @@ class UploadViewModel(
     var audioDescriptions by mutableStateOf<Map<Uri, String>>(emptyMap())
         private set
 
+    var selectedTags by mutableStateOf<Map<Uri, List<String>>>(emptyMap())
+        private set
+
     private val _tagList = MutableStateFlow(listOf<String>())
     val tagList = _tagList.asStateFlow()
 
@@ -54,6 +57,10 @@ class UploadViewModel(
 
     fun updateUploadSuccess(uri: Uri, success: Boolean) {
         uploadSuccess = uploadSuccess.toMutableMap().apply { put(uri, success) }
+    }
+
+    fun updateSelectedTags(uri: Uri, tags: List<String>) {
+        selectedTags = selectedTags.toMutableMap().apply { put(uri, tags) }
     }
 
     init {

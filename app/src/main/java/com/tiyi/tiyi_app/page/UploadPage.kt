@@ -12,6 +12,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,19 +34,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -128,7 +134,7 @@ fun FileUploadUI() {
                         viewModel.updateUploadSuccess(uri, success)
                         if (success && audioId != null) {
                             val description = viewModel.audioDescriptions[uri] ?: ""
-                            val selectedTags = viewModel.tagList.value.filter { it.isNotEmpty() }
+                            val selectedTags = viewModel.selectedTags[uri] ?: emptyList()
                             viewModel.updateAudioInfo(audioId, description, selectedTags)
                         }
                     }
@@ -185,6 +191,11 @@ fun AnalysisListItem(
     val tags by viewModel.tagList.collectAsState()
     val selectedTags = remember { mutableStateListOf<String>() }
 
+    // 初始化selectedTags
+    LaunchedEffect(uri) {
+        selectedTags.addAll(viewModel.selectedTags[uri] ?: emptyList())
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,23 +206,18 @@ fun AnalysisListItem(
     ) {
         LazyRow {
             items(tags) { tag ->
-                val isSelected = tag in selectedTags
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray)
-                        .clickable {
-                            if (isSelected) {
-                                selectedTags.remove(tag)
-                            } else {
-                                selectedTags.add(tag)
-                            }
+                TagItemForUpload(
+                    tag = tag,
+                    onSelectedChange = { isSelected ->
+                        if (isSelected) {
+                            selectedTags.add(tag)
+                        } else {
+                            selectedTags.remove(tag)
                         }
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(text = tag, color = if (isSelected) Color.White else Color.Black)
-                }
+                        viewModel.updateSelectedTags(uri, selectedTags)
+                    },
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                )
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -246,6 +252,7 @@ fun AnalysisListItem(
                 IconButton(onClick = {
                     viewModel.updateSelectedFileItems(viewModel.selectedFileItems.filterNot { it.second == uri })
                     viewModel.updateAudioDescription(uri, "")
+                    viewModel.updateSelectedTags(uri, emptyList())
                 }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Delete")
                 }
@@ -263,6 +270,37 @@ fun AnalysisListItem(
     }
 }
 
+// 新增的TagItemForUpload组件，用于展示和选择标签
+@Composable
+fun TagItemForUpload(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier) {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        onClick = {
+            selected = !selected
+            onSelectedChange(selected)
+        },
+        label = {
+            Text(
+                tag,
+                style = MaterialTheme.typography.bodySmall
+            )
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                )
+            }
+        } else {
+            null
+        },
+        modifier = modifier
+            .animateContentSize()
+    )
+}
+
 // 获取文件名函数
 @SuppressLint("Range")
 fun getFileName(context: Context, uri: Uri): String {
@@ -275,4 +313,3 @@ fun getFileName(context: Context, uri: Uri): String {
     }
     return fileName ?: uri.lastPathSegment ?: "Unknown file"
 }
-
