@@ -196,7 +196,6 @@ fun TranspositionStepsDrawer(
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
         ) {
             Text(
                 "$transpositionSteps",
