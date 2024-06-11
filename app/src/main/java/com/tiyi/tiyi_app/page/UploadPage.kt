@@ -64,6 +64,7 @@ fun UploadPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun FileUploadUI() {
+    // 定义可变状态变量，用于存储上传文件的 URI、文件名、上传项目列表、选中的项目、上传状态和上传结果
     var uploadedFileUri by remember { mutableStateOf<Uri?>(null) }
     var uploadedFileName by remember { mutableStateOf<String?>(null) }
     var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
@@ -71,10 +72,11 @@ fun FileUploadUI() {
     var uploading by remember { mutableStateOf(false) }
     var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
 
+    // 获取 ViewModel 和上下文
     val viewModel: UploadViewModel = viewModel()
-
-
     val context = LocalContext.current
+
+    // 文件选择器启动器，处理文件选择结果
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -95,6 +97,7 @@ fun FileUploadUI() {
                 .align(Alignment.TopCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // 文件选择框
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -123,6 +126,7 @@ fun FileUploadUI() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // 显示已选择的文件
             Text(
                 text = "已选择", modifier = Modifier
                     .align(Alignment.Start)
@@ -134,6 +138,7 @@ fun FileUploadUI() {
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
+                    // 列表项显示已上传的文件
                     items(uploadedItems) { item ->
                         AnalysisListItem(
                             itemText = item.first,
@@ -151,6 +156,7 @@ fun FileUploadUI() {
                     }
                 }
 
+                // 渐变背景效果
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -184,6 +190,7 @@ fun FileUploadUI() {
             }
         }
 
+        // 上传按钮
         Button(
             onClick = {
                 selectedItems.forEach { uri ->
@@ -203,6 +210,7 @@ fun FileUploadUI() {
     }
 }
 
+// 获取文件名函数
 @SuppressLint("Range")
 fun getFileName(context: Context, uri: Uri): String {
     var fileName: String? = null
@@ -231,6 +239,7 @@ fun AnalysisListItem(
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
     ) {
+        // 文件首字母图标
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -245,11 +254,13 @@ fun AnalysisListItem(
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
+        // 文件名
         Text(
             text = itemText,
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.onSurface
         )
+        // 上传进度指示器或复选框
         if (isUploading) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp))
         } else if (uploadSuccess) {
