@@ -307,9 +307,9 @@ fun EditTagDialogPreview() {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun RecentPage(
-    recentViewModel: RecentViewModel,
     modifier: Modifier = Modifier
 ) {
+    val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
     val loading by recentViewModel.loading.collectAsState()
