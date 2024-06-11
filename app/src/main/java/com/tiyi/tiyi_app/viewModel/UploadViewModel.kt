@@ -11,13 +11,12 @@ import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-class AnalysisViewModel(
+class UploadViewModel(
     application: Application
 ) : AndroidViewModel(application) {
     private val tiyiApplication = application as TiyiApplication
@@ -51,7 +50,7 @@ class AnalysisViewModel(
                                 when (val result = networkRepository.uploadAudio(multipartBody)) {
                                     is Result.Success -> {
                                         Log.d(
-                                            "AnalysisViewModel",
+                                            "UploadViewModel",
                                             "File upload successful: ${result.data}"
                                         )
                                         // 上传成功，回调返回 true
@@ -60,7 +59,7 @@ class AnalysisViewModel(
 
                                     else -> {
                                         Log.d(
-                                            "AnalysisViewModel",
+                                            "UploadViewModel",
                                             "File upload failed: ${result.message}"
                                         )
                                         // 上传失败，回调返回 false
@@ -72,12 +71,12 @@ class AnalysisViewModel(
                         }
                     } ?: run {
                     // 如果文件描述符打开失败，记录日志并回调返回 false
-                    Log.d("AnalysisViewModel", "Failed to open file descriptor")
+                    Log.d("UploadViewModel", "Failed to open file descriptor")
                     onResult(false)
                 }
             } catch (e: Exception) {
                 // 捕获异常，记录日志并回调返回 false
-                Log.d("AnalysisViewModel", "Error uploading file: ${e.message}")
+                Log.d("UploadViewModel", "Error uploading file: ${e.message}")
                 onResult(false)
             }
         }

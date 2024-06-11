@@ -54,11 +54,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
+import com.tiyi.tiyi_app.viewModel.UploadViewModel
 
 @Preview(name = "NIGHT MODE", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun AnalysisPage(modifier: Modifier = Modifier) {
+fun UploadPage(modifier: Modifier = Modifier) {
     FileUploadUI()
 }
 
@@ -71,7 +71,7 @@ fun FileUploadUI() {
     var uploading by remember { mutableStateOf(false) }
     var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
 
-    val viewModel: AnalysisViewModel = viewModel()
+    val viewModel: UploadViewModel = viewModel()
 
 
     val context = LocalContext.current
