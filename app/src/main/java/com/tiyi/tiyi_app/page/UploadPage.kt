@@ -155,7 +155,8 @@ fun FileUploadUI() {
                 selectedFileItems.forEach { (_, uri) ->
                     viewModel.updateUploading(true)
                     viewModel.uploadFile(uri) {
-                        viewModel.updateUploading(false)
+                        viewModel.updateUploading(false) // 更新上传成功
+
                         viewModel.updateUploadSuccess(uri, it)
                     }
                 }

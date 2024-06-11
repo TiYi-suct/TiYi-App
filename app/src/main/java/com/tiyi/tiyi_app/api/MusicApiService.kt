@@ -3,7 +3,7 @@ package com.tiyi.tiyi_app.api
 import com.tiyi.tiyi_app.dto.AnalysisItemsModel
 import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
-import com.tiyi.tiyi_app.dto.AudioUpdate
+import com.tiyi.tiyi_app.dto.AudioUpdateRequestModel
 import com.tiyi.tiyi_app.dto.AudioUploadResponseModel
 import com.tiyi.tiyi_app.dto.CommonResponseModel
 import com.tiyi.tiyi_app.dto.ConsumptionCheckModel
@@ -48,7 +48,7 @@ interface MusicApiService {
     suspend fun getAudioDetails(@Query("audio_id") audioId: String): AudioDetailsModel
 
     @POST("audio")
-    suspend fun updateAudio(@Body request: AudioUpdate): AudioUpdate
+    suspend fun updateAudio(@Body updateAudioBody: AudioUpdateRequestModel): CommonResponseModel
 
     @DELETE("audio")
     suspend fun deleteAudio(@Query("audio_id") audioId: String): CommonResponseModel

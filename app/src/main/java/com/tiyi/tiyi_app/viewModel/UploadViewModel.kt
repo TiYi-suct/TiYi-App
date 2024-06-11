@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.dto.AudioUpdateRequestModel
 import com.tiyi.tiyi_app.page.getFileName
 import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.launch
@@ -117,5 +118,17 @@ class UploadViewModel(
                 onResult(false)
             }
         }
+    }
+
+    fun updateAudioDescriptions(audioId: String, description: String) {
+        viewModelScope.launch {
+            networkRepository.updateAudio(
+                updateAudioBody = AudioUpdateRequestModel(
+                    audioId = audioId,
+                    description = description
+                )
+            )
+        }
+
     }
 }
