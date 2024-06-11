@@ -48,9 +48,9 @@ data class AudioDetails(
 )
 
 @Serializable
-data class AudioUpdate(
+data class AudioUpdateRequestModel(
     @SerialName("audio_id") val audioId: String,
-    @SerialName("tags") val tags: String,
-    @SerialName("cover") val cover: String,
-    @SerialName("description") val description: String
+    @SerialName("tags") val tags: String? = null,
+    @SerialName("cover") val cover: String? = null,
+    @SerialName("description") val description: String? = null
 )
