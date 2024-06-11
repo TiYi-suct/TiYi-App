@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,6 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -81,7 +81,7 @@ import java.net.URL
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
+fun ProfilePage(modifier: Modifier = Modifier) {
     val profileViewModel: ProfileViewModel = viewModel()
     val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
     val showAvatarDialog = rememberSaveable { mutableStateOf(false) }
@@ -199,6 +199,7 @@ fun ProfileInfoBlock(onAvatarClick: () -> Unit) {
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(90.dp)
+                    .clip(CircleShape)
                     .background(Color.Gray, CircleShape)
                     .clickable { onAvatarClick() },
                 contentScale = ContentScale.Crop
@@ -256,7 +257,7 @@ fun AvatarDialog(onDismiss: () -> Unit) {
                     contentDescription = "Avatar",
                     modifier = Modifier
                         .size(300.dp)
-                        .background(Color.Gray, CircleShape),
+                        .background(Color.Gray),
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(32.dp))
