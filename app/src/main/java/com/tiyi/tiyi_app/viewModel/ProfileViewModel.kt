@@ -54,6 +54,13 @@ class ProfileViewModel(
         }
     }
 
+    // TODO 更换头像
+    fun updateAvatar(
+        /*TODO*/
+    ) {
+        /*TODO*/
+    }
+
     private fun loadRechargeItems() {
         Log.d(TAG, "loadRechargeItems: ")
         viewModelScope.launch {

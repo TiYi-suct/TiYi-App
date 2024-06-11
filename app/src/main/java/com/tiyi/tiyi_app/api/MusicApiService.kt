@@ -34,6 +34,9 @@ interface MusicApiService {
     @GET("user")
     suspend fun getUserDetails(): UserDetailsModel
 
+    @PUT("user/avatar")
+    suspend fun updateAvatar(@Body avatar: RequestBody): CommonResponseModel
+
     // User API end
 
     // Music API start
@@ -50,7 +53,10 @@ interface MusicApiService {
     suspend fun deleteAudio(@Query("audio_id") audioId: String): CommonResponseModel
 
     @GET("audio/list")
-    suspend fun listAudios(@Query("name") name: String?, @Query("tags") tags: String?): AudioListModel
+    suspend fun listAudios(
+        @Query("name") name: String?,
+        @Query("tags") tags: String?
+    ): AudioListModel
 
     // Music API end
 

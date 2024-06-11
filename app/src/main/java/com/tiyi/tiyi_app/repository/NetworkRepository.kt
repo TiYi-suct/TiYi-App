@@ -60,6 +60,9 @@ class NetworkRepository(private val apiService: MusicApiService) {
     suspend fun getUserDetails(): Result<UserDetailsModel> =
         safeApiCall { apiService.getUserDetails() }
 
+    suspend fun updateAvatar(avatar: RequestBody): Result<CommonResponseModel> =
+        safeApiCall { apiService.updateAvatar(avatar) }
+
     suspend fun uploadAudio(file: RequestBody): Result<AudioUploadResponseModel> =
         safeApiCall { apiService.uploadAudio(file) }
 

@@ -261,7 +261,7 @@ fun AvatarDialog(onDismiss: () -> Unit) {
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = { /*更换头像逻辑*/ }) {
+                Button(onClick = { /*TODO 更换头像逻辑*/ }) {
                     Text(text = "更换头像")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
