@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <queries>
         <package android:name="com.eg.android.AlipayGphone" />
@@ -22,6 +22,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".AnalysisActivity"
+            android:exported="false"
+            android:label="@string/title_activity_analysis"
+            android:theme="@style/Theme.TiYiApp" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.TiYiApp">
@@ -31,9 +36,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.TiYiApp"/>
+            android:theme="@style/Theme.TiYiApp" />
     </application>
 
 </manifest>
