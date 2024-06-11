@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +42,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,7 +76,7 @@ fun FileUploadUI() {
     val uploading = viewModel.uploading // 是否正在上传
     val uploadSuccess = viewModel.uploadSuccess // 上传成功列表
     val audioDescriptions = viewModel.audioDescriptions // 音频描述列表
-
+    val tags by viewModel.tagList.collectAsState() // 标签列表
 
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
@@ -110,17 +115,7 @@ fun FileUploadUI() {
                     items(selectedFileItems) { item ->
                         AnalysisListItem(
                             itemText = item.first,
-                            uri = item.second,
-                            isUploading = uploading,
-                            uploadSuccess = uploadSuccess[item.second] ?: false,
-                            onDelete = { uri ->
-                                viewModel.updateSelectedFileItems(selectedFileItems.filterNot { it.second == uri })
-                                viewModel.updateAudioDescription(uri, "")
-                            },
-                            description = audioDescriptions[item.second] ?: "",
-                            onDescriptionChange = { newDescription ->
-                                viewModel.updateAudioDescription(item.second, newDescription)
-                            }
+                            uri = item.second
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -132,10 +127,14 @@ fun FileUploadUI() {
             onClick = {
                 selectedFileItems.forEach { (_, uri) ->
                     viewModel.updateUploading(true)
-                    viewModel.uploadFile(uri) {
+                    viewModel.uploadFile(uri) { success, audioId ->
                         viewModel.updateUploading(false) // 更新上传成功
-
-                        viewModel.updateUploadSuccess(uri, it)
+                        viewModel.updateUploadSuccess(uri, success)
+                        if (success && audioId != null) {
+                            val description = viewModel.audioDescriptions[uri] ?: ""
+                            val selectedTags = viewModel.tagList.value.filter { it.isNotEmpty() }
+                            viewModel.updateAudioInfo(audioId, description, selectedTags)
+                        }
                     }
                 }
             },
@@ -181,13 +180,15 @@ fun FilePicker(filePickerLauncher: ManagedActivityResultLauncher<Intent, Activit
 @Composable
 fun AnalysisListItem(
     itemText: String,
-    uri: Uri,
-    isUploading: Boolean,
-    uploadSuccess: Boolean,
-    onDelete: (Uri) -> Unit,
-    description: String,
-    onDescriptionChange: (String) -> Unit
+    uri: Uri
 ) {
+    val viewModel: UploadViewModel = viewModel()
+    val isUploading = viewModel.uploading
+    val uploadSuccess = viewModel.uploadSuccess[uri] ?: false
+    val description = viewModel.audioDescriptions[uri] ?: ""
+    val tags by viewModel.tagList.collectAsState()
+    val selectedTags = remember { mutableStateListOf<String>() }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,6 +197,28 @@ fun AnalysisListItem(
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(16.dp)
     ) {
+        LazyRow {
+            items(tags) { tag ->
+                val isSelected = tag in selectedTags
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray)
+                        .clickable {
+                            if (isSelected) {
+                                selectedTags.remove(tag)
+                            } else {
+                                selectedTags.add(tag)
+                            }
+                        }
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(text = tag, color = if (isSelected) Color.White else Color.Black)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -224,7 +247,10 @@ fun AnalysisListItem(
             } else if (uploadSuccess) {
                 Icon(Icons.Filled.CheckCircle, contentDescription = "Uploaded", tint = Color.Green)
             } else {
-                IconButton(onClick = { onDelete(uri) }) {
+                IconButton(onClick = {
+                    viewModel.updateSelectedFileItems(viewModel.selectedFileItems.filterNot { it.second == uri })
+                    viewModel.updateAudioDescription(uri, "")
+                }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Delete")
                 }
             }
@@ -232,7 +258,9 @@ fun AnalysisListItem(
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = description,
-            onValueChange = onDescriptionChange,
+            onValueChange = { newDescription ->
+                viewModel.updateAudioDescription(uri, newDescription)
+            },
             label = { Text("描述") },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -251,3 +279,4 @@ fun getFileName(context: Context, uri: Uri): String {
     }
     return fileName ?: uri.lastPathSegment ?: "Unknown file"
 }
+
