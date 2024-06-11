@@ -21,6 +21,11 @@ class AnalysisViewModel(
     private val tiyiApplication = application as TiyiApplication
     private val networkRepository = tiyiApplication.networkRepository
 
+    private val _sliceName = MutableStateFlow("")
+    val sliceName = _sliceName.asStateFlow()
+    private val _id = MutableStateFlow("")
+    val id = _id.asStateFlow()
+
     private val _analysisItems = MutableStateFlow<Map<AnalysisItemInfo, Boolean>>(emptyMap())
     val analysisItems = _analysisItems.asStateFlow()
 
@@ -35,6 +40,12 @@ class AnalysisViewModel(
 
     init {
         fetchAnalysisItem()
+    }
+
+    fun updateAnalysisTarget(title: String, id: String) {
+        Log.d(TAG, "updateAnalysisTarget: $title, $id")
+        _sliceName.value = title
+        _id.value = id
     }
 
     fun fetchAnalysisItem() {

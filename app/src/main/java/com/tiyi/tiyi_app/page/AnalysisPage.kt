@@ -60,13 +60,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AnalysisPage(
-    sliceName: String,
     modifier: Modifier = Modifier
 ) {
     val analysisViewModel: AnalysisViewModel = viewModel()
     val analysisItems by analysisViewModel.analysisItems.collectAsState()
     val transpositionSteps by analysisViewModel.transpositionSteps.collectAsState()
     val mfccFactor by analysisViewModel.mfccFactor.collectAsState()
+    val sliceName by analysisViewModel.sliceName.collectAsState()
     val error by analysisViewModel.error.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
