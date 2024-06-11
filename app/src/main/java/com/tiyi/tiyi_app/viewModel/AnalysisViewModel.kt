@@ -34,7 +34,7 @@ class AnalysisViewModel(
     private val _transpositionSteps = MutableStateFlow(2)
     val transpositionSteps = _transpositionSteps.asStateFlow()
 
-    private val _mfccFactor = MutableStateFlow(20)
+    private val _mfccFactor = MutableStateFlow(5)
     val mfccFactor = _mfccFactor.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
