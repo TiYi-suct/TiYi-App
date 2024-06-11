@@ -288,7 +288,9 @@ fun AnalysisItem(
     ) -> Unit = {},
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = 8.dp,
         modifier = modifier
             .animateContentSize()
     ) {
@@ -330,7 +332,10 @@ fun AnalysisItem(
                     }
                 },
                 colors = ListItemDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    headlineColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    supportingColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    trailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
                 modifier = Modifier
                     .clickable { onCheckedChange(!checked) }
