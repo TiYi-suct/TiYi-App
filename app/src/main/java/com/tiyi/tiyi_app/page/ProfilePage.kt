@@ -4,7 +4,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,7 +76,7 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
     val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val activity = context as? Activity
-    val scope = rememberCoroutineScope()
+
 
     if (showTopUpDialog.value) {
         TopUpDialog(
@@ -87,9 +91,9 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
                             val result = payTask.payV2(orderInfoStr, true)
                             withContext(Dispatchers.Main) {
                                 handlePayResult(context, result)
+                                profileViewModel.fetchUserDetails()
                             }
                         }
-
                     }
                 }, {
                     Toast.makeText(context, "系统繁忙", Toast.LENGTH_SHORT).show()
@@ -142,6 +146,15 @@ fun ProfileInfoBlock() {
     val profileViewModel: ProfileViewModel = viewModel()
     val userDetailsState: State<UserDetailsModel.UserDetails?> =
         profileViewModel.userDetails.collectAsState()
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+//            profileViewModel.uploadAvatar(it, {
+//                Toast.makeText(context, "头像上传成功", Toast.LENGTH_SHORT).show()
+//            }, {
+//                Toast.makeText(context, "头像上传失败", Toast.LENGTH_SHORT).show()
+//            })
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -180,7 +193,8 @@ fun ProfileInfoBlock() {
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(90.dp)
-                    .background(Color.Gray, CircleShape),
+                    .background(Color.Gray, CircleShape)
+                    .clickable { launcher.launch("image/*") },
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))

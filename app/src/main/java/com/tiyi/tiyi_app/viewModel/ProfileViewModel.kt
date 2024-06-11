@@ -34,7 +34,7 @@ class ProfileViewModel(
         loadRechargeItems()
     }
 
-    private fun fetchUserDetails() {
+     fun fetchUserDetails() {
         Log.d(TAG, "fetchUserDetails: ")
         viewModelScope.launch {
             val fakeUserDetails = UserDetailsModel.UserDetails(
