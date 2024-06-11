@@ -3,10 +3,15 @@ package com.tiyi.tiyi_app.page
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -14,8 +19,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Paid
-import androidx.compose.material.icons.outlined.Dataset
+import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -96,12 +102,21 @@ fun AnalysisPage(
                     analysisDescription = analysisItem.description,
                     checked = checked,
                     price = analysisItem.price,
-                    onCheckedChange = { analysisViewModel.updateAnalysisItemSelection(analysisItem, !checked) },
+                    onCheckedChange = {
+                        analysisViewModel.updateAnalysisItemSelection(
+                            analysisItem,
+                            !checked
+                        )
+                    },
                     extendedControl = { modifier ->
                         DrawerOfAnalysisId(
                             analysisId = analysisItem.id,
                             transpositionSteps = transpositionSteps,
-                            onTranspositionStepsChange = { analysisViewModel.updateTranspositionSteps(it) },
+                            onTranspositionStepsChange = {
+                                analysisViewModel.updateTranspositionSteps(
+                                    it
+                                )
+                            },
                             mfccFactor = mfccFactor,
                             onMfccFactorChange = { analysisViewModel.updateMfccFactor(it) },
                             modifier = modifier
@@ -110,6 +125,36 @@ fun AnalysisPage(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun StartAnalysisButton(
+    coinCost: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val textStyle = MaterialTheme.typography.titleLarge
+    val iconModifier = Modifier.size(textStyle.fontSize.value.dp)
+    Button(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Paid,
+            contentDescription = "金币",
+            modifier = iconModifier
+        )
+        Text(
+            text = "$coinCost",
+            style = textStyle
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Icon(
+            imageVector = Icons.Filled.Check,
+            contentDescription = "对勾",
+            modifier = iconModifier
+        )
     }
 }
 
@@ -242,25 +287,24 @@ fun AnalysisPlayBottomBar(
                 onValueChange = { playProgress = it },
                 valueRange = 0f..100f,
             )
-            Row {
-                IconButton(onClick = { /* do something */ }) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(
+                    onClick = { /* do something */ },
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.PlayArrow,
-                        contentDescription = "Localized description"
+                        contentDescription = "播放",
+                        modifier = Modifier.size(64.dp)
                     )
                 }
-                IconButton(onClick = { /* do something */ }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Dataset,
-                        contentDescription = "Localized description"
-                    )
-                }
-                IconButton(onClick = { /* do something */ }) {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = "Localized description"
-                    )
-                }
+                StartAnalysisButton(
+                    coinCost = 10,
+                    onClick = { /* do something */ },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
 
@@ -455,6 +499,17 @@ fun MfccFactorDrawerPreview() {
         MfccFactorDrawer(
             mfccFactor = factor,
             onMfccFactorChange = { factor = it }
+        )
+    }
+}
+
+@Composable
+@Preview(name = "StartAnalysisButton - Light", showBackground = true)
+fun StartAnalysisButtonPreview() {
+    TiYiAppTheme {
+        StartAnalysisButton(
+            coinCost = 10,
+            onClick = { /* do something */ }
         )
     }
 }
