@@ -4,10 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +34,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.alipay.sdk.app.PayTask
@@ -66,6 +66,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URL
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -74,6 +75,7 @@ import kotlinx.coroutines.withContext
 fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
     val profileViewModel: ProfileViewModel = viewModel()
     val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
+    val showAvatarDialog = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val activity = context as? Activity
 
@@ -103,6 +105,10 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
         )
     }
 
+    if (showAvatarDialog.value) {
+        AvatarDialog(onDismiss = { showAvatarDialog.value = false })
+    }
+
     Scaffold(
         floatingActionButton = { TopUpFloatBtn(onClick = { showTopUpDialog.value = true }) },
         modifier = modifier.padding(start = 10.dp, top = 10.dp, end = 10.dp)
@@ -113,7 +119,7 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
                 .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            ProfileInfoBlock()
+            ProfileInfoBlock(onAvatarClick = { showAvatarDialog.value = true })
             Spacer(modifier = Modifier.height(16.dp))
             BalanceInfoBlock()
         }
@@ -142,19 +148,10 @@ fun handlePayResult(context: Context, result: Map<String, String>) {
 }
 
 @Composable
-fun ProfileInfoBlock() {
+fun ProfileInfoBlock(onAvatarClick: () -> Unit) {
     val profileViewModel: ProfileViewModel = viewModel()
     val userDetailsState: State<UserDetailsModel.UserDetails?> =
         profileViewModel.userDetails.collectAsState()
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-//            profileViewModel.uploadAvatar(it, {
-//                Toast.makeText(context, "头像上传成功", Toast.LENGTH_SHORT).show()
-//            }, {
-//                Toast.makeText(context, "头像上传失败", Toast.LENGTH_SHORT).show()
-//            })
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -194,7 +191,7 @@ fun ProfileInfoBlock() {
                 modifier = Modifier
                     .size(90.dp)
                     .background(Color.Gray, CircleShape)
-                    .clickable { launcher.launch("image/*") },
+                    .clickable { onAvatarClick() },
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -223,6 +220,62 @@ fun ProfileInfoBlock() {
             }
         }
     }
+}
+
+@Composable
+fun AvatarDialog(onDismiss: () -> Unit) {
+    val profileViewModel: ProfileViewModel = viewModel()
+    val userDetailsState: State<UserDetailsModel.UserDetails?> =
+        profileViewModel.userDetails.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(0.8f)
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = userDetailsState.value?.avatar),
+                    contentDescription = "Avatar",
+                    modifier = Modifier
+                        .size(300.dp)
+                        .background(Color.Gray, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(onClick = { /*更换头像逻辑*/ }) {
+                    Text(text = "更换头像")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    // 保存图片逻辑
+                    scope.launch {
+                        val bitmap =
+                            profileViewModel.loadImageFromUrl(profileViewModel.userDetails.value?.avatar)
+                        saveImageToGallery(context, bitmap)
+                    }
+                }) {
+                    Text(text = "保存图片")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = onDismiss) {
+                    Text(text = "关闭")
+                }
+            }
+        }
+    }
+}
+
+fun saveImageToGallery(context: Context, bitmap: Bitmap) {
+    // 保存图片到相册的逻辑
 }
 
 @Composable

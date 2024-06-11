@@ -1,6 +1,8 @@
 package com.tiyi.tiyi_app.viewModel
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.URL
 
 class ProfileViewModel(
     application: Application
@@ -116,5 +120,14 @@ class ProfileViewModel(
 //                onError()
 //            }
 //        }
+    }
+
+    suspend fun loadImageFromUrl(url: String?): Bitmap {
+        return withContext(Dispatchers.IO) {
+            val connection = URL(url).openConnection()
+            connection.connect()
+            val input = connection.getInputStream()
+            BitmapFactory.decodeStream(input)
+        }
     }
 }
