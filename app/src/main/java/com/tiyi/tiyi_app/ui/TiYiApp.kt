@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Upload
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -26,10 +26,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.tiyi.tiyi_app.page.AnalysisPage
 import com.tiyi.tiyi_app.page.LoginScreen
 import com.tiyi.tiyi_app.page.ProfilePage
 import com.tiyi.tiyi_app.page.RecentPage
+import com.tiyi.tiyi_app.page.UploadPage
 import com.tiyi.tiyi_app.viewModel.RecentViewModel
 
 @Preview
@@ -56,7 +56,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     val menuData = listOf(
         BottomItemData("最近文件", Icons.Outlined.CheckCircle, "RecentPage"),
-        BottomItemData("分析", Icons.Outlined.Star, "AnalysisPage"),
+        BottomItemData("上传", Icons.Outlined.Upload, "UploadPage"),
         BottomItemData("我的", Icons.Outlined.AccountCircle, "ProfilePage"),
     )
 
@@ -79,7 +79,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             composable("RecentPage") { RecentPage(recentViewModel, Modifier.fillMaxSize()) }
             composable("ProfilePage") { ProfilePage(Modifier.fillMaxSize()) }
-            composable("AnalysisPage") { AnalysisPage(Modifier.fillMaxSize()) }
+            composable("UploadPage") { UploadPage(Modifier.fillMaxSize()) }
         }
     }
 }
