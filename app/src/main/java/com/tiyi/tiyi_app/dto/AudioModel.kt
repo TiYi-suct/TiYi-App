@@ -46,3 +46,11 @@ data class AudioDetails(
     @SerialName("cover") val cover: String?,
     @SerialName("username") val username: String
 )
+
+@Serializable
+data class AudioUpdate(
+    @SerialName("audio_id") val audioId: String,
+    @SerialName("tags") val tags: String,
+    @SerialName("cover") val cover: String,
+    @SerialName("description") val description: String
+)
