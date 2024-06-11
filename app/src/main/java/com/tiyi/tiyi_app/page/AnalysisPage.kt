@@ -67,6 +67,7 @@ fun AnalysisPage(
     val transpositionSteps by analysisViewModel.transpositionSteps.collectAsState()
     val mfccFactor by analysisViewModel.mfccFactor.collectAsState()
     val sliceName by analysisViewModel.sliceName.collectAsState()
+    val analysisCost by analysisViewModel.analysisCost.collectAsState()
     val error by analysisViewModel.error.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -88,7 +89,7 @@ fun AnalysisPage(
             AnalysisAppBar(sliceName)
         },
         bottomBar = {
-            AnalysisPlayBottomBar()
+            AnalysisPlayBottomBar(analysisCost)
         },
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
@@ -269,6 +270,7 @@ fun TranspositionStepsDrawer(
 
 @Composable
 fun AnalysisPlayBottomBar(
+    analysisCost: Int,
     modifier: Modifier = Modifier
 ) {
     var playProgress by remember { mutableFloatStateOf(0f) }
@@ -302,7 +304,7 @@ fun AnalysisPlayBottomBar(
                     )
                 }
                 StartAnalysisButton(
-                    coinCost = 10,
+                    coinCost = analysisCost,
                     onClick = { /* do something */ },
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
@@ -476,7 +478,7 @@ fun AnalysisItemPreview() {
 )
 fun AnalysisPlayBottomBarPreview() {
     TiYiAppTheme {
-        AnalysisPlayBottomBar()
+        AnalysisPlayBottomBar(10)
     }
 }
 

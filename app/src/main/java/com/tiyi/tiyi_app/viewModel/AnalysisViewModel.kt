@@ -28,6 +28,8 @@ class AnalysisViewModel(
 
     private val _analysisItems = MutableStateFlow<Map<AnalysisItemInfo, Boolean>>(emptyMap())
     val analysisItems = _analysisItems.asStateFlow()
+    private val _analysisCost = MutableStateFlow(0)
+    val analysisCost = _analysisCost.asStateFlow()
 
     private val _transpositionSteps = MutableStateFlow(2)
     val transpositionSteps = _transpositionSteps.asStateFlow()
@@ -79,6 +81,30 @@ class AnalysisViewModel(
         Log.d(TAG, "updateAnalysisItemSelection: $item, $isSelected")
         _analysisItems.value = _analysisItems.value.toMutableMap().apply {
             this[item] = isSelected
+        }
+        queryAnalysisCost()
+    }
+
+    private fun queryAnalysisCost() {
+        Log.d(TAG, "queryAnalysisCost")
+        viewModelScope.launch {
+            val selectedItems = _analysisItems.value.filterValues { it }.keys
+            val selectedNames = selectedItems.map { it.title }
+            Log.d(TAG, "queryAnalysisCost: $selectedNames")
+            when (val result = networkRepository.checkMusicCoinConsumption(selectedNames.joinToString(","))) {
+                is Result.Success -> {
+                    val response = result.data
+                    Log.d(TAG, "queryAnalysisCost: $response")
+                    if (response.code != 0) {
+                        submitError(message = response.msg)
+                        return@launch
+                    }
+                    _analysisCost.value = response.data.required
+                }
+                else -> {
+                    submitError(message = result.message)
+                }
+            }
         }
     }
 
