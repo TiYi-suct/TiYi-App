@@ -2,7 +2,8 @@ package com.tiyi.tiyi_app.page
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -282,7 +283,8 @@ fun AnalysisPlayBottomBar(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
                 .padding(bottom = 16.dp)
         ) {
             Slider(
@@ -314,6 +316,7 @@ fun AnalysisPlayBottomBar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AnalysisItem(
     analysisName: String,
@@ -377,7 +380,10 @@ fun AnalysisItem(
                     trailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
                 modifier = Modifier
-                    .clickable { onCheckedChange(!checked) }
+                    .combinedClickable(
+                        onClick = { onCheckedChange(!checked) },
+                        onLongClick = { }
+                    )
             )
             AnimatedVisibility(
                 visible = checked,
