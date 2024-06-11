@@ -174,13 +174,6 @@ fun MfccFactorDrawer(
                 onValueChange = { onMfccFactorChange(it.toInt()) },
                 valueRange = 0f..20f,
                 steps = 20,
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    activeTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
                 modifier = Modifier.weight(9f)
             )
         }
