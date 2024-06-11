@@ -2,10 +2,16 @@ package com.tiyi.tiyi_app.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -66,6 +72,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.net.URL
 
 
@@ -232,7 +241,7 @@ fun AvatarDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .fillMaxHeight(0.8f)
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
         ) {
             Column(
@@ -258,8 +267,7 @@ fun AvatarDialog(onDismiss: () -> Unit) {
                 Button(onClick = {
                     // 保存图片逻辑
                     scope.launch {
-                        val bitmap =
-                            profileViewModel.loadImageFromUrl(profileViewModel.userDetails.value?.avatar)
+                        val bitmap = loadImageFromUrl(profileViewModel.userDetails.value?.avatar)
                         saveImageToGallery(context, bitmap)
                     }
                 }) {
@@ -274,8 +282,37 @@ fun AvatarDialog(onDismiss: () -> Unit) {
     }
 }
 
+suspend fun loadImageFromUrl(url: String?): Bitmap {
+    return withContext(Dispatchers.IO) {
+        val connection = URL(url).openConnection()
+        connection.connect()
+        val input = connection.getInputStream()
+        BitmapFactory.decodeStream(input)
+    }
+}
+
 fun saveImageToGallery(context: Context, bitmap: Bitmap) {
-    // 保存图片到相册的逻辑
+    val filename = "${System.currentTimeMillis()}.jpg"
+    val fos: OutputStream? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val resolver: ContentResolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+        }
+        val imageUri: Uri? =
+            resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        imageUri?.let { resolver.openOutputStream(it) }
+    } else {
+        val imagesDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        val image = File(imagesDir, filename)
+        FileOutputStream(image)
+    }
+    fos?.use {
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+        Toast.makeText(context, "图片已保存", Toast.LENGTH_SHORT).show()
+    }
 }
 
 @Composable

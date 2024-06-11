@@ -38,27 +38,20 @@ class ProfileViewModel(
         loadRechargeItems()
     }
 
-     fun fetchUserDetails() {
+    fun fetchUserDetails() {
         Log.d(TAG, "fetchUserDetails: ")
         viewModelScope.launch {
-            val fakeUserDetails = UserDetailsModel.UserDetails(
-                username = "John Wick",
-                avatar = "",
-                musicCoin = 100,
-                signature = "I am fine thank you"
-            )
+            when (val result = networkRepository.getUserDetails()) {
+                is Result.Success -> {
+                    val response = result.data
+                    _userDetails.value = response.data
+                }
 
-            _userDetails.value = fakeUserDetails
+                else -> {
+                    Log.e(TAG, "获取用户信息失败")
+                }
+            }
         }
-//        viewModelScope.launch {
-//            try {
-//                val userDetails = networkRepository.getUserDetails()
-//                _userDetails.value = userDetails
-//            } catch (e: Exception) {
-//                // Handle the error, e.g., log it or show a message to the user
-//                e.printStackTrace()
-//            }
-//        }
     }
 
     private fun loadRechargeItems() {
@@ -75,19 +68,6 @@ class ProfileViewModel(
                 }
             }
         }
-
-//        viewModelScope.launch {
-//            try {
-//                val response = networkRepository.getRechargeItems()
-//                if (response.code == 200) {
-//                    _rechargeItems.value = response.data
-//                } else {
-//                    // handle error case
-//                }
-//            } catch (e: Exception) {
-//                // handle exception
-//            }
-//        }
     }
 
     fun createOrder(rechargeId: Int, onSuccess: (String) -> Unit, onError: () -> Unit) {
@@ -105,29 +85,6 @@ class ProfileViewModel(
                     onError()
                 }
             }
-        }
-
-
-//        viewModelScope.launch {
-//            try {
-//                val response = networkRepository.getOrderInfo(rechargeId)
-//                if (response.code == 200) {
-//                    onSuccess()
-//                } else {
-//                    onError()
-//                }
-//            } catch (e: Exception) {
-//                onError()
-//            }
-//        }
-    }
-
-    suspend fun loadImageFromUrl(url: String?): Bitmap {
-        return withContext(Dispatchers.IO) {
-            val connection = URL(url).openConnection()
-            connection.connect()
-            val input = connection.getInputStream()
-            BitmapFactory.decodeStream(input)
         }
     }
 }
