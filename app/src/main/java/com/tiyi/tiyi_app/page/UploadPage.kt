@@ -29,10 +29,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -64,27 +64,23 @@ fun UploadPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun FileUploadUI() {
-    // 定义可变状态变量，用于存储上传文件的 URI、文件名、上传项目列表、选中的项目、上传状态和上传结果
-    var uploadedFileUri by remember { mutableStateOf<Uri?>(null) }
-    var uploadedFileName by remember { mutableStateOf<String?>(null) }
-    var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
-    var selectedItems by remember { mutableStateOf(setOf<Uri>()) }
+    var uploadFileUri by remember { mutableStateOf<Uri?>(null) }
+    var uploadFileName by remember { mutableStateOf<String?>(null) }
+    var selectedFileItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
     var uploading by remember { mutableStateOf(false) }
     var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
 
-    // 获取 ViewModel 和上下文
     val viewModel: UploadViewModel = viewModel()
     val context = LocalContext.current
 
-    // 文件选择器启动器，处理文件选择结果
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    uploadedFileUri = uri
+                    uploadFileUri = uri
                     val fileName = getFileName(context, uri)
-                    uploadedFileName = fileName
-                    uploadedItems = uploadedItems + (fileName to uri)
+                    uploadFileName = fileName
+                    selectedFileItems = selectedFileItems + (fileName to uri)
                 }
             }
         }
@@ -97,7 +93,6 @@ fun FileUploadUI() {
                 .align(Alignment.TopCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 文件选择框
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,9 +121,9 @@ fun FileUploadUI() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 显示已选择的文件
             Text(
-                text = "已选择", modifier = Modifier
+                text = "已选择",
+                modifier = Modifier
                     .align(Alignment.Start)
                     .padding(start = 16.dp)
             )
@@ -138,62 +133,25 @@ fun FileUploadUI() {
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
-                    // 列表项显示已上传的文件
-                    items(uploadedItems) { item ->
+                    items(selectedFileItems) { item ->
                         AnalysisListItem(
                             itemText = item.first,
-                            isSelected = selectedItems.contains(item.second),
-                            isUploading = uploading && selectedItems.contains(item.second),
-                            uploadSuccess = uploadSuccess[item.second] ?: false
-                        ) { isChecked ->
-                            selectedItems = if (isChecked) {
-                                selectedItems + item.second
-                            } else {
-                                selectedItems - item.second
+                            uri = item.second,
+                            isUploading = uploading,
+                            uploadSuccess = uploadSuccess[item.second] ?: false,
+                            onDelete = { uri ->
+                                selectedFileItems = selectedFileItems.filterNot { it.second == uri }
                             }
-                        }
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-
-                // 渐变背景效果
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.background,
-                                    MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                                    MaterialTheme.colorScheme.background
-                                )
-                            )
-                        )
-                )
             }
         }
 
-        // 上传按钮
         Button(
             onClick = {
-                selectedItems.forEach { uri ->
+                selectedFileItems.forEach { (_, uri) ->
                     uploading = true
                     viewModel.uploadFile(uri) {
                         uploading = false
@@ -210,26 +168,13 @@ fun FileUploadUI() {
     }
 }
 
-// 获取文件名函数
-@SuppressLint("Range")
-fun getFileName(context: Context, uri: Uri): String {
-    var fileName: String? = null
-    val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
-    cursor?.use {
-        if (it.moveToFirst()) {
-            fileName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-        }
-    }
-    return fileName ?: uri.lastPathSegment ?: "Unknown file"
-}
-
 @Composable
 fun AnalysisListItem(
     itemText: String,
-    isSelected: Boolean,
+    uri: Uri,
     isUploading: Boolean,
     uploadSuccess: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onDelete: (Uri) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -239,7 +184,6 @@ fun AnalysisListItem(
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
     ) {
-        // 文件首字母图标
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -254,19 +198,32 @@ fun AnalysisListItem(
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
-        // 文件名
         Text(
             text = itemText,
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.onSurface
         )
-        // 上传进度指示器或复选框
         if (isUploading) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp))
         } else if (uploadSuccess) {
             Icon(Icons.Filled.CheckCircle, contentDescription = "Uploaded", tint = Color.Green)
         } else {
-            Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
+            IconButton(onClick = { onDelete(uri) }) {
+                Icon(Icons.Filled.Delete, contentDescription = "Delete")
+            }
         }
     }
+}
+
+// 获取文件名函数
+@SuppressLint("Range")
+fun getFileName(context: Context, uri: Uri): String {
+    var fileName: String? = null
+    val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
+    cursor?.use {
+        if (it.moveToFirst()) {
+            fileName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+        }
+    }
+    return fileName ?: uri.lastPathSegment ?: "Unknown file"
 }
