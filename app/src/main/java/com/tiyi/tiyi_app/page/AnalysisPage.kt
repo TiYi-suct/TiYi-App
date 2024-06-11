@@ -20,8 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Paid
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +40,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -397,6 +400,35 @@ fun AnalysisItem(
     }
 }
 
+@Composable
+fun AnalysisItemDetailDialog(
+    analysisName: String,
+    analysisDescription: String,
+    onDismissRequest: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Outlined.Info, contentDescription = "信息")
+        },
+        title = {
+            Text(text = analysisName)
+        },
+        text = {
+            Text(text = analysisDescription)
+        },
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("好")
+            }
+        },
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalysisAppBar(
@@ -519,6 +551,19 @@ fun StartAnalysisButtonPreview() {
         StartAnalysisButton(
             coinCost = 10,
             onClick = { /* do something */ }
+        )
+    }
+}
+
+@Composable
+@Preview(name = "AnalysisItemDetailDialog - Light")
+@Preview(name = "AnalysisItemDetailDialog - Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+fun AnalysisItemDetailDialogPreview() {
+    TiYiAppTheme {
+        AnalysisItemDetailDialog(
+            analysisName = "BPM",
+            analysisDescription = "Beats Per Minutes 每分钟的节拍数",
+            onDismissRequest = { /* do something */ }
         )
     }
 }
