@@ -118,13 +118,13 @@ fun FileUploadUI() {
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "上传文件", color = Color.Gray)
+                Text(text = "选择文件", color = Color.Gray)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "已上传", modifier = Modifier
+                text = "已选择", modifier = Modifier
                     .align(Alignment.Start)
                     .padding(start = 16.dp)
             )
@@ -198,7 +198,7 @@ fun FileUploadUI() {
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) {
-            Text(text = "开始分析")
+            Text(text = "上传文件")
         }
     }
 }

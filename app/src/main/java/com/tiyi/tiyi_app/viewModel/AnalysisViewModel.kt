@@ -48,7 +48,7 @@ class AnalysisViewModel(
                                     .build()
 
                                 // 通过网络仓库上传文件，并处理结果
-                                when (val result = networkRepository.uploadFile(multipartBody)) {
+                                when (val result = networkRepository.uploadAudio(multipartBody)) {
                                     is Result.Success -> {
                                         Log.d(
                                             "AnalysisViewModel",
