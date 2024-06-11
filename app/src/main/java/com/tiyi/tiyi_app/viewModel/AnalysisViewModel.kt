@@ -44,6 +44,10 @@ class AnalysisViewModel(
                 is Result.Success -> {
                     val response = result.data
                     Log.d(TAG, "fetchAnalysisItem: $response")
+                    if (response.code != 0) {
+                        submitError(message = response.msg)
+                        return@launch
+                    }
                     _analysisItems.value = response.data.associate {
                         AnalysisItemInfo(
                             id = it.id,
