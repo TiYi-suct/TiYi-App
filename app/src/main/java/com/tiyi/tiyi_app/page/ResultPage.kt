@@ -2,10 +2,13 @@ package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,6 +67,42 @@ fun ResultItemNumber(
     }
 }
 
+@Composable
+fun ResultItemDownload(
+    resultName: String,
+    onDownloadClicked: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors().copy(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = resultName,
+                style = MaterialTheme.typography.headlineLarge,
+            )
+
+            Button(
+                onClick = { onDownloadClicked(true) },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Icon(Icons.Filled.ArrowDownward, contentDescription = "下载")
+                Spacer(modifier = Modifier.padding(4.dp))
+                Text(text = "下载结果")
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultAppBar(
@@ -102,5 +141,17 @@ fun ResultAppBarPreview() {
 fun ResultItemNumberPreview() {
     TiYiAppTheme {
         ResultItemNumber(resultName = "BPM", number = 128.73)
+    }
+}
+
+@Composable
+@Preview(name = "Result Item Download - Light")
+@Preview(name = "Result Item Download - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun ResultItemDownloadPreview() {
+    TiYiAppTheme {
+        ResultItemDownload(
+            resultName = "移调：+3",
+            onDownloadClicked = {}
+        )
     }
 }
