@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -110,6 +111,7 @@ fun AnalysisItem(
                     Modifier.padding(16.dp)
                 )
             }
+            HorizontalDivider()
         }
     }
 }
@@ -166,7 +168,8 @@ fun AnalysisAppBarPreview() {
 fun AnalysisItemPreview() {
     TiYiAppTheme {
         var checked by remember { mutableStateOf(true) }
-        var sliderPosition by remember { mutableFloatStateOf(0f) }
+        var sliderPosition by remember { mutableFloatStateOf(37f) }
+
         AnalysisItem(
             analysisName = "BPM",
             analysisDescription = "Beats Per Minutes 每分钟的节拍数",
@@ -181,7 +184,9 @@ fun AnalysisItemPreview() {
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.primary,
                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                        inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.5f
+                        ),
                     ),
                     modifier = modifier
                 )
