@@ -38,7 +38,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -86,82 +85,54 @@ fun FileUploadUI() {
         }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (selectedFileItems.isEmpty()) {
-            // 未选择文件时展示添加文件按钮
-            IconButton(
-                onClick = {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "已选择",
+                    modifier = Modifier
+                        .weight(1f),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                IconButton(onClick = {
                     val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                         type = "audio/*"
                     }
                     filePickerLauncher.launch(intent)
-                },
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                colors = IconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Column {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = "Add file",
-                        modifier = Modifier.size(200.dp),
-                    )
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add file")
                 }
             }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .align(Alignment.TopCenter),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
-                    Text(
-                        text = "已选择",
-                        modifier = Modifier
-                            .weight(1f),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    IconButton(onClick = {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                            type = "audio/*"
-                        }
-                        filePickerLauncher.launch(intent)
-                    }) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add file")
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
-                    ) {
-                        items(selectedFileItems) { item ->
-                            AnalysisListItem(
-                                itemText = item.first,
-                                uri = item.second
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                    items(selectedFileItems) { item ->
+                        AnalysisListItem(
+                            itemText = item.first,
+                            uri = item.second
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
+        }
 
+        if (selectedFileItems.any { !viewModel.uploadSuccess.getOrDefault(it.second, false) }) {
             Button(
                 onClick = {
                     selectedFileItems.forEach { (_, uri) ->
@@ -186,6 +157,7 @@ fun FileUploadUI() {
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
