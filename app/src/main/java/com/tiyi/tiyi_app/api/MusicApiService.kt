@@ -14,13 +14,16 @@ import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -34,6 +37,13 @@ interface MusicApiService {
 
     @GET("user")
     suspend fun getUserDetails(): UserDetailsModel
+
+    @Multipart
+    @PUT("user/avatar")
+    suspend fun updateAvatar(@Part avatar: MultipartBody.Part): CommonResponseModel
+
+    @PUT("user/signature")
+    suspend fun editSignature(@Query("signature") signature: String): CommonResponseModel
 
     // User API end
 
@@ -54,7 +64,10 @@ interface MusicApiService {
     suspend fun deleteAudio(@Query("audio_id") audioId: String): CommonResponseModel
 
     @GET("audio/list")
-    suspend fun listAudios(@Query("name") name: String?, @Query("tags") tags: String?): AudioListModel
+    suspend fun listAudios(
+        @Query("name") name: String?,
+        @Query("tags") tags: String?
+    ): AudioListModel
 
     // Music API end
 

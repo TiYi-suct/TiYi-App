@@ -18,6 +18,7 @@ import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.Result
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.HttpException
@@ -60,6 +61,12 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun getUserDetails(): Result<UserDetailsModel> =
         safeApiCall { apiService.getUserDetails() }
+
+    suspend fun updateAvatar(avatar: MultipartBody.Part): Result<CommonResponseModel> =
+        safeApiCall { apiService.updateAvatar(avatar) }
+
+    suspend fun editSignature(signature: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.editSignature(signature) }
 
     suspend fun updateAudio(updateAudioBody: AudioUpdateRequestModel) =
         safeApiCall { apiService.updateAudio(updateAudioBody) }

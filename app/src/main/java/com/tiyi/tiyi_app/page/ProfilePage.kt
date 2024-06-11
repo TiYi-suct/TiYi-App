@@ -2,9 +2,19 @@ package com.tiyi.tiyi_app.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,11 +28,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -30,15 +42,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -49,9 +66,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.alipay.sdk.app.PayTask
@@ -62,17 +81,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
+import java.net.URL
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
+fun ProfilePage(modifier: Modifier = Modifier) {
     val profileViewModel: ProfileViewModel = viewModel()
     val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
+    val showAvatarDialog = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val activity = context as? Activity
-    val scope = rememberCoroutineScope()
+
 
     if (showTopUpDialog.value) {
         TopUpDialog(
@@ -87,9 +111,9 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
                             val result = payTask.payV2(orderInfoStr, true)
                             withContext(Dispatchers.Main) {
                                 handlePayResult(context, result)
+                                profileViewModel.fetchUserDetails()
                             }
                         }
-
                     }
                 }, {
                     Toast.makeText(context, "系统繁忙", Toast.LENGTH_SHORT).show()
@@ -98,6 +122,12 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
             }
         )
     }
+
+    if (showAvatarDialog.value) {
+        AvatarDialog(onDismiss = { showAvatarDialog.value = false })
+    }
+
+
 
     Scaffold(
         floatingActionButton = { TopUpFloatBtn(onClick = { showTopUpDialog.value = true }) },
@@ -109,7 +139,7 @@ fun ProfilePage(modifier: Modifier = Modifier.fillMaxSize()) {
                 .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            ProfileInfoBlock()
+            ProfileInfoBlock(onAvatarClick = { showAvatarDialog.value = true })
             Spacer(modifier = Modifier.height(16.dp))
             BalanceInfoBlock()
         }
@@ -138,10 +168,22 @@ fun handlePayResult(context: Context, result: Map<String, String>) {
 }
 
 @Composable
-fun ProfileInfoBlock() {
+fun ProfileInfoBlock(onAvatarClick: () -> Unit) {
     val profileViewModel: ProfileViewModel = viewModel()
     val userDetailsState: State<UserDetailsModel.UserDetails?> =
         profileViewModel.userDetails.collectAsState()
+    var showSignatureDialog by remember { mutableStateOf(false) }
+
+    if (showSignatureDialog) {
+        EditSignatureDialog(
+            currentSignature = userDetailsState.value?.signature ?: "",
+            onDismiss = { showSignatureDialog = false },
+            onSave = { newSignature ->
+                profileViewModel.editSignature(newSignature)
+                showSignatureDialog = false
+            }
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -180,11 +222,15 @@ fun ProfileInfoBlock() {
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(90.dp)
-                    .background(Color.Gray, CircleShape),
+                    .clip(CircleShape)
+                    .background(Color.Gray, CircleShape)
+                    .clickable { onAvatarClick() },
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = userDetailsState.value?.username ?: "Username", style = TextStyle(
                         fontSize = 32.sp,
@@ -195,19 +241,165 @@ fun ProfileInfoBlock() {
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = userDetailsState.value?.signature ?: "Lorem ipsum dolor sit portion",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 20.sp,
-                        fontWeight = FontWeight(400),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        textAlign = TextAlign.Center,
-                        letterSpacing = 0.25.sp,
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = userDetailsState.value?.signature ?: "在签名中展现你的个性吧！",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight(400),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            textAlign = TextAlign.Center,
+                            letterSpacing = 0.25.sp,
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .sizeIn(maxWidth = (348/2).dp)
                     )
-                )
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Signature",
+                        modifier = Modifier
+                            .size(22.dp)
+                            .padding(start = 8.dp)
+                            .clickable { showSignatureDialog = true },
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun AvatarDialog(onDismiss: () -> Unit) {
+    val profileViewModel: ProfileViewModel = viewModel()
+    val userDetailsState: State<UserDetailsModel.UserDetails?> =
+        profileViewModel.userDetails.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            profileViewModel.updateAvatar(it)
+        }
+    }
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = userDetailsState.value?.avatar),
+                    contentDescription = "Avatar",
+                    modifier = Modifier
+                        .size(300.dp)
+                        .background(Color.Gray),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(onClick = { imagePickerLauncher.launch("image/*") }) {
+                    Text(text = "更换头像")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    // 保存图片逻辑
+                    scope.launch {
+                        val bitmap = loadImageFromUrl(profileViewModel.userDetails.value?.avatar)
+                        saveImageToGallery(context, bitmap)
+                    }
+                }) {
+                    Text(text = "保存图片")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = onDismiss) {
+                    Text(text = "关闭")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EditSignatureDialog(
+    currentSignature: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var newSignature by remember { mutableStateOf(currentSignature) }
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(text = "编辑个性签名", style = MaterialTheme.typography.headlineSmall)
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = newSignature,
+                    onValueChange = { newSignature = it },
+                    placeholder = { Text("在签名中展现你的个性吧！") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDismiss() }) {
+                        Text(text = "取消")
+                    }
+                    TextButton(onClick = { onSave(newSignature) }) {
+                        Text("保存")
+                    }
+                }
+            }
+        }
+    }
+}
+
+suspend fun loadImageFromUrl(url: String?): Bitmap {
+    return withContext(Dispatchers.IO) {
+        val connection = URL(url).openConnection()
+        connection.connect()
+        val input = connection.getInputStream()
+        BitmapFactory.decodeStream(input)
+    }
+}
+
+fun saveImageToGallery(context: Context, bitmap: Bitmap) {
+    val filename = "${System.currentTimeMillis()}.jpg"
+    val fos: OutputStream? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val resolver: ContentResolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+        }
+        val imageUri: Uri? =
+            resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        imageUri?.let { resolver.openOutputStream(it) }
+    } else {
+        val imagesDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        val image = File(imagesDir, filename)
+        FileOutputStream(image)
+    }
+    fos?.use {
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+        Toast.makeText(context, "图片已保存", Toast.LENGTH_SHORT).show()
     }
 }
 
