@@ -95,6 +95,48 @@ fun AnalysisPage(
 }
 
 @Composable
+fun MfccFactorDrawer(
+    mfccFactor: Int,
+    onMfccFactorChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ){
+        Text(
+            "MFCC 系数",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(8.dp)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "$mfccFactor",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .weight(1f)
+            )
+            Slider(
+                value = mfccFactor.toFloat(),
+                onValueChange = { onMfccFactorChange(it.toInt()) },
+                valueRange = 0f..20f,
+                steps = 20,
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    activeTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    activeTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                modifier = Modifier.weight(9f)
+            )
+        }
+    }
+}
+
+@Composable
 fun TranspositionStepsDrawer(
     transpositionSteps: Int,
     onTranspositionStepsChange: (Int) -> Unit,
@@ -344,6 +386,18 @@ fun TranspositionStepsDrawerPreview() {
         TranspositionStepsDrawer(
             transpositionSteps = sliderState,
             onTranspositionStepsChange = { sliderState = it }
+        )
+    }
+}
+
+@Composable
+@Preview(name = "MfccFactorDrawer - Light", showBackground = true)
+fun MfccFactorDrawerPreview() {
+    var factor by remember { mutableIntStateOf(2) }
+    TiYiAppTheme {
+        MfccFactorDrawer(
+            mfccFactor = factor,
+            onMfccFactorChange = { factor = it }
         )
     }
 }
