@@ -87,8 +87,12 @@ class AnalysisViewModel(
 
     private fun queryAnalysisCost() {
         Log.d(TAG, "queryAnalysisCost")
+        val selectedItems = _analysisItems.value.filterValues { it }.keys
+        if (selectedItems.isEmpty()) {
+            _analysisCost.value = 0
+            return
+        }
         viewModelScope.launch {
-            val selectedItems = _analysisItems.value.filterValues { it }.keys
             val selectedNames = selectedItems.map { it.title }
             Log.d(TAG, "queryAnalysisCost: $selectedNames")
             when (val result = networkRepository.checkMusicCoinConsumption(selectedNames.joinToString(","))) {
