@@ -5,8 +5,9 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -41,10 +43,28 @@ import androidx.compose.ui.unit.dp
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 
-@Suppress("FunctionName")
 @Composable
-fun AnalysisPage(modifier: Modifier) {
-
+fun AnalysisPage(
+    sliceName: String,
+    modifier: Modifier = Modifier
+) {
+    Scaffold(
+        topBar = {
+            AnalysisAppBar(sliceName)
+        },
+        bottomBar = {
+            AnalysisPlayBottomBar()
+        },
+        modifier = modifier.fillMaxSize()
+    ) { paddingValues ->
+        LazyColumn(
+            modifier.padding(paddingValues)
+        ) {
+            items(10) {
+                AnalysisItemPreview()
+            }
+        }
+    }
 }
 
 @Composable
@@ -239,14 +259,16 @@ fun AnalysisItemPreview() {
                     modifier = modifier
                 )
             },
-            modifier = Modifier.safeDrawingPadding()
         )
     }
 }
 
 @Composable
 @Preview(name = "PlayBottomBar - Light")
-@Preview(name = "PlayBottomBar - Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    name = "PlayBottomBar - Dark",
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
 fun AnalysisPlayBottomBarPreview() {
     TiYiAppTheme {
         AnalysisPlayBottomBar()
