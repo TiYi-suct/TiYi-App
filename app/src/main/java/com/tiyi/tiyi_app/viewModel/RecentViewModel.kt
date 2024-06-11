@@ -56,14 +56,6 @@ class RecentViewModel(
         _error.value = null
     }
 
-    fun refreshTagAndAudioList() {
-        viewModelScope.launch {
-            _loading.within {
-                fetchTagAndRecentList()
-            }
-        }
-    }
-
     private suspend fun fetchTagAndRecentList() {
         fetchTagList()
         fetchAudioList()
@@ -73,10 +65,10 @@ class RecentViewModel(
         name: String? = null,
         tags: List<String>? = null
     ) = viewModelScope.launch {
-        _loading.within {
-            clearError()
-            fetchAudioList(name, tags)
-        }
+        _loading.value = true
+        clearError()
+        fetchAudioList(name, tags)
+        _loading.value = false
     }
 
     private suspend fun fetchAudioList(

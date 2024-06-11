@@ -307,9 +307,11 @@ fun EditTagDialogPreview() {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun RecentPage(
-    recentViewModel: RecentViewModel,
+    refresh: Boolean,
+    acquiredRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val recentViewModel: RecentViewModel = viewModel()
     val tags by recentViewModel.tagList.collectAsState()
     val songs by recentViewModel.recentList.collectAsState()
     val loading by recentViewModel.loading.collectAsState()
@@ -321,6 +323,12 @@ fun RecentPage(
 //    LaunchedEffect(songs) {
 //        listState.animateScrollToItem(0)
 //    }
+    LaunchedEffect(refresh) {
+        if (refresh) {
+            acquiredRefresh()
+            recentViewModel.refreshAudioList()
+        }
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
