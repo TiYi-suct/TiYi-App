@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +51,7 @@ fun TiYiApp() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    var requestRecentRefresh by remember { mutableStateOf(false) }
 
     val menuData = listOf(
         BottomItemData("最近文件", Icons.Outlined.CheckCircle, "RecentPage"),
@@ -61,6 +63,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             BottomNavigationBar(
+                onRecentClicked = { requestRecentRefresh = true },
                 navController = navController,
                 items = menuData
             )
@@ -73,7 +76,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
         ) {
-            composable("RecentPage") { RecentPage(Modifier.fillMaxSize()) }
+            composable("RecentPage") { RecentPage(
+                refresh = requestRecentRefresh,
+                acquiredRefresh = { requestRecentRefresh = false },
+                Modifier.fillMaxSize()
+            )
+            }
             composable("ProfilePage") { ProfilePage(Modifier.fillMaxSize()) }
             composable("AnalysisPage") { AnalysisPage(Modifier.fillMaxSize()) }
         }
@@ -81,7 +89,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController, items: List<BottomItemData>) {
+fun BottomNavigationBar(
+    onRecentClicked: () -> Unit = {},
+    navController: NavController, items: List<BottomItemData>) {
     val currentDestination by navController.currentBackStackEntryAsState()
     val currentRoute = currentDestination?.destination?.route
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
@@ -94,6 +104,9 @@ fun BottomNavigationBar(navController: NavController, items: List<BottomItemData
                 label = { Text(text = item.label) },
                 selected = currentRoute == item.route,
                 onClick = {
+                    if (currentRoute == item.route) {
+                        onRecentClicked()
+                    }
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
                             launchSingleTop = true
