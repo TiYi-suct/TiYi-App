@@ -13,6 +13,8 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -239,6 +241,13 @@ fun AvatarDialog(onDismiss: () -> Unit) {
         profileViewModel.userDetails.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            profileViewModel.updateAvatar(it)
+        }
+    }
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
@@ -261,7 +270,7 @@ fun AvatarDialog(onDismiss: () -> Unit) {
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = { /*TODO 更换头像逻辑*/ }) {
+                Button(onClick = { imagePickerLauncher.launch("image/*") }) {
                     Text(text = "更换头像")
                 }
                 Spacer(modifier = Modifier.height(16.dp))

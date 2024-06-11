@@ -3,6 +3,7 @@ package com.tiyi.tiyi_app.viewModel
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.ByteArrayOutputStream
 import java.net.URL
 
 class ProfileViewModel(
@@ -56,9 +61,30 @@ class ProfileViewModel(
 
     // TODO 更换头像
     fun updateAvatar(
-        /*TODO*/
+        newAvatarUri: Uri
     ) {
-        /*TODO*/
+        viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            val bitmap =
+                BitmapFactory.decodeStream(context.contentResolver.openInputStream(newAvatarUri))
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            val requestBody = RequestBody.create("image/jpeg".toMediaTypeOrNull(), byteArrayOutputStream.toByteArray())
+            val body = MultipartBody.Part.createFormData("avatar", "avatar.jpg", requestBody)
+            when (val result = networkRepository.updateAvatar(body)) {
+                is Result.Success -> {
+                    val response = result.data
+                    _userDetails.value = _userDetails.value?.copy(avatar = response.data)
+                }
+                is Result.BadRequest -> {
+                    Log.e(TAG, result.message)
+                }
+                else -> {
+                    Log.e(TAG, result.toString())
+                    Log.e(TAG, "更新头像失败")
+                }
+            }
+        }
     }
 
     private fun loadRechargeItems() {
