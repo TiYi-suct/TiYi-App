@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Paid
+import androidx.compose.material.icons.outlined.Dataset
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +45,51 @@ import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 @Composable
 fun AnalysisPage(modifier: Modifier) {
 
+}
+
+@Composable
+fun AnalysisPlayBottomBar(
+    modifier: Modifier = Modifier
+) {
+    var playProgress by remember { mutableFloatStateOf(0f) }
+
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 4.dp,
+        modifier = modifier
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Slider(
+                value = playProgress,
+                onValueChange = { playProgress = it },
+                valueRange = 0f..100f,
+            )
+            Row {
+                IconButton(onClick = { /* do something */ }) {
+                    Icon(
+                        imageVector = Icons.Outlined.PlayArrow,
+                        contentDescription = "Localized description"
+                    )
+                }
+                IconButton(onClick = { /* do something */ }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Dataset,
+                        contentDescription = "Localized description"
+                    )
+                }
+                IconButton(onClick = { /* do something */ }) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+
+    }
 }
 
 @Composable
@@ -193,5 +241,14 @@ fun AnalysisItemPreview() {
             },
             modifier = Modifier.safeDrawingPadding()
         )
+    }
+}
+
+@Composable
+@Preview(name = "PlayBottomBar - Light")
+@Preview(name = "PlayBottomBar - Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+fun AnalysisPlayBottomBarPreview() {
+    TiYiAppTheme {
+        AnalysisPlayBottomBar()
     }
 }
