@@ -1,5 +1,6 @@
 package com.tiyi.tiyi_app.ui
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,14 +25,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.tiyi.tiyi_app.screen.AnalysisPage
-import com.tiyi.tiyi_app.screen.ProfilePage
-import com.tiyi.tiyi_app.screen.RecentPage
+import com.tiyi.tiyi_app.page.AnalysisPage
+import com.tiyi.tiyi_app.page.LoginScreen
+import com.tiyi.tiyi_app.page.ProfilePage
+import com.tiyi.tiyi_app.page.RecentPage
 
 @Preview
 @Composable
 fun TiYiApp() {
-    val isLogin = remember { mutableStateOf(false) }
+    val isLogin = remember { mutableStateOf(true) }
     if (isLogin.value) {
         MainScreen(
             modifier = Modifier
@@ -39,8 +41,6 @@ fun TiYiApp() {
         )
     } else {
         LoginScreen(
-            onLoginClick = { isLogin.value = true },
-            onRegisterClick = { },
             modifier = Modifier
                 .fillMaxSize()
         )
@@ -48,7 +48,7 @@ fun TiYiApp() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier) {
+fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     val menuData = listOf(
@@ -57,14 +57,20 @@ fun MainScreen(modifier: Modifier) {
         BottomItemData("我的", Icons.Outlined.AccountCircle, "ProfilePage"),
     )
 
-    Scaffold(modifier = modifier.fillMaxSize(), bottomBar = {
-        BottomNavigationBar(navController = navController, items = menuData)
-    }) { innerPadding ->
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = menuData
+            )
+        }) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "RecentPage",
+            startDestination = "ProfilePage",
             modifier = Modifier
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
         ) {
             composable("RecentPage") { RecentPage(Modifier.fillMaxSize()) }

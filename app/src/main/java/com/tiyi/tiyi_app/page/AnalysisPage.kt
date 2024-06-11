@@ -1,4 +1,4 @@
-package com.tiyi.tiyi_app.screen
+package com.tiyi.tiyi_app.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -8,7 +8,6 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -28,8 +27,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 
 @Preview(name = "NIGHT MODE", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
@@ -63,18 +68,24 @@ fun FileUploadUI() {
     var uploadedFileName by remember { mutableStateOf<String?>(null) }
     var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
     var selectedItems by remember { mutableStateOf(setOf<Uri>()) }
+    var uploading by remember { mutableStateOf(false) }
+    var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
+
+    val viewModel: AnalysisViewModel = viewModel()
+
 
     val context = LocalContext.current
-    val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                uploadedFileUri = uri
-                val fileName = getFileName(context, uri)
-                uploadedFileName = fileName
-                uploadedItems = uploadedItems + (fileName to uri)
+    val filePickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    uploadedFileUri = uri
+                    val fileName = getFileName(context, uri)
+                    uploadedFileName = fileName
+                    uploadedItems = uploadedItems + (fileName to uri)
+                }
             }
         }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -107,14 +118,16 @@ fun FileUploadUI() {
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "上传文件", color = Color.Gray)
+                Text(text = "选择文件", color = Color.Gray)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "已上传", modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp))
+            Text(
+                text = "已选择", modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
@@ -122,9 +135,11 @@ fun FileUploadUI() {
                     contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
                     items(uploadedItems) { item ->
-                        ListItem(
+                        AnalysisListItem(
                             itemText = item.first,
-                            isSelected = selectedItems.contains(item.second)
+                            isSelected = selectedItems.contains(item.second),
+                            isUploading = uploading && selectedItems.contains(item.second),
+                            uploadSuccess = uploadSuccess[item.second] ?: false
                         ) { isChecked ->
                             selectedItems = if (isChecked) {
                                 selectedItems + item.second
@@ -170,12 +185,20 @@ fun FileUploadUI() {
         }
 
         Button(
-            onClick = { Log.d("Analysis","selectedItem: $selectedItems") },
+            onClick = {
+                selectedItems.forEach { uri ->
+                    uploading = true
+                    viewModel.uploadFile(uri) {
+                        uploading = false
+                        uploadSuccess = uploadSuccess + (uri to it)
+                    }
+                }
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) {
-            Text(text = "开始分析")
+            Text(text = "上传文件")
         }
     }
 }
@@ -193,7 +216,13 @@ fun getFileName(context: Context, uri: Uri): String {
 }
 
 @Composable
-fun ListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun AnalysisListItem(
+    itemText: String,
+    isSelected: Boolean,
+    isUploading: Boolean,
+    uploadSuccess: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -208,10 +237,25 @@ fun ListItem(itemText: String, isSelected: Boolean, onCheckedChange: (Boolean) -
                 .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = itemText.first().toString(), color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp, textAlign = TextAlign.Center)
+            Text(
+                text = itemText.first().toString(),
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center
+            )
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = itemText, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
-        Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
+        Text(
+            text = itemText,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        if (isUploading) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp))
+        } else if (uploadSuccess) {
+            Icon(Icons.Filled.CheckCircle, contentDescription = "Uploaded", tint = Color.Green)
+        } else {
+            Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
+        }
     }
 }
