@@ -8,7 +8,9 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -89,31 +91,7 @@ fun FileUploadUI() {
                 .align(Alignment.TopCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .padding(16.dp)
-                    .background(Color.Gray.copy(alpha = 0.1f))
-                    .drawBehind {
-                        val stroke = Stroke(
-                            width = 2.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(
-                                floatArrayOf(10.dp.toPx(), 10.dp.toPx()), 0f
-                            )
-                        )
-                        drawRoundRect(color = Color.Gray, style = stroke)
-                    }
-                    .clickable {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                            type = "audio/*"
-                        }
-                        filePickerLauncher.launch(intent)
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "选择文件", color = Color.Gray)
-            }
+            FilePicker(filePickerLauncher)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -167,6 +145,35 @@ fun FileUploadUI() {
         ) {
             Text(text = "上传文件")
         }
+    }
+}
+
+@Composable
+fun FilePicker(filePickerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .padding(16.dp)
+            .background(Color.Gray.copy(alpha = 0.1f))
+            .drawBehind {
+                val stroke = Stroke(
+                    width = 2.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(10.dp.toPx(), 10.dp.toPx()), 0f
+                    )
+                )
+                drawRoundRect(color = Color.Gray, style = stroke)
+            }
+            .clickable {
+                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    type = "audio/*"
+                }
+                filePickerLauncher.launch(intent)
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "选择文件", color = Color.Gray)
     }
 }
 

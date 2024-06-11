@@ -11,7 +11,10 @@ import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.dto.AudioUpdateRequestModel
 import com.tiyi.tiyi_app.page.getFileName
+import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.Result
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -38,6 +41,9 @@ class UploadViewModel(
     var audioDescriptions by mutableStateOf<Map<Uri, String>>(emptyMap())
         private set
 
+    private val _tagList = MutableStateFlow(listOf<String>())
+    val tagList = _tagList.asStateFlow()
+
     fun updateSelectedFileItems(items: List<Pair<String, Uri>>) {
         selectedFileItems = items
     }
@@ -48,6 +54,12 @@ class UploadViewModel(
 
     fun updateUploadSuccess(uri: Uri, success: Boolean) {
         uploadSuccess = uploadSuccess.toMutableMap().apply { put(uri, success) }
+    }
+
+    init {
+        viewModelScope.launch {
+            fetchTagList()
+        }
     }
 
     fun updateAudioDescription(uri: Uri, description: String) {
@@ -129,6 +141,20 @@ class UploadViewModel(
                 )
             )
         }
+    }
 
+    private suspend fun fetchTagList() {
+        when (val result = networkRepository.listTags()) {
+            is Result.Success -> {
+                val response = result.data
+                if (response.code != 0)
+                    throw CorruptedApiException()
+                _tagList.value = response.data
+            }
+
+            else -> {
+                Log.e("UploadViewModel", "Failed to fetch tag list")
+            }
+        }
     }
 }
