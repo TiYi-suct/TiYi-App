@@ -73,10 +73,6 @@ fun FileUploadUI() {
     val context = LocalContext.current
 
     val selectedFileItems = viewModel.selectedFileItems // 已选择文件列表
-    val uploading = viewModel.uploading // 是否正在上传
-    val uploadSuccess = viewModel.uploadSuccess // 上传成功列表
-    val audioDescriptions = viewModel.audioDescriptions // 音频描述列表
-    val tags by viewModel.tagList.collectAsState() // 标签列表
 
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
