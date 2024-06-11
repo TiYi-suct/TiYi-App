@@ -32,10 +32,13 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,10 +68,10 @@ fun UploadPage(modifier: Modifier = Modifier) {
 @Composable
 fun FileUploadUI() {
     var uploadFileUri by remember { mutableStateOf<Uri?>(null) }
-    var uploadFileName by remember { mutableStateOf<String?>(null) }
     var selectedFileItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
     var uploading by remember { mutableStateOf(false) }
     var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
+    var audioDescriptions by remember { mutableStateOf<Map<Uri, String>>(emptyMap()) }
 
     val viewModel: UploadViewModel = viewModel()
     val context = LocalContext.current
@@ -79,7 +82,6 @@ fun FileUploadUI() {
                 result.data?.data?.let { uri ->
                     uploadFileUri = uri
                     val fileName = getFileName(context, uri)
-                    uploadFileName = fileName
                     selectedFileItems = selectedFileItems + (fileName to uri)
                 }
             }
@@ -141,6 +143,12 @@ fun FileUploadUI() {
                             uploadSuccess = uploadSuccess[item.second] ?: false,
                             onDelete = { uri ->
                                 selectedFileItems = selectedFileItems.filterNot { it.second == uri }
+                                audioDescriptions = audioDescriptions.filterNot { it.key == uri }
+                            },
+                            description = audioDescriptions[item.second] ?: "",
+                            onDescriptionChange = { newDescription ->
+                                audioDescriptions =
+                                    audioDescriptions + (item.second to newDescription)
                             }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -168,13 +176,16 @@ fun FileUploadUI() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalysisListItem(
     itemText: String,
     uri: Uri,
     isUploading: Boolean,
     uploadSuccess: Boolean,
-    onDelete: (Uri) -> Unit
+    onDelete: (Uri) -> Unit,
+    description: String,
+    onDescriptionChange: (String) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -213,6 +224,13 @@ fun AnalysisListItem(
             }
         }
     }
+    TextField(
+        value = description,
+        onValueChange = onDescriptionChange,
+        label = { Text("描述") },
+        modifier = Modifier.fillMaxWidth(),
+        colors = TextFieldDefaults.colors(MaterialTheme.colorScheme.surfaceVariant)
+    )
 }
 
 // 获取文件名函数
