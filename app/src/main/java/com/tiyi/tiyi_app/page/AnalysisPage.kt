@@ -332,6 +332,15 @@ fun AnalysisItem(
         modifier: Modifier
     ) -> Unit = {},
 ) {
+    var informationDialogVisible by remember { mutableStateOf(false) }
+    if (informationDialogVisible) {
+        AnalysisItemDetailDialog(
+            analysisName = analysisName,
+            analysisDescription = analysisDescription,
+            onDismissRequest = { informationDialogVisible = false }
+        )
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -385,7 +394,7 @@ fun AnalysisItem(
                 modifier = Modifier
                     .combinedClickable(
                         onClick = { onCheckedChange(!checked) },
-                        onLongClick = { }
+                        onLongClick = { informationDialogVisible = true }
                     )
             )
             AnimatedVisibility(
