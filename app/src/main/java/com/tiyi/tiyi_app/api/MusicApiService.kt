@@ -41,6 +41,9 @@ interface MusicApiService {
     @PUT("user/avatar")
     suspend fun updateAvatar(@Part avatar: MultipartBody.Part): CommonResponseModel
 
+    @PUT("user/signature")
+    suspend fun editSignature(@Query("signature") signature: String): CommonResponseModel
+
     // User API end
 
     // Music API start

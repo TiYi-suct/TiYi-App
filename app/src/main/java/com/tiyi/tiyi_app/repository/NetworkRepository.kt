@@ -64,6 +64,9 @@ class NetworkRepository(private val apiService: MusicApiService) {
     suspend fun updateAvatar(avatar: MultipartBody.Part): Result<CommonResponseModel> =
         safeApiCall { apiService.updateAvatar(avatar) }
 
+    suspend fun editSignature(signature: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.editSignature(signature) }
+
     suspend fun uploadAudio(file: RequestBody): Result<AudioUploadResponseModel> =
         safeApiCall { apiService.uploadAudio(file) }
 

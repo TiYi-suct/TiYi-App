@@ -15,12 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.ByteArrayOutputStream
-import java.net.URL
 
 class ProfileViewModel(
     application: Application
@@ -59,7 +57,6 @@ class ProfileViewModel(
         }
     }
 
-    // TODO 更换头像
     fun updateAvatar(
         newAvatarUri: Uri
     ) {
@@ -69,19 +66,38 @@ class ProfileViewModel(
                 BitmapFactory.decodeStream(context.contentResolver.openInputStream(newAvatarUri))
             val byteArrayOutputStream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-            val requestBody = RequestBody.create("image/jpeg".toMediaTypeOrNull(), byteArrayOutputStream.toByteArray())
+            val requestBody = RequestBody.create(
+                "image/jpeg".toMediaTypeOrNull(),
+                byteArrayOutputStream.toByteArray()
+            )
             val body = MultipartBody.Part.createFormData("avatar", "avatar.jpg", requestBody)
             when (val result = networkRepository.updateAvatar(body)) {
                 is Result.Success -> {
                     val response = result.data
                     _userDetails.value = _userDetails.value?.copy(avatar = response.data)
                 }
+
                 is Result.BadRequest -> {
                     Log.e(TAG, result.message)
                 }
+
                 else -> {
                     Log.e(TAG, result.toString())
                     Log.e(TAG, "更新头像失败")
+                }
+            }
+        }
+    }
+
+    fun editSignature(newSignature: String) {
+        viewModelScope.launch {
+            when (val result = networkRepository.editSignature(newSignature)) {
+                is Result.Success -> {
+                    fetchUserDetails()
+                }
+
+                else -> {
+                    Log.e(TAG, "编辑个性签名失败")
                 }
             }
         }
