@@ -4,14 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,30 +23,36 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.viewModel.UploadViewModel
 
-@Preview(name = "NIGHT MODE", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Upload Page", showSystemUi = true)
 @Composable
 fun UploadPage(modifier: Modifier = Modifier) {
     FileUploadUI()
@@ -64,25 +69,17 @@ fun UploadPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun FileUploadUI() {
-    var uploadedFileUri by remember { mutableStateOf<Uri?>(null) }
-    var uploadedFileName by remember { mutableStateOf<String?>(null) }
-    var uploadedItems by remember { mutableStateOf(listOf<Pair<String, Uri>>()) }
-    var selectedItems by remember { mutableStateOf(setOf<Uri>()) }
-    var uploading by remember { mutableStateOf(false) }
-    var uploadSuccess by remember { mutableStateOf<Map<Uri, Boolean>>(emptyMap()) }
-
     val viewModel: UploadViewModel = viewModel()
-
-
     val context = LocalContext.current
+
+    val selectedFileItems = viewModel.selectedFileItems // 已选择文件列表
+
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    uploadedFileUri = uri
                     val fileName = getFileName(context, uri)
-                    uploadedFileName = fileName
-                    uploadedItems = uploadedItems + (fileName to uri)
+                    viewModel.updateSelectedFileItems(selectedFileItems + (fileName to uri))
                 }
             }
         }
@@ -95,114 +92,197 @@ fun FileUploadUI() {
                 .align(Alignment.TopCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
-                    .padding(16.dp)
-                    .background(Color.Gray.copy(alpha = 0.1f))
-                    .drawBehind {
-                        val stroke = Stroke(
-                            width = 2.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(
-                                floatArrayOf(10.dp.toPx(), 10.dp.toPx()), 0f
-                            )
-                        )
-                        drawRoundRect(color = Color.Gray, style = stroke)
-                    }
-                    .clickable {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                            type = "audio/*"
-                        }
-                        filePickerLauncher.launch(intent)
-                    },
-                contentAlignment = Alignment.Center
+                    .padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "选择文件", color = Color.Gray)
+                Text(
+                    text = "已选择",
+                    modifier = Modifier
+                        .weight(1f),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                IconButton(onClick = {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        type = "audio/*"
+                    }
+                    filePickerLauncher.launch(intent)
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add file")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "已选择", modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp)
-            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
                 ) {
-                    items(uploadedItems) { item ->
+                    items(selectedFileItems) { item ->
                         AnalysisListItem(
                             itemText = item.first,
-                            isSelected = selectedItems.contains(item.second),
-                            isUploading = uploading && selectedItems.contains(item.second),
-                            uploadSuccess = uploadSuccess[item.second] ?: false
-                        ) { isChecked ->
-                            selectedItems = if (isChecked) {
-                                selectedItems + item.second
-                            } else {
-                                selectedItems - item.second
-                            }
-                        }
+                            uri = item.second
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.background,
-                                    MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                                    MaterialTheme.colorScheme.background
-                                )
-                            )
-                        )
-                )
             }
         }
 
-        Button(
-            onClick = {
-                selectedItems.forEach { uri ->
-                    uploading = true
-                    viewModel.uploadFile(uri) {
-                        uploading = false
-                        uploadSuccess = uploadSuccess + (uri to it)
+        if (selectedFileItems.any { !viewModel.uploadSuccess.getOrDefault(it.second, false) }) {
+            Button(
+                onClick = {
+                    selectedFileItems.forEach { (_, uri) ->
+                        viewModel.updateUploading(true)
+                        viewModel.uploadFile(uri) { success, audioId ->
+                            viewModel.updateUploading(false) // 更新上传成功
+                            viewModel.updateUploadSuccess(uri, success)
+                            if (success && audioId != null) {
+                                val description = viewModel.audioDescriptions[uri] ?: ""
+                                val selectedTags = viewModel.selectedTags[uri] ?: emptyList()
+                                viewModel.updateAudioInfo(audioId, description, selectedTags)
+                            }
+                        }
                     }
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Text(text = "上传文件")
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) {
+                Text(text = "上传文件")
+            }
         }
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AnalysisListItem(
+    itemText: String,
+    uri: Uri
+) {
+    val viewModel: UploadViewModel = viewModel()
+    val isUploading = viewModel.uploading
+    val uploadSuccess = viewModel.uploadSuccess[uri] ?: false
+    val description = viewModel.audioDescriptions[uri] ?: ""
+    val tags by viewModel.tagList.collectAsState()
+    val selectedTags = remember { mutableStateListOf<String>() }
+
+    // 初始化selectedTags
+    LaunchedEffect(uri) {
+        selectedTags.addAll(viewModel.selectedTags[uri] ?: emptyList())
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(16.dp)
+    ) {
+        LazyRow {
+            items(tags) { tag ->
+                TagItemForUpload(
+                    tag = tag,
+                    onSelectedChange = { isSelected ->
+                        if (isSelected) {
+                            selectedTags.add(tag)
+                        } else {
+                            selectedTags.remove(tag)
+                        }
+                        viewModel.updateSelectedTags(uri, selectedTags)
+                    },
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = itemText.first().toString(),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = itemText,
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (isUploading) {
+                CircularProgressIndicator(modifier = Modifier.size(16.dp))
+            } else if (uploadSuccess) {
+                Icon(Icons.Filled.CheckCircle, contentDescription = "Uploaded", tint = Color.Green)
+            } else {
+                IconButton(onClick = {
+                    viewModel.updateSelectedFileItems(viewModel.selectedFileItems.filterNot { it.second == uri })
+                    viewModel.updateAudioDescription(uri, "")
+                    viewModel.updateSelectedTags(uri, emptyList())
+                }) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Delete")
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = description,
+            onValueChange = { newDescription ->
+                viewModel.updateAudioDescription(uri, newDescription)
+            },
+            label = { Text("描述") },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+// 新增的TagItemForUpload组件，用于展示和选择标签
+@Composable
+fun TagItemForUpload(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier) {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        onClick = {
+            selected = !selected
+            onSelectedChange(selected)
+        },
+        label = {
+            Text(
+                tag,
+                style = MaterialTheme.typography.bodySmall
+            )
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                )
+            }
+        } else {
+            null
+        },
+        modifier = modifier
+            .animateContentSize()
+    )
+}
+
+// 获取文件名函数
 @SuppressLint("Range")
 fun getFileName(context: Context, uri: Uri): String {
     var fileName: String? = null
@@ -215,47 +295,3 @@ fun getFileName(context: Context, uri: Uri): String {
     return fileName ?: uri.lastPathSegment ?: "Unknown file"
 }
 
-@Composable
-fun AnalysisListItem(
-    itemText: String,
-    isSelected: Boolean,
-    isUploading: Boolean,
-    uploadSuccess: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(8.dp)
-            .clip(RoundedCornerShape(8.dp))
-    ) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = itemText.first().toString(),
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = itemText,
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        if (isUploading) {
-            CircularProgressIndicator(modifier = Modifier.size(16.dp))
-        } else if (uploadSuccess) {
-            Icon(Icons.Filled.CheckCircle, contentDescription = "Uploaded", tint = Color.Green)
-        } else {
-            Checkbox(checked = isSelected, onCheckedChange = onCheckedChange)
-        }
-    }
-}
