@@ -36,8 +36,8 @@ class AnalysisViewModel(
                             // 创建一个临时文件存储在缓存目录中
                             val file = File(context.cacheDir, getFileName(context, uri))
                             // 使用文件输出流将输入流内容写入临时文件
-                            FileOutputStream(file).use { outputStram ->
-                                inputStream.copyTo(outputStram)
+                            FileOutputStream(file).use { outputStream ->
+                                inputStream.copyTo(outputStream)
                                 // 将文件转换为请求体
                                 val requestBody =
                                     file.asRequestBody("audio/mpeg".toMediaTypeOrNull())
