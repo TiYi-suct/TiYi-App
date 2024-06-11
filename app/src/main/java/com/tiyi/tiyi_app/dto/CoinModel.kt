@@ -13,6 +13,7 @@ data class AnalysisItemsModel(
     data class AnalysisItem(
         @SerialName("id") val id: Int,
         @SerialName("name") val name: String,
+        @SerialName("description") val description: String,
         @SerialName("price") val price: Int
     )
 }
