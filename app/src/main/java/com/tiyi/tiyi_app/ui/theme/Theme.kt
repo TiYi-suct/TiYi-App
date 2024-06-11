@@ -238,7 +238,7 @@ fun TiYiAppTheme(
         window.statusBarColor = Color.Transparent.toArgb()
         window.navigationBarColor = Color.Transparent.toArgb()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = darkTheme
+        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = !darkTheme
     }
   }
 

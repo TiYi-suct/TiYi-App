@@ -5,6 +5,7 @@ import com.tiyi.tiyi_app.application.TokenManager
 import com.tiyi.tiyi_app.dto.AnalysisItemsModel
 import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
+import com.tiyi.tiyi_app.dto.AudioUpdateRequestModel
 import com.tiyi.tiyi_app.dto.AudioUploadResponseModel
 import com.tiyi.tiyi_app.dto.CommonResponseModel
 import com.tiyi.tiyi_app.dto.ConsumptionCheckModel
@@ -66,6 +67,9 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun editSignature(signature: String): Result<CommonResponseModel> =
         safeApiCall { apiService.editSignature(signature) }
+
+    suspend fun updateAudio(updateAudioBody: AudioUpdateRequestModel) =
+        safeApiCall { apiService.updateAudio(updateAudioBody) }
 
     suspend fun uploadAudio(file: RequestBody): Result<AudioUploadResponseModel> =
         safeApiCall { apiService.uploadAudio(file) }
