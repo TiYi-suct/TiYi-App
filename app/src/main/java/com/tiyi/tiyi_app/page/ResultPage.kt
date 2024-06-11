@@ -1,6 +1,8 @@
 package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -20,9 +23,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
 @Composable
@@ -103,55 +108,107 @@ fun ResultItemDownload(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultAppBar(
-    sliceName: String,
-    modifier: Modifier = Modifier,
+fun ResultItemImage(
+    resultName: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = sliceName,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
-            }
-        },
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors().copy(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         modifier = modifier
-    )
-}
+            .fillMaxWidth()
+    ) {
+        Column {
+            Text(
+                text = resultName,
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+            Image(
+                painter = painterResource(R.drawable.ic_launcher_background),
+                contentDescription = "Result Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.align(Alignment.End)
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Outlined.Search, contentDescription = "放大镜")
+                Text(text = "查看")
+            }
+        }
 
-@Composable
-@Preview(name = "Result AppBar - Light")
-@Preview(name = "Result AppBar - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun ResultAppBarPreview() {
-    TiYiAppTheme {
-        ResultAppBar(sliceName = "Slice Name")
     }
 }
 
-@Composable
-@Preview(name = "Result Item Number - Light")
-@Preview(name = "Result Item Number - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun ResultItemNumberPreview() {
-    TiYiAppTheme {
-        ResultItemNumber(resultName = "BPM", number = 128.73)
-    }
-}
-
-@Composable
-@Preview(name = "Result Item Download - Light")
-@Preview(name = "Result Item Download - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun ResultItemDownloadPreview() {
-    TiYiAppTheme {
-        ResultItemDownload(
-            resultName = "移调：+3",
-            onDownloadClicked = {}
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ResultAppBar(
+        sliceName: String,
+        modifier: Modifier = Modifier,
+    ) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = sliceName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                }
+            },
+            modifier = modifier
         )
     }
-}
+
+    @Composable
+    @Preview(name = "Result AppBar - Light")
+    @Preview(name = "Result AppBar - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+    fun ResultAppBarPreview() {
+        TiYiAppTheme {
+            ResultAppBar(sliceName = "Slice Name")
+        }
+    }
+
+    @Composable
+    @Preview(name = "Result Item Number - Light")
+    @Preview(name = "Result Item Number - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+    fun ResultItemNumberPreview() {
+        TiYiAppTheme {
+            ResultItemNumber(resultName = "BPM", number = 128.73)
+        }
+    }
+
+    @Composable
+    @Preview(name = "Result Item Download - Light")
+    @Preview(name = "Result Item Download - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+    fun ResultItemDownloadPreview() {
+        TiYiAppTheme {
+            ResultItemDownload(
+                resultName = "移调：+3",
+                onDownloadClicked = {}
+            )
+        }
+    }
+
+    @Composable
+    @Preview(name = "Result Item Image - Light")
+    @Preview(name = "Result Item Image - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+    fun ResultItemImagePreview() {
+        TiYiAppTheme {
+            ResultItemImage(
+                resultName = "MFCC：20",
+                imageUrl = ""
+            )
+        }
+    }
