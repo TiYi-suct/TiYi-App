@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.ui.theme
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -238,7 +239,7 @@ fun TiYiAppTheme(
         window.statusBarColor = Color.Transparent.toArgb()
         window.navigationBarColor = Color.Transparent.toArgb()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = darkTheme
+        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = !darkTheme
     }
   }
 
