@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -142,31 +141,40 @@ fun TranspositionStepsDrawer(
     onTranspositionStepsChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
         modifier = modifier
     ) {
         Text(
-            "$transpositionSteps",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .requiredWidth(30.dp)
+            "音高变化（半音）",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(8.dp)
         )
-        Slider(
-            value = transpositionSteps.toFloat(),
-            onValueChange = { onTranspositionStepsChange(it.toInt()) },
-            valueRange = -6f..6f,
-            steps = 12,
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-                activeTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
-                inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+        ) {
+            Text(
+                "$transpositionSteps",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .weight(1f)
+            )
+            Slider(
+                value = transpositionSteps.toFloat(),
+                onValueChange = { onTranspositionStepsChange(it.toInt()) },
+                valueRange = -6f..6f,
+                steps = 12,
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    activeTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    activeTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                modifier = Modifier.weight(9f)
+            )
+        }
     }
 }
 
