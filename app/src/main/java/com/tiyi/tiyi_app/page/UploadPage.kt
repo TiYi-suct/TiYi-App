@@ -4,17 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -55,10 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,7 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.viewModel.UploadViewModel
 
-@Preview(name = "NIGHT MODE", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Upload Page", showSystemUi = true)
 @Composable
 fun UploadPage(modifier: Modifier = Modifier) {
     FileUploadUI()
@@ -91,90 +85,94 @@ fun FileUploadUI() {
         }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .align(Alignment.TopCenter),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            FilePicker(filePickerLauncher)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "已选择",
+        if (selectedFileItems.isEmpty()) {
+            // 未选择文件时展示添加文件按钮
+            IconButton(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        type = "audio/*"
+                    }
+                    filePickerLauncher.launch(intent)
+                },
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Add file",
+                    modifier = Modifier.size(200.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            Column(
                 modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp)
-            )
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .align(Alignment.TopCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(selectedFileItems) { item ->
-                        AnalysisListItem(
-                            itemText = item.first,
-                            uri = item.second
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "已选择",
+                        modifier = Modifier
+                            .weight(1f),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    IconButton(onClick = {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "audio/*"
+                        }
+                        filePickerLauncher.launch(intent)
+                    }) {
+                        Icon(Icons.Filled.Add, contentDescription = "Add file")
                     }
                 }
-            }
-        }
 
-        Button(
-            onClick = {
-                selectedFileItems.forEach { (_, uri) ->
-                    viewModel.updateUploading(true)
-                    viewModel.uploadFile(uri) { success, audioId ->
-                        viewModel.updateUploading(false) // 更新上传成功
-                        viewModel.updateUploadSuccess(uri, success)
-                        if (success && audioId != null) {
-                            val description = viewModel.audioDescriptions[uri] ?: ""
-                            val selectedTags = viewModel.selectedTags[uri] ?: emptyList()
-                            viewModel.updateAudioInfo(audioId, description, selectedTags)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(top = 30.dp, bottom = 72.dp)
+                    ) {
+                        items(selectedFileItems) { item ->
+                            AnalysisListItem(
+                                itemText = item.first,
+                                uri = item.second
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                 }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Text(text = "上传文件")
-        }
-    }
-}
-
-@Composable
-fun FilePicker(filePickerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .padding(16.dp)
-            .background(Color.Gray.copy(alpha = 0.1f))
-            .drawBehind {
-                val stroke = Stroke(
-                    width = 2.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(
-                        floatArrayOf(10.dp.toPx(), 10.dp.toPx()), 0f
-                    )
-                )
-                drawRoundRect(color = Color.Gray, style = stroke)
             }
-            .clickable {
-                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                    type = "audio/*"
-                }
-                filePickerLauncher.launch(intent)
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "选择文件", color = Color.Gray)
+
+            Button(
+                onClick = {
+                    selectedFileItems.forEach { (_, uri) ->
+                        viewModel.updateUploading(true)
+                        viewModel.uploadFile(uri) { success, audioId ->
+                            viewModel.updateUploading(false) // 更新上传成功
+                            viewModel.updateUploadSuccess(uri, success)
+                            if (success && audioId != null) {
+                                val description = viewModel.audioDescriptions[uri] ?: ""
+                                val selectedTags = viewModel.selectedTags[uri] ?: emptyList()
+                                viewModel.updateAudioInfo(audioId, description, selectedTags)
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) {
+                Text(text = "上传文件")
+            }
+        }
     }
 }
 
@@ -313,3 +311,4 @@ fun getFileName(context: Context, uri: Uri): String {
     }
     return fileName ?: uri.lastPathSegment ?: "Unknown file"
 }
+
