@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.page
 
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -60,6 +61,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tiyi.tiyi_app.ResultActivity
+import com.tiyi.tiyi_app.pojo.AnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 import kotlinx.coroutines.launch
@@ -72,6 +75,7 @@ fun AnalysisPage(
     val analysisItems by analysisViewModel.analysisItems.collectAsState()
     val transpositionSteps by analysisViewModel.transpositionSteps.collectAsState()
     val mfccFactor by analysisViewModel.mfccFactor.collectAsState()
+    val sliceId by analysisViewModel.id.collectAsState()
     val sliceName by analysisViewModel.sliceName.collectAsState()
     val analysisCost by analysisViewModel.analysisCost.collectAsState()
     val error by analysisViewModel.error.collectAsState()
@@ -97,7 +101,20 @@ fun AnalysisPage(
                 onBackPressed = { activity.finish() })
         },
         bottomBar = {
-            AnalysisPlayBottomBar(analysisCost)
+            AnalysisPlayBottomBar(analysisCost,
+                onAnalysisClick = {
+                    val analysisRequest = AnalysisRequest(
+                        audioId = sliceId,
+                        analysisItems = analysisItems,
+                        transpositionSteps = transpositionSteps,
+                        mfccFactor = mfccFactor
+                    )
+
+                    val intent = Intent(activity, ResultActivity::class.java).apply {
+                        putExtra("analysisRequest", analysisRequest)
+                    }
+                    activity.startActivity(intent)
+                })
         },
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
@@ -279,7 +296,8 @@ fun TranspositionStepsDrawer(
 @Composable
 fun AnalysisPlayBottomBar(
     analysisCost: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAnalysisClick: () -> Unit = {},
 ) {
     var playProgress by remember { mutableFloatStateOf(0f) }
 
@@ -314,7 +332,7 @@ fun AnalysisPlayBottomBar(
                 }
                 StartAnalysisButton(
                     coinCost = analysisCost,
-                    onClick = { /* do something */ },
+                    onClick = onAnalysisClick,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
