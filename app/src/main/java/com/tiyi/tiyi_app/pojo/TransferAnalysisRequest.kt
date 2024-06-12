@@ -1,5 +1,7 @@
 package com.tiyi.tiyi_app.pojo
 
+import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
 import java.io.Serializable
 
 val analysisUrlOfId = mapOf(
@@ -18,3 +20,32 @@ data class TransferAnalysisRequest(
     val startTime: Float? = null,
     val endTime: Float? = null
 ) : Serializable
+
+fun TransferAnalysisRequest.toAnalysisRequest(): List<AnalysisRequest<*>> {
+    val analysisRequests = mutableListOf<AnalysisRequest<*>>()
+    analysisItems.forEach { (analysisItemInfo, isSelected) ->
+        if (isSelected) {
+            when (analysisItemInfo.id) {
+//                1 -> {
+//                    analysisRequests.add(BpmAnalysisRequest(audioId, startTime, endTime))
+//                }
+//                2 -> {
+//                    analysisRequests.add(TranspositionAnalysisRequest(audioId, transpositionSteps, startTime, endTime))
+//                }
+                3 -> {
+                    analysisRequests.add(MelSpectrogramAnalysisRequest(audioId, startTime, endTime))
+                }
+//                4 -> {
+//                    analysisRequests.add(SpectrogramAnalysisRequest(audioId, startTime, endTime))
+//                }
+//                5 -> {
+//                    analysisRequests.add(MfccAnalysisRequest(audioId, mfccFactor, startTime, endTime))
+//                }
+                else -> {
+                    throw IllegalArgumentException("Unknown analysis item id: ${analysisItemInfo.id}")
+                }
+            }
+        }
+    }
+    return analysisRequests
+}
