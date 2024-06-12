@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -22,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -123,7 +125,9 @@ fun ResultItemImage(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+        ){
             Text(
                 text = resultName,
                 style = MaterialTheme.typography.headlineLarge,
@@ -134,7 +138,13 @@ fun ResultItemImage(
                 loading = {
                     CircularProgressIndicator()
                 },
-                contentDescription = "结果"
+                contentScale = ContentScale.Crop,
+                contentDescription = "结果",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+                    .sizeIn(maxHeight = 200.dp)
+                ,
             )
             Button(
                 onClick = { /*TODO*/ },
