@@ -1,8 +1,6 @@
 package com.tiyi.tiyi_app.page
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +11,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,10 +22,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
 import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 
@@ -111,7 +112,7 @@ fun ResultItemDownload(
 @Composable
 fun ResultItemImage(
     resultName: String,
-    imageUrl: String,
+    imageRequest: ImageRequest,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -128,12 +129,12 @@ fun ResultItemImage(
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(16.dp)
             )
-            Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
-                contentDescription = "Result Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            SubcomposeAsyncImage(
+                model = imageRequest,
+                loading = {
+                    CircularProgressIndicator()
+                },
+                contentDescription = "结果"
             )
             Button(
                 onClick = { /*TODO*/ },
@@ -208,7 +209,9 @@ fun ResultItemImage(
         TiYiAppTheme {
             ResultItemImage(
                 resultName = "MFCC：20",
-                imageUrl = ""
+                imageRequest = ImageRequest.Builder(LocalContext.current)
+                    .data(R.drawable.login_background)
+                    .build()
             )
         }
     }
