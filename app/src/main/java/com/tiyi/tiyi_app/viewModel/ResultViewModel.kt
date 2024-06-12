@@ -11,6 +11,9 @@ import com.tiyi.tiyi_app.pojo.AnalysisResult
 import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.BpmAnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.MfccAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.SpectrogramAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.TranspositionAnalysisRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -45,6 +48,34 @@ class ResultViewModel(
         _analysisRequest.value = requests
     }
 
+    fun take(mfccAnalysisRequest: MfccAnalysisRequest): State<String?> {
+        val resultUrl = mutableStateOf<String?>(null)
+        Log.d(TAG, "take: $mfccAnalysisRequest")
+        viewModelScope.launch {
+            val result = mfccAnalysisRequest.analysis(networkRepository) {
+                submitError(it)
+            }
+            if (result != null) {
+                resultUrl.value = result
+            }
+        }
+        return resultUrl
+    }
+
+    fun take(transpositionAnalysisRequest: TranspositionAnalysisRequest): State<String?> {
+        val resultUrl = mutableStateOf<String?>(null)
+        Log.d(TAG, "take: $transpositionAnalysisRequest")
+        viewModelScope.launch {
+            val result = transpositionAnalysisRequest.analysis(networkRepository) {
+                submitError(it)
+            }
+            if (result != null) {
+                resultUrl.value = result
+            }
+        }
+        return resultUrl
+    }
+
     fun take(bpmAnalysisRequest: BpmAnalysisRequest): State<Float?> {
         val bpm = mutableStateOf<Float?>(null)
         Log.d(TAG, "take: $bpmAnalysisRequest")
@@ -57,6 +88,20 @@ class ResultViewModel(
             }
         }
         return bpm
+    }
+
+    fun take(spectrogramAnalysisRequest: SpectrogramAnalysisRequest): State<String> {
+        val resultUrl = mutableStateOf("")
+        Log.d(TAG, "take: $spectrogramAnalysisRequest")
+        viewModelScope.launch {
+            val result = spectrogramAnalysisRequest.analysis(networkRepository) {
+                submitError(it)
+            }
+            if (result != null) {
+                resultUrl.value = result
+            }
+        }
+        return resultUrl
     }
 
     fun take(melSpectrogramAnalysisRequest: MelSpectrogramAnalysisRequest): State<String> {

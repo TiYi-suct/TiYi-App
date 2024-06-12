@@ -43,6 +43,9 @@ import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.BpmAnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.MfccAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.SpectrogramAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.TranspositionAnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.ResultViewModel
 
@@ -85,10 +88,32 @@ fun CombinedResultItem(
             val bpm by remember { resultViewModel.take(analysisRequest) }
             ResultItemNumber(resultName = "BPM", number = bpm)
         }
+        is TranspositionAnalysisRequest -> {
+            val url by remember { resultViewModel.take(analysisRequest) }
+            ResultItemDownload(resultName = "移调", onDownloadClicked = { /*TODO*/ }, url = url)
+        }
         is MelSpectrogramAnalysisRequest -> {
             val url by remember { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "梅尔频谱图",
+                imageRequest = ImageRequest.Builder(LocalContext.current)
+                    .data(url)
+                    .build()
+            )
+        }
+        is SpectrogramAnalysisRequest -> {
+            val url by remember { resultViewModel.take(analysisRequest) }
+            ResultItemImage(
+                resultName = "频谱图",
+                imageRequest = ImageRequest.Builder(LocalContext.current)
+                    .data(url)
+                    .build()
+            )
+        }
+        is MfccAnalysisRequest -> {
+            val url by remember { resultViewModel.take(analysisRequest) }
+            ResultItemImage(
+                resultName = "MFCC",
                 imageRequest = ImageRequest.Builder(LocalContext.current)
                     .data(url)
                     .build()
@@ -140,7 +165,8 @@ fun ResultItemNumber(
 fun ResultItemDownload(
     resultName: String,
     onDownloadClicked: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    url: String? = null,
 ) {
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors().copy(
@@ -161,6 +187,7 @@ fun ResultItemDownload(
             )
 
             Button(
+                enabled = url != null,
                 onClick = { onDownloadClicked(true) },
                 modifier = Modifier.align(Alignment.End)
             ) {
