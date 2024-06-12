@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.dto.LabelRequest
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
-import com.tiyi.tiyi_app.pojo.MusicInfo
+import com.tiyi.tiyi_app.pojo.AudioInfo
 import com.tiyi.tiyi_app.pojo.Result
 import com.tiyi.tiyi_app.utils.within
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ class RecentViewModel(
     private val _tagList = MutableStateFlow(listOf<String>())
     val tagList = _tagList.asStateFlow()
 
-    private val _recentList = MutableStateFlow(listOf<MusicInfo>())
+    private val _recentList = MutableStateFlow(listOf<AudioInfo>())
     val recentList = _recentList.asStateFlow()
 
     private val _selectedTagList = MutableStateFlow(listOf<String>())
@@ -81,7 +81,7 @@ class RecentViewModel(
                 if (response.code != 0)
                     throw CorruptedApiException()
                 _recentList.value = response.data.map {
-                    MusicInfo(
+                    AudioInfo(
                         id = it.audioId,
                         title = it.name,
                         tags = it.tags,
@@ -126,12 +126,12 @@ class RecentViewModel(
         }
     }
 
-    fun editTagFor(musicInfo: MusicInfo, newTags: List<String>) {
-        Log.d(TAG, "editTagFor: $musicInfo, $newTags")
+    fun editTagFor(audioInfo: AudioInfo, newTags: List<String>) {
+        Log.d(TAG, "editTagFor: $audioInfo, $newTags")
         viewModelScope.launch {
             when (val result = networkRepository.labelAudio(
                 LabelRequest(
-                    musicInfo.id,
+                    audioInfo.id,
                     newTags.joinToString(
                         ","
                     )
@@ -153,10 +153,10 @@ class RecentViewModel(
         }
     }
 
-    fun deleteMusic(musicInfo: MusicInfo) {
-        Log.d(TAG, "deleteMusic: $musicInfo")
+    fun deleteMusic(audioInfo: AudioInfo) {
+        Log.d(TAG, "deleteMusic: $audioInfo")
         viewModelScope.launch {
-            when (val result = networkRepository.deleteAudio(musicInfo.id)) {
+            when (val result = networkRepository.deleteAudio(audioInfo.id)) {
                 is Result.Success -> {
                     val response = result.data
                     if (response.code != 0) {

@@ -1,6 +1,6 @@
 package com.tiyi.tiyi_app.pojo
 
-data class MusicInfo(
+data class AudioInfo(
     val id: String,
     val title: String,
     val tags: List<String> = emptyList(),

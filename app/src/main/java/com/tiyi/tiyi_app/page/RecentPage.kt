@@ -81,7 +81,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.AnalysisActivity
-import com.tiyi.tiyi_app.pojo.MusicInfo
+import com.tiyi.tiyi_app.pojo.AudioInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.RecentViewModel
 import kotlinx.coroutines.launch
@@ -161,12 +161,12 @@ fun NewTagDialogPreview() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EditTagDialog(
-    musicInfo: MusicInfo,
+    audioInfo: AudioInfo,
     availableTagList: List<String>,
     onDismiss: () -> Unit,
     onEdit: (List<String>) -> Unit
 ) {
-    var selectedTags by remember { mutableStateOf(musicInfo.tags) }
+    var selectedTags by remember { mutableStateOf(audioInfo.tags) }
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
@@ -286,7 +286,7 @@ fun EditTagDialog(
 fun EditTagDialogPreview() {
     TiYiAppTheme {
         EditTagDialog(
-            musicInfo = MusicInfo(
+            audioInfo = AudioInfo(
                 "0",
                 "Title",
                 listOf("流行", "摇滚")
@@ -479,7 +479,7 @@ fun RecentPage(
 }
 
 @Composable
-fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
+fun MusicItem(audioInfo: AudioInfo, modifier: Modifier = Modifier) {
     var isExpended by rememberSaveable { mutableStateOf(false) }
     var editTagDialogVisible by remember { mutableStateOf(false) }
     val recentViewModel: RecentViewModel = viewModel()
@@ -487,11 +487,11 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
     val tagList by recentViewModel.tagList.collectAsState()
     if (editTagDialogVisible) {
         EditTagDialog(
-            musicInfo = musicInfo,
+            audioInfo = audioInfo,
             availableTagList = tagList,
             onDismiss = { editTagDialogVisible = false },
             onEdit = { tags ->
-                recentViewModel.editTagFor(musicInfo, tags)
+                recentViewModel.editTagFor(audioInfo, tags)
             }
         )
     }
@@ -518,7 +518,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.primary)
             ) {
                 Text(
-                    text = musicInfo.title.first().toString(),
+                    text = audioInfo.title.first().toString(),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -526,12 +526,12 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.size(16.dp))
             Column {
                 Text(
-                    musicInfo.title,
+                    audioInfo.title,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
-                    musicInfo.tagList,
+                    audioInfo.tagList,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -549,7 +549,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             ) {
                 Button(
                     onClick = {
-                        recentViewModel.deleteMusic(musicInfo)
+                        recentViewModel.deleteMusic(audioInfo)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
@@ -576,8 +576,8 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                 Button(
                     onClick = {
                         Intent(context, AnalysisActivity::class.java).apply {
-                            putExtra("id", musicInfo.id)
-                            putExtra("title", musicInfo.title)
+                            putExtra("id", audioInfo.id)
+                            putExtra("title", audioInfo.title)
                             context.startActivity(this)
                         }
                     },
