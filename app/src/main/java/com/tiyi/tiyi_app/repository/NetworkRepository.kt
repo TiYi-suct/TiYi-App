@@ -115,4 +115,17 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun downloadFile(filename: String): Result<ResponseBody> =
         safeApiCall { apiService.downloadFile(filename) }
+
+    suspend fun analysisMelSpec(
+        audioId: String,
+        startTime: Float,
+        endTime: Float
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisMelSpectrogram(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime
+            )
+        }
 }
