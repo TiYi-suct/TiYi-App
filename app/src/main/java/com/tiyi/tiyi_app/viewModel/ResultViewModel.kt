@@ -90,8 +90,8 @@ class ResultViewModel(
         return bpm
     }
 
-    fun take(spectrogramAnalysisRequest: SpectrogramAnalysisRequest): State<String> {
-        val resultUrl = mutableStateOf("")
+    fun take(spectrogramAnalysisRequest: SpectrogramAnalysisRequest): State<String?> {
+        val resultUrl = mutableStateOf<String?>(null)
         Log.d(TAG, "take: $spectrogramAnalysisRequest")
         viewModelScope.launch {
             val result = spectrogramAnalysisRequest.analysis(networkRepository) {
@@ -104,8 +104,8 @@ class ResultViewModel(
         return resultUrl
     }
 
-    fun take(melSpectrogramAnalysisRequest: MelSpectrogramAnalysisRequest): State<String> {
-        val resultUrl = mutableStateOf("")
+    fun take(melSpectrogramAnalysisRequest: MelSpectrogramAnalysisRequest): State<String?> {
+        val resultUrl = mutableStateOf<String?>(null)
         Log.d(TAG, "take: $melSpectrogramAnalysisRequest")
         viewModelScope.launch {
             val result = melSpectrogramAnalysisRequest.analysis(networkRepository) {
