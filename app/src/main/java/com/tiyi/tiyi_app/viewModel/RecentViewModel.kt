@@ -6,9 +6,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.dto.LabelRequest
+import com.tiyi.tiyi_app.pojo.AudioDetail
+import com.tiyi.tiyi_app.pojo.AudioInfo
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
-import com.tiyi.tiyi_app.pojo.MusicInfo
 import com.tiyi.tiyi_app.pojo.Result
+import com.tiyi.tiyi_app.pojo.emptyAudioDetail
 import com.tiyi.tiyi_app.utils.within
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,8 +29,11 @@ class RecentViewModel(
     private val _tagList = MutableStateFlow(listOf<String>())
     val tagList = _tagList.asStateFlow()
 
-    private val _recentList = MutableStateFlow(listOf<MusicInfo>())
+    private val _recentList = MutableStateFlow(listOf<AudioInfo>())
     val recentList = _recentList.asStateFlow()
+
+    private val _audioDetail = MutableStateFlow(emptyAudioDetail())
+    val audioDetail = _audioDetail.asStateFlow()
 
     private val _selectedTagList = MutableStateFlow(listOf<String>())
     val selectedTagList = _selectedTagList.asStateFlow()
@@ -56,6 +61,33 @@ class RecentViewModel(
         _error.value = null
     }
 
+    fun fetchAudioDetail(audioId: String) = viewModelScope.launch {
+        _loading.value = true
+        _audioDetail.value.loading = true
+        clearError()
+        when (val result = networkRepository.getAudioDetails(audioId)) {
+            is Result.Success -> {
+                val response = result.data
+                if (response.code != 0)
+                    submitError(response.msg)
+                _audioDetail.value = AudioDetail(
+                    audioId = response.data.audioId,
+                    name = response.data.name,
+                    extension = response.data.extension,
+                    url = response.data.url,
+                    tags = response.data.tags,
+                    cover = response.data.cover ?: "",
+                    description = response.data.description ?: "",
+                    userName = response.data.username
+                )
+            }
+
+            else -> submitError(result.message)
+        }
+        _audioDetail.value.loading = false
+        _loading.value = false
+    }
+
     private suspend fun fetchTagAndRecentList() {
         fetchTagList()
         fetchAudioList()
@@ -81,7 +113,7 @@ class RecentViewModel(
                 if (response.code != 0)
                     throw CorruptedApiException()
                 _recentList.value = response.data.map {
-                    MusicInfo(
+                    AudioInfo(
                         id = it.audioId,
                         title = it.name,
                         tags = it.tags,
@@ -126,12 +158,12 @@ class RecentViewModel(
         }
     }
 
-    fun editTagFor(musicInfo: MusicInfo, newTags: List<String>) {
-        Log.d(TAG, "editTagFor: $musicInfo, $newTags")
+    fun editTagFor(audioInfo: AudioInfo, newTags: List<String>) {
+        Log.d(TAG, "editTagFor: $audioInfo, $newTags")
         viewModelScope.launch {
             when (val result = networkRepository.labelAudio(
                 LabelRequest(
-                    musicInfo.id,
+                    audioInfo.id,
                     newTags.joinToString(
                         ","
                     )
@@ -153,10 +185,10 @@ class RecentViewModel(
         }
     }
 
-    fun deleteMusic(musicInfo: MusicInfo) {
-        Log.d(TAG, "deleteMusic: $musicInfo")
+    fun deleteMusic(audioInfo: AudioInfo) {
+        Log.d(TAG, "deleteMusic: $audioInfo")
         viewModelScope.launch {
-            when (val result = networkRepository.deleteAudio(musicInfo.id)) {
+            when (val result = networkRepository.deleteAudio(audioInfo.id)) {
                 is Result.Success -> {
                     val response = result.data
                     if (response.code != 0) {
