@@ -44,7 +44,8 @@ data class AudioDetails(
     @SerialName("url") val url: String,
     @SerialName("tags") val tags: List<String>,
     @SerialName("cover") val cover: String?,
-    @SerialName("username") val username: String
+    @SerialName("username") val username: String,
+    @SerialName("description") val description: String?
 )
 
 @Serializable

@@ -1,6 +1,9 @@
 package com.tiyi.tiyi_app.viewModel
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.ByteArrayOutputStream
 
 class ProfileViewModel(
     application: Application
@@ -34,27 +41,66 @@ class ProfileViewModel(
         loadRechargeItems()
     }
 
-    private fun fetchUserDetails() {
+    fun fetchUserDetails() {
         Log.d(TAG, "fetchUserDetails: ")
         viewModelScope.launch {
-            val fakeUserDetails = UserDetailsModel.UserDetails(
-                username = "John Wick",
-                avatar = "",
-                musicCoin = 100,
-                signature = "I am fine thank you"
-            )
+            when (val result = networkRepository.getUserDetails()) {
+                is Result.Success -> {
+                    val response = result.data
+                    _userDetails.value = response.data
+                }
 
-            _userDetails.value = fakeUserDetails
+                else -> {
+                    Log.e(TAG, "获取用户信息失败")
+                }
+            }
         }
-//        viewModelScope.launch {
-//            try {
-//                val userDetails = networkRepository.getUserDetails()
-//                _userDetails.value = userDetails
-//            } catch (e: Exception) {
-//                // Handle the error, e.g., log it or show a message to the user
-//                e.printStackTrace()
-//            }
-//        }
+    }
+
+    fun updateAvatar(
+        newAvatarUri: Uri
+    ) {
+        viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            val bitmap =
+                BitmapFactory.decodeStream(context.contentResolver.openInputStream(newAvatarUri))
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            val requestBody = RequestBody.create(
+                "image/jpeg".toMediaTypeOrNull(),
+                byteArrayOutputStream.toByteArray()
+            )
+            val body = MultipartBody.Part.createFormData("avatar", "avatar.jpg", requestBody)
+            when (val result = networkRepository.updateAvatar(body)) {
+                is Result.Success -> {
+                    val response = result.data
+                    _userDetails.value = _userDetails.value?.copy(avatar = response.data)
+                }
+
+                is Result.BadRequest -> {
+                    Log.e(TAG, result.message)
+                }
+
+                else -> {
+                    Log.e(TAG, result.toString())
+                    Log.e(TAG, "更新头像失败")
+                }
+            }
+        }
+    }
+
+    fun editSignature(newSignature: String) {
+        viewModelScope.launch {
+            when (val result = networkRepository.editSignature(newSignature)) {
+                is Result.Success -> {
+                    fetchUserDetails()
+                }
+
+                else -> {
+                    Log.e(TAG, "编辑个性签名失败")
+                }
+            }
+        }
     }
 
     private fun loadRechargeItems() {
@@ -71,19 +117,6 @@ class ProfileViewModel(
                 }
             }
         }
-
-//        viewModelScope.launch {
-//            try {
-//                val response = networkRepository.getRechargeItems()
-//                if (response.code == 200) {
-//                    _rechargeItems.value = response.data
-//                } else {
-//                    // handle error case
-//                }
-//            } catch (e: Exception) {
-//                // handle exception
-//            }
-//        }
     }
 
     fun createOrder(rechargeId: Int, onSuccess: (String) -> Unit, onError: () -> Unit) {
@@ -102,19 +135,5 @@ class ProfileViewModel(
                 }
             }
         }
-
-
-//        viewModelScope.launch {
-//            try {
-//                val response = networkRepository.getOrderInfo(rechargeId)
-//                if (response.code == 200) {
-//                    onSuccess()
-//                } else {
-//                    onError()
-//                }
-//            } catch (e: Exception) {
-//                onError()
-//            }
-//        }
     }
 }

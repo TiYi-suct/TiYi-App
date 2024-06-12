@@ -18,6 +18,7 @@ import com.tiyi.tiyi_app.dto.RegisterRequest
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.Result
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.HttpException
@@ -60,6 +61,12 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun getUserDetails(): Result<UserDetailsModel> =
         safeApiCall { apiService.getUserDetails() }
+
+    suspend fun updateAvatar(avatar: MultipartBody.Part): Result<CommonResponseModel> =
+        safeApiCall { apiService.updateAvatar(avatar) }
+
+    suspend fun editSignature(signature: String): Result<CommonResponseModel> =
+        safeApiCall { apiService.editSignature(signature) }
 
     suspend fun updateAudio(updateAudioBody: AudioUpdateRequestModel) =
         safeApiCall { apiService.updateAudio(updateAudioBody) }
@@ -108,4 +115,73 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun downloadFile(filename: String): Result<ResponseBody> =
         safeApiCall { apiService.downloadFile(filename) }
+
+    suspend fun analysisMelSpec(
+        audioId: String,
+        startTime: Float? = null,
+        endTime: Float? = null
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisMelSpectrogram(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime
+            )
+        }
+
+    suspend fun analysisSpec(
+        audioId: String,
+        startTime: Float? = null,
+        endTime: Float? = null
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisMelSpectrogram(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime
+            )
+        }
+
+    suspend fun analysisBPM(
+        audioId: String,
+        startTime: Float? = null,
+        endTime: Float? = null
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisBPM(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime
+            )
+        }
+
+    suspend fun analysisTransposition(
+        audioId: String,
+        startTime: Float? = null,
+        endTime: Float? = null,
+        nSteps: Int? = null
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisTransposition(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime,
+                nSteps = nSteps
+            )
+        }
+
+    suspend fun analysisMfcc(
+        audioId: String,
+        startTime: Float? = null,
+        endTime: Float? = null,
+        nMFCC: Int? = null
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisMFCC(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime,
+                nMFCC = nMFCC,
+            )
+        }
 }

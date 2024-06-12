@@ -14,6 +14,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -81,7 +83,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.AnalysisActivity
-import com.tiyi.tiyi_app.pojo.MusicInfo
+import com.tiyi.tiyi_app.pojo.AudioDetail
+import com.tiyi.tiyi_app.pojo.AudioInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.RecentViewModel
 import kotlinx.coroutines.launch
@@ -161,12 +164,12 @@ fun NewTagDialogPreview() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EditTagDialog(
-    musicInfo: MusicInfo,
+    audioInfo: AudioInfo,
     availableTagList: List<String>,
     onDismiss: () -> Unit,
     onEdit: (List<String>) -> Unit
 ) {
-    var selectedTags by remember { mutableStateOf(musicInfo.tags) }
+    var selectedTags by remember { mutableStateOf(audioInfo.tags) }
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
@@ -286,7 +289,7 @@ fun EditTagDialog(
 fun EditTagDialogPreview() {
     TiYiAppTheme {
         EditTagDialog(
-            musicInfo = MusicInfo(
+            audioInfo = AudioInfo(
                 "0",
                 "Title",
                 listOf("流行", "摇滚")
@@ -397,7 +400,8 @@ fun RecentPage(
                 )
             }
         },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .imePadding()
     ) { innerPadding ->
         Column(
@@ -462,7 +466,7 @@ fun RecentPage(
                 state = listState,
                 modifier = Modifier.fillMaxHeight()
             ) {
-                items(songs, key = {it.id}) { music ->
+                items(songs, key = { it.id }) { music ->
                     // 后端返回之前在前端先过滤
                     if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
                         return@items
@@ -478,21 +482,30 @@ fun RecentPage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
+fun MusicItem(audioInfo: AudioInfo, modifier: Modifier = Modifier) {
     var isExpended by rememberSaveable { mutableStateOf(false) }
     var editTagDialogVisible by remember { mutableStateOf(false) }
+    var detailDialogVisible by remember { mutableStateOf(false) }
     val recentViewModel: RecentViewModel = viewModel()
+    val audioDetail by recentViewModel.audioDetail.collectAsState()
     val context = LocalContext.current
     val tagList by recentViewModel.tagList.collectAsState()
     if (editTagDialogVisible) {
         EditTagDialog(
-            musicInfo = musicInfo,
+            audioInfo = audioInfo,
             availableTagList = tagList,
             onDismiss = { editTagDialogVisible = false },
             onEdit = { tags ->
-                recentViewModel.editTagFor(musicInfo, tags)
+                recentViewModel.editTagFor(audioInfo, tags)
             }
+        )
+    }
+    if (detailDialogVisible) {
+        AudioDetailDialog(
+            audioDetail = audioDetail,
+            onDismiss = { detailDialogVisible = false }
         )
     }
     Card(
@@ -500,10 +513,16 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             defaultElevation = 1.dp,
             pressedElevation = 2.dp
         ),
-        onClick = { isExpended = !isExpended },
         modifier = modifier
             .padding(8.dp)
             .animateContentSize()
+            .combinedClickable(
+                onClick = { isExpended = !isExpended },
+                onLongClick = {
+                    recentViewModel.fetchAudioDetail(audioInfo.id)
+                    detailDialogVisible = true
+                }
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -518,7 +537,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.primary)
             ) {
                 Text(
-                    text = musicInfo.title.first().toString(),
+                    text = audioInfo.title.first().toString(),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -526,12 +545,12 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.size(16.dp))
             Column {
                 Text(
-                    musicInfo.title,
+                    audioInfo.title,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
-                    musicInfo.description,
+                    audioInfo.tagList,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -549,7 +568,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
             ) {
                 Button(
                     onClick = {
-                        recentViewModel.deleteMusic(musicInfo)
+                        recentViewModel.deleteMusic(audioInfo)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
@@ -576,8 +595,8 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                 Button(
                     onClick = {
                         Intent(context, AnalysisActivity::class.java).apply {
-                            putExtra("id", musicInfo.id)
-                            putExtra("title", musicInfo.title)
+                            putExtra("id", audioInfo.id)
+                            putExtra("title", audioInfo.title)
                             context.startActivity(this)
                         }
                     },
@@ -623,4 +642,125 @@ fun TagItem(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier
         modifier = modifier
             .animateContentSize()
     )
+}
+
+@Composable
+fun AudioDetailDialog(
+    audioDetail: AudioDetail,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Card(
+            colors = CardDefaults.cardColors().copy(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+        ) {
+            if (audioDetail.loading) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "加载中...",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator()
+                }
+            }
+            AnimatedVisibility(
+                visible = !audioDetail.loading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
+                    InfoTable(
+                        "标题" to audioDetail.name,
+                        "描述" to audioDetail.description,
+                        "标签" to audioDetail.tags.joinToString(", "),
+                        "格式" to audioDetail.extension,
+                        "所属用户" to audioDetail.userName
+                    )
+
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.End)
+                    ) {
+                        Text(
+                            "好",
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoTable(vararg data: Pair<String, String>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        items(data) { item ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = item.first,
+                    modifier = Modifier.weight(3f)
+                )
+                Text(
+                    text = item.second,
+                    modifier = Modifier.weight(7f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(name = "InfoTable - Light", showBackground = true)
+@Preview(name = "InfoTable - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun InfoTablePreview() {
+    TiYiAppTheme {
+        InfoTable(
+            "Title" to "Title",
+            "Tags" to "流行, 摇滚",
+            "Description" to "Description",
+            "User" to "User"
+        )
+    }
+}
+
+@Composable
+@Preview(name = "AudioDetailDialog - Light")
+@Preview(name = "AudioDetailDialog - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun AudioDetailDialogPreview() {
+    TiYiAppTheme {
+        AudioDetailDialog(
+            AudioDetail(
+                false,
+                "0",
+                "Title",
+                "mp3",
+                "https://example.com",
+                listOf("流行", "摇滚"),
+                "https://example.com",
+                "Description",
+                "User"
+            ),
+            onDismiss = {}
+        )
+    }
 }
