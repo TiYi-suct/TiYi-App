@@ -21,6 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -28,16 +31,42 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.tiyi.tiyi_app.R
+import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+import com.tiyi.tiyi_app.viewModel.ResultViewModel
 
 @Composable
 fun ResultPage(
     modifier: Modifier = Modifier
 ) {
+    val resultViewModel: ResultViewModel = viewModel()
+    val analysisRequests by resultViewModel.analysisRequest.collectAsState()
+    val error by resultViewModel.error.collectAsState()
 
+    CombinedResultItem(analysisRequests.first())
+}
+
+@Composable
+fun CombinedResultItem(
+    analysisRequest: AnalysisRequest<*>,
+) {
+    val resultViewModel: ResultViewModel = viewModel()
+    when(analysisRequest) {
+        is MelSpectrogramAnalysisRequest -> {
+            val url by remember { resultViewModel.take(analysisRequest) }
+            ResultItemImage(
+                resultName = "梅尔频谱图",
+                imageRequest = ImageRequest.Builder(LocalContext.current)
+                    .data(url)
+                    .build()
+            )
+        }
+    }
 }
 
 @Composable
