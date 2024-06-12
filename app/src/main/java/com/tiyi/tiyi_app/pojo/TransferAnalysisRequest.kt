@@ -1,7 +1,11 @@
 package com.tiyi.tiyi_app.pojo
 
 import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.BpmAnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.MfccAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.SpectrogramAnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.TranspositionAnalysisRequest
 import java.io.Serializable
 
 val analysisUrlOfId = mapOf(
@@ -26,21 +30,40 @@ fun TransferAnalysisRequest.toAnalysisRequest(): List<AnalysisRequest<*>> {
     analysisItems.forEach { (analysisItemInfo, isSelected) ->
         if (isSelected) {
             when (analysisItemInfo.id) {
-//                1 -> {
-//                    analysisRequests.add(BpmAnalysisRequest(audioId, startTime, endTime))
-//                }
-//                2 -> {
-//                    analysisRequests.add(TranspositionAnalysisRequest(audioId, transpositionSteps, startTime, endTime))
-//                }
+                1 -> {
+                    analysisRequests.add(BpmAnalysisRequest(audioId, startTime, endTime))
+                }
+
+                2 -> {
+                    analysisRequests.add(
+                        TranspositionAnalysisRequest(
+                            audioId,
+                            transpositionSteps ?: 2,
+                            startTime,
+                            endTime
+                        )
+                    )
+                }
+
                 3 -> {
                     analysisRequests.add(MelSpectrogramAnalysisRequest(audioId, startTime, endTime))
                 }
-//                4 -> {
-//                    analysisRequests.add(SpectrogramAnalysisRequest(audioId, startTime, endTime))
-//                }
-//                5 -> {
-//                    analysisRequests.add(MfccAnalysisRequest(audioId, mfccFactor, startTime, endTime))
-//                }
+
+                4 -> {
+                    analysisRequests.add(SpectrogramAnalysisRequest(audioId, startTime, endTime))
+                }
+
+                5 -> {
+                    analysisRequests.add(
+                        MfccAnalysisRequest(
+                            audioId,
+                            mfccFactor ?: 10,
+                            startTime,
+                            endTime
+                        )
+                    )
+                }
+
                 else -> {
                     throw IllegalArgumentException("Unknown analysis item id: ${analysisItemInfo.id}")
                 }
