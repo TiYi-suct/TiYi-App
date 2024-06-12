@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.AnalysisActivity
+import com.tiyi.tiyi_app.pojo.AudioDetail
 import com.tiyi.tiyi_app.pojo.AudioInfo
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.RecentViewModel
@@ -397,7 +398,8 @@ fun RecentPage(
                 )
             }
         },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .imePadding()
     ) { innerPadding ->
         Column(
@@ -462,7 +464,7 @@ fun RecentPage(
                 state = listState,
                 modifier = Modifier.fillMaxHeight()
             ) {
-                items(songs, key = {it.id}) { music ->
+                items(songs, key = { it.id }) { music ->
                     // 后端返回之前在前端先过滤
                     if (selectedTags.isNotEmpty() && !music.tags.any { selectedTags.contains(it) })
                         return@items
@@ -623,4 +625,107 @@ fun TagItem(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier
         modifier = modifier
             .animateContentSize()
     )
+}
+
+@Composable
+fun AudioDetailDialog(
+    audioDetail: AudioDetail,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Card(
+            colors = CardDefaults.cardColors().copy(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                InfoTable(
+                    "标题" to audioDetail.name,
+                    "描述" to audioDetail.description,
+                    "标签" to audioDetail.tags.joinToString(", "),
+                    "格式" to audioDetail.extension,
+                    "所属用户" to audioDetail.userName
+                )
+
+                OutlinedButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.End)
+                ) {
+                    Text(
+                        "好",
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoTable(vararg data: Pair<String, String>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        items(data) { item ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = item.first,
+                    modifier = Modifier.weight(3f)
+                )
+                Text(
+                    text = item.second,
+                    modifier = Modifier.weight(7f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(name = "InfoTable - Light", showBackground = true)
+@Preview(name = "InfoTable - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun InfoTablePreview() {
+    TiYiAppTheme {
+        InfoTable(
+            "Title" to "Title",
+            "Tags" to "流行, 摇滚",
+            "Description" to "Description",
+            "User" to "User"
+        )
+    }
+}
+
+@Composable
+@Preview(name = "AudioDetailDialog - Light")
+@Preview(name = "AudioDetailDialog - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun AudioDetailDialogPreview() {
+    TiYiAppTheme {
+        AudioDetailDialog(
+            AudioDetail(
+                "0",
+                "Title",
+                "mp3",
+                "https://example.com",
+                listOf("流行", "摇滚"),
+                "https://example.com",
+                "Description",
+                "User"
+            ),
+            onDismiss = {}
+        )
+    }
 }
