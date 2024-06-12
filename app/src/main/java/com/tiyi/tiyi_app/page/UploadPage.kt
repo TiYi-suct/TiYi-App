@@ -197,6 +197,7 @@ fun AnalysisListItem(
                         }
                         viewModel.updateSelectedTags(uri, selectedTags)
                     },
+                    enabledModify = !uploadSuccess,
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                 )
             }
@@ -246,6 +247,7 @@ fun AnalysisListItem(
                 viewModel.updateAudioDescription(uri, newDescription)
             },
             label = { Text("描述") },
+            enabled = !uploadSuccess,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -253,7 +255,12 @@ fun AnalysisListItem(
 
 // 新增的TagItemForUpload组件，用于展示和选择标签
 @Composable
-fun TagItemForUpload(tag: String, onSelectedChange: (Boolean) -> Unit, modifier: Modifier) {
+fun TagItemForUpload(
+    tag: String,
+    onSelectedChange: (Boolean) -> Unit,
+    enabledModify: Boolean,
+    modifier: Modifier
+) {
     var selected by remember { mutableStateOf(false) }
     FilterChip(
         onClick = {
@@ -277,6 +284,7 @@ fun TagItemForUpload(tag: String, onSelectedChange: (Boolean) -> Unit, modifier:
         } else {
             null
         },
+        enabled = enabledModify,
         modifier = modifier
             .animateContentSize()
     )
