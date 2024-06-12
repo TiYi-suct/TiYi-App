@@ -20,8 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Paid
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -68,6 +68,7 @@ import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 import kotlinx.coroutines.launch
 
 @Composable
+
 fun AnalysisPage(
     modifier: Modifier = Modifier
 ) {
@@ -98,7 +99,11 @@ fun AnalysisPage(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             AnalysisAppBar(sliceName,
-                onBackPressed = { activity.finish() })
+                onBackPressed = { activity.finish() },
+                onSelectAllPressed = {
+                    analysisViewModel.selectAllAnalysisItems()
+                }
+            )
         },
         bottomBar = {
             AnalysisPlayBottomBar(analysisCost,
@@ -467,6 +472,7 @@ fun AnalysisAppBar(
     sliceName: String,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit = {},
+    onSelectAllPressed: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
@@ -480,15 +486,15 @@ fun AnalysisAppBar(
             IconButton(onClick = onBackPressed) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Localized description"
+                    contentDescription = "返回"
                 )
             }
         },
         actions = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = onSelectAllPressed) {
                 Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = "Localized description"
+                    imageVector = Icons.Filled.SelectAll,
+                    contentDescription = "全选"
                 )
             }
         },
