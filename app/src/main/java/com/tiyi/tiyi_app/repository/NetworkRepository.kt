@@ -118,8 +118,8 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun analysisMelSpec(
         audioId: String,
-        startTime: Float,
-        endTime: Float
+        startTime: Float? = null,
+        endTime: Float? = null
     ): Result<CommonResponseModel> =
         safeApiCall {
             apiService.analysisMelSpectrogram(
@@ -131,8 +131,8 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun analysisSpec(
         audioId: String,
-        startTime: Float,
-        endTime: Float
+        startTime: Float? = null,
+        endTime: Float? = null
     ): Result<CommonResponseModel> =
         safeApiCall {
             apiService.analysisMelSpectrogram(
@@ -144,8 +144,8 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun analysisBPM(
         audioId: String,
-        startTime: Float,
-        endTime: Float
+        startTime: Float? = null,
+        endTime: Float? = null
     ): Result<CommonResponseModel> =
         safeApiCall {
             apiService.analysisBPM(
@@ -157,9 +157,9 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun analysisTransposition(
         audioId: String,
-        startTime: Float,
-        endTime: Float,
-        nSteps: Int
+        startTime: Float? = null,
+        endTime: Float? = null,
+        nSteps: Int? = null
     ): Result<CommonResponseModel> =
         safeApiCall {
             apiService.analysisTransposition(
@@ -172,9 +172,9 @@ class NetworkRepository(private val apiService: MusicApiService) {
 
     suspend fun analysisMfcc(
         audioId: String,
-        startTime: Float,
-        endTime: Float,
-        nMFCC: Int
+        startTime: Float? = null,
+        endTime: Float? = null,
+        nMFCC: Int? = null
     ): Result<CommonResponseModel> =
         safeApiCall {
             apiService.analysisMFCC(

@@ -111,37 +111,37 @@ interface MusicApiService {
     @GET("analysis/mel_spectrogram")
     suspend fun analysisMelSpectrogram(
         @Query("audio_id") audioId: String,
-        @Query("start_time") startTime: Float,
-        @Query("end_time") endTime: Float,
+        @Query("start_time") startTime: Float?,
+        @Query("end_time") endTime: Float?,
     ): CommonResponseModel
 
     @GET("analysis/spectrogram")
     suspend fun analysisSpectrogram(
         @Query("audio_id") audioId: String,
-        @Query("start_time") startTime: Float,
-        @Query("end_time") endTime: Float
+        @Query("start_time") startTime: Float?,
+        @Query("end_time") endTime: Float?
     ): CommonResponseModel
 
     @GET("analysis/bpm")
     suspend fun analysisBPM(
         @Query("audio_id") audioId: String,
-        @Query("start_time") startTime: Float,
-        @Query("end_time") endTime: Float
+        @Query("start_time") startTime: Float?,
+        @Query("end_time") endTime: Float?
     ): CommonResponseModel
 
     @GET("analysis/transposition")
     suspend fun analysisTransposition(
         @Query("audio_id") audioId: String,
-        @Query("start_time") startTime: Float,
-        @Query("end_time") endTime: Float,
-        @Query("n_steps") nSteps: Int
+        @Query("start_time") startTime: Float?,
+        @Query("end_time") endTime: Float?,
+        @Query("n_steps") nSteps: Int?
     ): CommonResponseModel
 
     @GET("analysis/mfcc")
     suspend fun analysisMFCC(
         @Query("audio_id") audioId: String,
-        @Query("start_time") startTime: Float,
-        @Query("end_time") endTime: Float,
-        @Query("n_mfcc") nMFCC: Int
+        @Query("start_time") startTime: Float?,
+        @Query("end_time") endTime: Float?,
+        @Query("n_mfcc") nMFCC: Int?
     ): CommonResponseModel
 }
