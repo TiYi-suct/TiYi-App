@@ -20,6 +20,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -196,7 +197,7 @@ fun ResultItemImage(
             SubcomposeAsyncImage(
                 model = imageRequest,
                 loading = {
-                    CircularProgressIndicator()
+                    LinearProgressIndicator()
                 },
                 contentScale = ContentScale.Crop,
                 contentDescription = "结果",
@@ -204,7 +205,6 @@ fun ResultItemImage(
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .sizeIn(maxHeight = 200.dp)
-                ,
             )
             Button(
                 onClick = { /*TODO*/ },
