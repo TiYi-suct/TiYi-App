@@ -58,10 +58,11 @@ fun ResultPage(
             ResultAppBar(sliceName = sliceName)
         },
         modifier = modifier
-    ) {
+    ) { paddingValue ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(paddingValue)
                 .padding(16.dp)
         ) {
             items(analysisRequests) { analysisRequest ->
