@@ -1,5 +1,6 @@
 package com.tiyi.tiyi_app.page
 
+import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -54,6 +55,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,6 +75,7 @@ fun AnalysisPage(
     val sliceName by analysisViewModel.sliceName.collectAsState()
     val analysisCost by analysisViewModel.analysisCost.collectAsState()
     val error by analysisViewModel.error.collectAsState()
+    val activity = LocalContext.current as Activity
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -90,7 +93,8 @@ fun AnalysisPage(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            AnalysisAppBar(sliceName)
+            AnalysisAppBar(sliceName,
+                onBackPressed = { activity.finish() })
         },
         bottomBar = {
             AnalysisPlayBottomBar(analysisCost)
@@ -443,6 +447,7 @@ fun AnalysisItemDetailDialog(
 fun AnalysisAppBar(
     sliceName: String,
     modifier: Modifier = Modifier,
+    onBackPressed: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
@@ -453,7 +458,7 @@ fun AnalysisAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = onBackPressed) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Localized description"
@@ -566,7 +571,10 @@ fun StartAnalysisButtonPreview() {
 
 @Composable
 @Preview(name = "AnalysisItemDetailDialog - Light")
-@Preview(name = "AnalysisItemDetailDialog - Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    name = "AnalysisItemDetailDialog - Dark",
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
 fun AnalysisItemDetailDialogPreview() {
     TiYiAppTheme {
         AnalysisItemDetailDialog(
