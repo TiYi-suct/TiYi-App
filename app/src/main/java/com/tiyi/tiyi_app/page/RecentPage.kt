@@ -531,7 +531,7 @@ fun MusicItem(musicInfo: MusicInfo, modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
-                    musicInfo.description,
+                    musicInfo.tagList,
                     style = MaterialTheme.typography.bodySmall
                 )
             }

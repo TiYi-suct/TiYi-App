@@ -5,7 +5,7 @@ data class MusicInfo(
     val title: String,
     val tags: List<String> = emptyList(),
 ) {
-    val description: String
+    val tagList: String
         get() = if (tags.isNotEmpty())
             tags.joinToString(", ")
         else "无标签"
