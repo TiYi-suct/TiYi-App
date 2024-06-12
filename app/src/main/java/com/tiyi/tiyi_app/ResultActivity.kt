@@ -22,9 +22,11 @@ class ResultActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sliceName = intent.getStringExtra("sliceName") ?: ""
         transferAnalysisRequest = intent.getSerializableExtra("analysisRequest", TransferAnalysisRequest::class.java) ?: return
         resultViewModel = ViewModelProvider(this)[ResultViewModel::class.java]
         resultViewModel.updateAnalysisRequest(transferAnalysisRequest.toAnalysisRequest())
+        resultViewModel.updateSliceName(sliceName)
 
         enableEdgeToEdge()
         setContent {

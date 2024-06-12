@@ -112,6 +112,7 @@ fun AnalysisPage(
 
                     val intent = Intent(activity, ResultActivity::class.java).apply {
                         putExtra("analysisRequest", transferAnalysisRequest)
+                        putExtra("sliceName", sliceName)
                     }
                     activity.startActivity(intent)
                 })

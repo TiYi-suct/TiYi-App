@@ -25,6 +25,9 @@ class ResultViewModel(
     private val tiyiApplication = application as TiyiApplication
     val networkRepository = tiyiApplication.networkRepository
 
+    private val _sliceName = MutableStateFlow("")
+    val sliceName = _sliceName.asStateFlow()
+
     private val _analysisRequest = MutableStateFlow<List<AnalysisRequest<*>>>(emptyList())
     val analysisRequest = _analysisRequest.asStateFlow()
 
@@ -33,6 +36,10 @@ class ResultViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
+
+    fun updateSliceName(sliceName: String) {
+        _sliceName.value = sliceName
+    }
 
     fun updateAnalysisRequest(requests: List<AnalysisRequest<*>>) {
         _analysisRequest.value = requests
