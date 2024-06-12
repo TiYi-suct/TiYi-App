@@ -12,13 +12,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
+import com.tiyi.tiyi_app.pojo.AnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+import com.tiyi.tiyi_app.viewModel.ResultViewModel
 
 class ResultActivity : ComponentActivity() {
+    private lateinit var analysisRequest: AnalysisRequest
+    private lateinit var resultViewModel: ResultViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        analysisRequest = intent.getSerializableExtra("analysisRequest", AnalysisRequest::class.java) ?: return
+        resultViewModel = ViewModelProvider(this)[ResultViewModel::class.java]
+        requestAnalysisResults()
         enableEdgeToEdge()
-        Log.d("test", "onCreate: Created")
         setContent {
             TiYiAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -28,6 +36,13 @@ class ResultActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    private fun requestAnalysisResults() {
+        if (analysisRequest.analysisItems.filter { it.key.id == 3 } .values.contains(true)) {
+            Log.d("analysis", "requestAnalysisResults: analysis mel spec")
+            resultViewModel.analysisMelSpec(analysisRequest.audioId)
         }
     }
 }
