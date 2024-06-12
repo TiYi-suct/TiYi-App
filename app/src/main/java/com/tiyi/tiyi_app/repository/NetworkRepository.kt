@@ -38,8 +38,8 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T> = try {
     Result.Success(apiCall())
 } catch (httpException: HttpException) {
     httpException.handleHttpException()
-} catch (networkException: ConnectException) {
-    Result.NetworkError(networkException)
+} catch (exception: Exception) {
+    Result.NetworkError(exception)
 }
 
 class NetworkRepository(private val apiService: MusicApiService) {
