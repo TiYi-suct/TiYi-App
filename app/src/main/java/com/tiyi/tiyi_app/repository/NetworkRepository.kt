@@ -128,4 +128,60 @@ class NetworkRepository(private val apiService: MusicApiService) {
                 endTime = endTime
             )
         }
+
+    suspend fun analysisSpec(
+        audioId: String,
+        startTime: Float,
+        endTime: Float
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisMelSpectrogram(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime
+            )
+        }
+
+    suspend fun analysisBPM(
+        audioId: String,
+        startTime: Float,
+        endTime: Float
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisBPM(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime
+            )
+        }
+
+    suspend fun analysisTransposition(
+        audioId: String,
+        startTime: Float,
+        endTime: Float,
+        nSteps: Int
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisTransposition(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime,
+                nSteps = nSteps
+            )
+        }
+
+    suspend fun analysisMfcc(
+        audioId: String,
+        startTime: Float,
+        endTime: Float,
+        nMFCC: Int
+    ): Result<CommonResponseModel> =
+        safeApiCall {
+            apiService.analysisMFCC(
+                audioId = audioId,
+                startTime = startTime,
+                endTime = endTime,
+                nMFCC = nMFCC,
+            )
+        }
 }
