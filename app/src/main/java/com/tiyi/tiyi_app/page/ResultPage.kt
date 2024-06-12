@@ -28,7 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -85,17 +85,17 @@ fun CombinedResultItem(
     val resultViewModel: ResultViewModel = viewModel()
     when (analysisRequest) {
         is BpmAnalysisRequest -> {
-            val bpm by remember { resultViewModel.take(analysisRequest) }
+            val bpm by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemNumber(resultName = "BPM", number = bpm)
         }
 
         is TranspositionAnalysisRequest -> {
-            val url by remember { resultViewModel.take(analysisRequest) }
+            val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemDownload(resultName = "移调", onDownloadClicked = { /*TODO*/ }, url = url)
         }
 
         is MelSpectrogramAnalysisRequest -> {
-            val url by remember { resultViewModel.take(analysisRequest) }
+            val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "梅尔频谱图",
                 imageRequest = ImageRequest.Builder(LocalContext.current)
@@ -105,7 +105,7 @@ fun CombinedResultItem(
         }
 
         is SpectrogramAnalysisRequest -> {
-            val url by remember { resultViewModel.take(analysisRequest) }
+            val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "频谱图",
                 imageRequest = ImageRequest.Builder(LocalContext.current)
@@ -115,7 +115,7 @@ fun CombinedResultItem(
         }
 
         is MfccAnalysisRequest -> {
-            val url by remember { resultViewModel.take(analysisRequest) }
+            val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "MFCC",
                 imageRequest = ImageRequest.Builder(LocalContext.current)
