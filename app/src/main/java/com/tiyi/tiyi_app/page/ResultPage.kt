@@ -1,5 +1,6 @@
 package com.tiyi.tiyi_app.page
 
+import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -57,10 +58,12 @@ fun ResultPage(
     val analysisRequests by resultViewModel.analysisRequest.collectAsState()
     val sliceName by resultViewModel.sliceName.collectAsState()
     val error by resultViewModel.error.collectAsState()
+    val activity = LocalContext.current as Activity
 
     Scaffold(
         topBar = {
-            ResultAppBar(sliceName = sliceName)
+            ResultAppBar(sliceName = sliceName,
+                onBackPressed = { activity.finish() })
         },
         modifier = modifier
     ) { paddingValue ->
@@ -255,6 +258,7 @@ fun ResultItemImage(
 @Composable
 fun ResultAppBar(
     sliceName: String,
+    onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     TopAppBar(
@@ -266,7 +270,7 @@ fun ResultAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = onBackPressed) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
             }
         },
@@ -279,7 +283,7 @@ fun ResultAppBar(
 @Preview(name = "Result AppBar - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun ResultAppBarPreview() {
     TiYiAppTheme {
-        ResultAppBar(sliceName = "Slice Name")
+        ResultAppBar(onBackPressed = {}, sliceName = "Slice Name")
     }
 }
 
