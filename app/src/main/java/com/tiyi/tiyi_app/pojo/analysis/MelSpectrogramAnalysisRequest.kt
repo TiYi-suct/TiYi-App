@@ -4,10 +4,10 @@ import com.tiyi.tiyi_app.pojo.Result
 import com.tiyi.tiyi_app.repository.NetworkRepository
 
 class MelSpectrogramAnalysisRequest(
-    val audioId: String,
+    audioId: String,
     startTime: Float? = null,
     endTime: Float? = null,
-): AnalysisRequest<String>(3, startTime, endTime) {
+): AnalysisRequest<String>(3, audioId, startTime, endTime) {
     override suspend fun analysis(
         networkRepository: NetworkRepository,
         onError: (String) -> Unit
