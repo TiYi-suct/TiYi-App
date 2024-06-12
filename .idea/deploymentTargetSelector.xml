@@ -19,9 +19,6 @@
       <SelectionState runConfigName="MfccFactorDrawerPreview - MfccFactorDrawer - Light">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ResultItemImagePreview - Result Item Image - Light">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
     </selectionStates>
   </component>
 </project>

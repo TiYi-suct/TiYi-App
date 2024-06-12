@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
-import com.tiyi.tiyi_app.pojo.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.TransferAnalysisRequest
 import com.tiyi.tiyi_app.pojo.AnalysisResult
 import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +21,8 @@ class ResultViewModel(
     private val tiyiApplication = application as TiyiApplication
     val networkRepository = tiyiApplication.networkRepository
 
-    private val _analysisRequest = MutableStateFlow<AnalysisRequest?>(null)
-    val analysisRequest = _analysisRequest.asStateFlow()
+    private val _Transfer_analysisRequest = MutableStateFlow<TransferAnalysisRequest?>(null)
+    val analysisRequest = _Transfer_analysisRequest.asStateFlow()
     private val _analysisResult = MutableStateFlow(AnalysisResult())
     val analysisResult = _analysisResult.asStateFlow()
 

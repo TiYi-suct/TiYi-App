@@ -10,7 +10,7 @@ val analysisUrlOfId = mapOf(
     5 to "/analysis/mfcc",
 )
 
-data class AnalysisRequest(
+data class TransferAnalysisRequest(
     val audioId: String,
     val analysisItems: Map<AnalysisItemInfo, Boolean>,
     val transpositionSteps: Int? = null,

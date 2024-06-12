@@ -62,7 +62,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.ResultActivity
-import com.tiyi.tiyi_app.pojo.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.TransferAnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 import kotlinx.coroutines.launch
@@ -103,7 +103,7 @@ fun AnalysisPage(
         bottomBar = {
             AnalysisPlayBottomBar(analysisCost,
                 onAnalysisClick = {
-                    val analysisRequest = AnalysisRequest(
+                    val transferAnalysisRequest = TransferAnalysisRequest(
                         audioId = sliceId,
                         analysisItems = analysisItems,
                         transpositionSteps = transpositionSteps,
@@ -111,7 +111,7 @@ fun AnalysisPage(
                     )
 
                     val intent = Intent(activity, ResultActivity::class.java).apply {
-                        putExtra("analysisRequest", analysisRequest)
+                        putExtra("analysisRequest", transferAnalysisRequest)
                     }
                     activity.startActivity(intent)
                 })
