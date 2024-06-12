@@ -6,9 +6,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.dto.LabelRequest
-import com.tiyi.tiyi_app.pojo.CorruptedApiException
+import com.tiyi.tiyi_app.pojo.AudioDetail
 import com.tiyi.tiyi_app.pojo.AudioInfo
+import com.tiyi.tiyi_app.pojo.CorruptedApiException
 import com.tiyi.tiyi_app.pojo.Result
+import com.tiyi.tiyi_app.pojo.emptyAudioDetail
 import com.tiyi.tiyi_app.utils.within
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +31,9 @@ class RecentViewModel(
 
     private val _recentList = MutableStateFlow(listOf<AudioInfo>())
     val recentList = _recentList.asStateFlow()
+
+    private val _audioDetail = MutableStateFlow(emptyAudioDetail())
+    val audioDetail = _audioDetail.asStateFlow()
 
     private val _selectedTagList = MutableStateFlow(listOf<String>())
     val selectedTagList = _selectedTagList.asStateFlow()
@@ -54,6 +59,33 @@ class RecentViewModel(
 
     fun clearError() {
         _error.value = null
+    }
+
+    fun fetchAudioDetail(audioId: String) = viewModelScope.launch {
+        _loading.value = true
+        _audioDetail.value.loading = true
+        clearError()
+        when (val result = networkRepository.getAudioDetails(audioId)) {
+            is Result.Success -> {
+                val response = result.data
+                if (response.code != 0)
+                    submitError(response.msg)
+                _audioDetail.value = AudioDetail(
+                    audioId = response.data.audioId,
+                    name = response.data.name,
+                    extension = response.data.extension,
+                    url = response.data.url,
+                    tags = response.data.tags,
+                    cover = response.data.cover ?: "",
+                    description = response.data.description ?: "",
+                    userName = response.data.username
+                )
+            }
+
+            else -> submitError(result.message)
+        }
+        _audioDetail.value.loading = false
+        _loading.value = false
     }
 
     private suspend fun fetchTagAndRecentList() {

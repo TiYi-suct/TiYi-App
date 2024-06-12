@@ -14,6 +14,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -480,11 +482,14 @@ fun RecentPage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MusicItem(audioInfo: AudioInfo, modifier: Modifier = Modifier) {
     var isExpended by rememberSaveable { mutableStateOf(false) }
     var editTagDialogVisible by remember { mutableStateOf(false) }
+    var detailDialogVisible by remember { mutableStateOf(false) }
     val recentViewModel: RecentViewModel = viewModel()
+    val audioDetail by recentViewModel.audioDetail.collectAsState()
     val context = LocalContext.current
     val tagList by recentViewModel.tagList.collectAsState()
     if (editTagDialogVisible) {
@@ -497,15 +502,27 @@ fun MusicItem(audioInfo: AudioInfo, modifier: Modifier = Modifier) {
             }
         )
     }
+    if (detailDialogVisible) {
+        AudioDetailDialog(
+            audioDetail = audioDetail,
+            onDismiss = { detailDialogVisible = false }
+        )
+    }
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp,
             pressedElevation = 2.dp
         ),
-        onClick = { isExpended = !isExpended },
         modifier = modifier
             .padding(8.dp)
             .animateContentSize()
+            .combinedClickable(
+                onClick = { isExpended = !isExpended },
+                onLongClick = {
+                    recentViewModel.fetchAudioDetail(audioInfo.id)
+                    detailDialogVisible = true
+                }
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -640,29 +657,46 @@ fun AudioDetailDialog(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                InfoTable(
-                    "标题" to audioDetail.name,
-                    "描述" to audioDetail.description,
-                    "标签" to audioDetail.tags.joinToString(", "),
-                    "格式" to audioDetail.extension,
-                    "所属用户" to audioDetail.userName
-                )
-
-                OutlinedButton(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.End)
+            if (audioDetail.loading) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        "好",
+                        text = "加载中...",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(16.dp)
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator()
+                }
+            }
+            AnimatedVisibility(
+                visible = !audioDetail.loading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
+                    InfoTable(
+                        "标题" to audioDetail.name,
+                        "描述" to audioDetail.description,
+                        "标签" to audioDetail.tags.joinToString(", "),
+                        "格式" to audioDetail.extension,
+                        "所属用户" to audioDetail.userName
+                    )
+
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.End)
+                    ) {
+                        Text(
+                            "好",
+                        )
+                    }
                 }
             }
         }
@@ -716,6 +750,7 @@ fun AudioDetailDialogPreview() {
     TiYiAppTheme {
         AudioDetailDialog(
             AudioDetail(
+                false,
                 "0",
                 "Title",
                 "mp3",

@@ -1,6 +1,7 @@
 package com.tiyi.tiyi_app.pojo
 
 data class AudioDetail(
+    var loading: Boolean = true,
     val audioId: String,
     val name: String,
     val extension: String,
@@ -10,3 +11,5 @@ data class AudioDetail(
     val description: String,
     val userName: String
 )
+
+fun emptyAudioDetail() = AudioDetail(true, "", "", "", "", emptyList(), "", "", "")
