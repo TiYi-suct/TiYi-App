@@ -7,6 +7,7 @@ import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
 import com.tiyi.tiyi_app.dto.AudioUpdateRequestModel
 import com.tiyi.tiyi_app.dto.AudioUploadResponseModel
+import com.tiyi.tiyi_app.dto.BpmAnalysisResponseModel
 import com.tiyi.tiyi_app.dto.CommonResponseModel
 import com.tiyi.tiyi_app.dto.ConsumptionCheckModel
 import com.tiyi.tiyi_app.dto.FileResponseModel
@@ -146,7 +147,7 @@ class NetworkRepository(private val apiService: MusicApiService) {
         audioId: String,
         startTime: Float? = null,
         endTime: Float? = null
-    ): Result<CommonResponseModel> =
+    ): Result<BpmAnalysisResponseModel> =
         safeApiCall {
             apiService.analysisBPM(
                 audioId = audioId,

@@ -8,8 +8,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.pojo.AnalysisResult
-import com.tiyi.tiyi_app.pojo.Result
 import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.BpmAnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,25 +45,18 @@ class ResultViewModel(
         _analysisRequest.value = requests
     }
 
-    fun analysisMelSpec(audioId: String, startTime: Float? = null, endTime: Float? = null) {
+    fun take(bpmAnalysisRequest: BpmAnalysisRequest): State<Float?> {
+        val bpm = mutableStateOf<Float?>(null)
+        Log.d(TAG, "take: $bpmAnalysisRequest")
         viewModelScope.launch {
-            when (val result = networkRepository.analysisMelSpec(audioId, startTime, endTime)) {
-                is Result.Success -> {
-                    val response = result.data
-                    if (response.code != 0) {
-                        submitError(response.msg)
-                        return@launch
-                    }
-                    _analysisResult.value = _analysisResult.value.copy(
-                        melSpectrogram = response.data
-                    )
-                }
-
-                else -> {
-                    submitError(result.message)
-                }
+            val result = bpmAnalysisRequest.analysis(networkRepository) {
+                submitError(it)
+            }
+            if (result != null) {
+                bpm.value = result
             }
         }
+        return bpm
     }
 
     fun take(melSpectrogramAnalysisRequest: MelSpectrogramAnalysisRequest): State<String> {

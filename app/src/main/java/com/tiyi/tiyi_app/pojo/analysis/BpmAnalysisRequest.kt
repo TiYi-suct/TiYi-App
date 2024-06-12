@@ -20,7 +20,7 @@ class BpmAnalysisRequest(
                     onError(response.msg)
                     return null
                 }
-                response.data.toFloatOrNull()
+                response.data
             }
             else -> {
                 onError(result.message)

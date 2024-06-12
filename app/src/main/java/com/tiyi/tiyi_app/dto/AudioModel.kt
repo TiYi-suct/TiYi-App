@@ -55,3 +55,10 @@ data class AudioUpdateRequestModel(
     @SerialName("cover") val cover: String? = null,
     @SerialName("description") val description: String? = null
 )
+
+@Serializable
+data class BpmAnalysisResponseModel(
+    @SerialName("code") val code: Int,
+    @SerialName("msg") val msg: String,
+    @SerialName("data") val data: Float
+)

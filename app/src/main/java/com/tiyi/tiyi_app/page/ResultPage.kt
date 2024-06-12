@@ -39,6 +39,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.pojo.analysis.AnalysisRequest
+import com.tiyi.tiyi_app.pojo.analysis.BpmAnalysisRequest
 import com.tiyi.tiyi_app.pojo.analysis.MelSpectrogramAnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
 import com.tiyi.tiyi_app.viewModel.ResultViewModel
@@ -76,6 +77,10 @@ fun CombinedResultItem(
 ) {
     val resultViewModel: ResultViewModel = viewModel()
     when(analysisRequest) {
+        is BpmAnalysisRequest -> {
+            val bpm by remember { resultViewModel.take(analysisRequest) }
+            ResultItemNumber(resultName = "BPM", number = bpm)
+        }
         is MelSpectrogramAnalysisRequest -> {
             val url by remember { resultViewModel.take(analysisRequest) }
             ResultItemImage(
@@ -91,7 +96,7 @@ fun CombinedResultItem(
 @Composable
 fun ResultItemNumber(
     resultName: String,
-    number: Double,
+    number: Float?,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -112,13 +117,17 @@ fun ResultItemNumber(
                 style = MaterialTheme.typography.headlineLarge,
             )
 
-            Text(
-                text = number.toString(),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .align(Alignment.End)
-            )
+            if (number == null) {
+                CircularProgressIndicator()
+            } else {
+                Text(
+                    text = number.toString(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                )
+            }
         }
     }
 }
@@ -244,7 +253,7 @@ fun ResultItemImage(
     @Preview(name = "Result Item Number - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
     fun ResultItemNumberPreview() {
         TiYiAppTheme {
-            ResultItemNumber(resultName = "BPM", number = 128.73)
+            ResultItemNumber(resultName = "BPM", number = 128.73f)
         }
     }
 

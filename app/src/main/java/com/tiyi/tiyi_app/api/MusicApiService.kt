@@ -5,6 +5,7 @@ import com.tiyi.tiyi_app.dto.AudioDetailsModel
 import com.tiyi.tiyi_app.dto.AudioListModel
 import com.tiyi.tiyi_app.dto.AudioUpdateRequestModel
 import com.tiyi.tiyi_app.dto.AudioUploadResponseModel
+import com.tiyi.tiyi_app.dto.BpmAnalysisResponseModel
 import com.tiyi.tiyi_app.dto.CommonResponseModel
 import com.tiyi.tiyi_app.dto.ConsumptionCheckModel
 import com.tiyi.tiyi_app.dto.FileResponseModel
@@ -127,7 +128,7 @@ interface MusicApiService {
         @Query("audio_id") audioId: String,
         @Query("start_time") startTime: Float?,
         @Query("end_time") endTime: Float?
-    ): CommonResponseModel
+    ): BpmAnalysisResponseModel
 
     @GET("analysis/transposition")
     suspend fun analysisTransposition(
