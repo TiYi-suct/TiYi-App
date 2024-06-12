@@ -3,7 +3,6 @@ package com.tiyi.tiyi_app.pojo
 import com.google.gson.Gson
 import com.tiyi.tiyi_app.dto.CommonResponseModel
 import retrofit2.HttpException
-import java.net.ConnectException
 
 private fun parseExceptionMsg(exception: HttpException): String {
     return Gson().fromJson(
@@ -36,7 +35,7 @@ sealed class Result<out T> {
     }
 
     // Not connected
-    data class NetworkError(val exception: ConnectException) : Result<Nothing>() {
+    data class NetworkError(val exception: Exception) : Result<Nothing>() {
         override val message = "网络连接失败"
     }
 

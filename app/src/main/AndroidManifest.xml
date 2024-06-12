@@ -22,6 +22,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ResultActivity"
+            android:exported="true"
+            android:label="@string/title_activity_result"
+            android:theme="@style/Theme.TiYiApp" />
+        <activity
             android:name=".AnalysisActivity"
             android:exported="true"
             android:label="@string/title_activity_analysis"

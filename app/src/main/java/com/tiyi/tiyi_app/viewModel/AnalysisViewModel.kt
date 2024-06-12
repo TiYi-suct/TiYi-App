@@ -130,4 +130,10 @@ class AnalysisViewModel(
         Log.d(TAG, "updateMfccFactor: $factor")
         _mfccFactor.value = factor
     }
+
+    fun selectAllAnalysisItems() {
+        Log.d(TAG, "selectAllAnalysisItems")
+        _analysisItems.value = _analysisItems.value.mapValues { true }
+        queryAnalysisCost()
+    }
 }
