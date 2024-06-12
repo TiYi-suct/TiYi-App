@@ -70,7 +70,7 @@ fun ResultPage(
                 .padding(paddingValue)
                 .padding(16.dp)
         ) {
-            items(analysisRequests) { analysisRequest ->
+            items(analysisRequests, key = { it.analysisId }) { analysisRequest ->
                 CombinedResultItem(analysisRequest = analysisRequest)
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -83,15 +83,17 @@ fun CombinedResultItem(
     analysisRequest: AnalysisRequest<*>,
 ) {
     val resultViewModel: ResultViewModel = viewModel()
-    when(analysisRequest) {
+    when (analysisRequest) {
         is BpmAnalysisRequest -> {
             val bpm by remember { resultViewModel.take(analysisRequest) }
             ResultItemNumber(resultName = "BPM", number = bpm)
         }
+
         is TranspositionAnalysisRequest -> {
             val url by remember { resultViewModel.take(analysisRequest) }
             ResultItemDownload(resultName = "移调", onDownloadClicked = { /*TODO*/ }, url = url)
         }
+
         is MelSpectrogramAnalysisRequest -> {
             val url by remember { resultViewModel.take(analysisRequest) }
             ResultItemImage(
@@ -101,6 +103,7 @@ fun CombinedResultItem(
                     .build()
             )
         }
+
         is SpectrogramAnalysisRequest -> {
             val url by remember { resultViewModel.take(analysisRequest) }
             ResultItemImage(
@@ -110,6 +113,7 @@ fun CombinedResultItem(
                     .build()
             )
         }
+
         is MfccAnalysisRequest -> {
             val url by remember { resultViewModel.take(analysisRequest) }
             ResultItemImage(
@@ -215,7 +219,7 @@ fun ResultItemImage(
     ) {
         Column(
             modifier = Modifier
-        ){
+        ) {
             Text(
                 text = resultName,
                 style = MaterialTheme.typography.headlineLarge,
@@ -235,7 +239,8 @@ fun ResultItemImage(
             )
             Button(
                 onClick = { /*TODO*/ },
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier
+                    .align(Alignment.End)
                     .padding(16.dp)
             ) {
                 Icon(Icons.Outlined.Search, contentDescription = "放大镜")
@@ -246,69 +251,69 @@ fun ResultItemImage(
     }
 }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun ResultAppBar(
-        sliceName: String,
-        modifier: Modifier = Modifier,
-    ) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = sliceName,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
-                }
-            },
-            modifier = modifier
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ResultAppBar(
+    sliceName: String,
+    modifier: Modifier = Modifier,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = sliceName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+@Preview(name = "Result AppBar - Light")
+@Preview(name = "Result AppBar - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun ResultAppBarPreview() {
+    TiYiAppTheme {
+        ResultAppBar(sliceName = "Slice Name")
+    }
+}
+
+@Composable
+@Preview(name = "Result Item Number - Light")
+@Preview(name = "Result Item Number - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun ResultItemNumberPreview() {
+    TiYiAppTheme {
+        ResultItemNumber(resultName = "BPM", number = 128.73f)
+    }
+}
+
+@Composable
+@Preview(name = "Result Item Download - Light")
+@Preview(name = "Result Item Download - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun ResultItemDownloadPreview() {
+    TiYiAppTheme {
+        ResultItemDownload(
+            resultName = "移调：+3",
+            onDownloadClicked = {}
         )
     }
+}
 
-    @Composable
-    @Preview(name = "Result AppBar - Light")
-    @Preview(name = "Result AppBar - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-    fun ResultAppBarPreview() {
-        TiYiAppTheme {
-            ResultAppBar(sliceName = "Slice Name")
-        }
+@Composable
+@Preview(name = "Result Item Image - Light")
+@Preview(name = "Result Item Image - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun ResultItemImagePreview() {
+    TiYiAppTheme {
+        ResultItemImage(
+            resultName = "MFCC：20",
+            imageRequest = ImageRequest.Builder(LocalContext.current)
+                .data(R.drawable.login_background)
+                .build()
+        )
     }
-
-    @Composable
-    @Preview(name = "Result Item Number - Light")
-    @Preview(name = "Result Item Number - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-    fun ResultItemNumberPreview() {
-        TiYiAppTheme {
-            ResultItemNumber(resultName = "BPM", number = 128.73f)
-        }
-    }
-
-    @Composable
-    @Preview(name = "Result Item Download - Light")
-    @Preview(name = "Result Item Download - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-    fun ResultItemDownloadPreview() {
-        TiYiAppTheme {
-            ResultItemDownload(
-                resultName = "移调：+3",
-                onDownloadClicked = {}
-            )
-        }
-    }
-
-    @Composable
-    @Preview(name = "Result Item Image - Light")
-    @Preview(name = "Result Item Image - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-    fun ResultItemImagePreview() {
-        TiYiAppTheme {
-            ResultItemImage(
-                resultName = "MFCC：20",
-                imageRequest = ImageRequest.Builder(LocalContext.current)
-                    .data(R.drawable.login_background)
-                    .build()
-            )
-        }
-    }
+}
