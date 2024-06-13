@@ -225,7 +225,7 @@ fun ResultItemImage(
             .fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = resultName,
