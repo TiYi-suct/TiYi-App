@@ -101,6 +101,7 @@ fun CombinedResultItem(
             val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "梅尔频谱图",
+                url,
                 imageRequest = ImageRequest.Builder(LocalContext.current)
                     .data(url)
                     .build()
@@ -111,6 +112,7 @@ fun CombinedResultItem(
             val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "频谱图",
+                url,
                 imageRequest = ImageRequest.Builder(LocalContext.current)
                     .data(url)
                     .build()
@@ -121,6 +123,7 @@ fun CombinedResultItem(
             val url by rememberSaveable { resultViewModel.take(analysisRequest) }
             ResultItemImage(
                 resultName = "MFCC",
+                url,
                 imageRequest = ImageRequest.Builder(LocalContext.current)
                     .data(url)
                     .build()
@@ -209,6 +212,7 @@ fun ResultItemDownload(
 @Composable
 fun ResultItemImage(
     resultName: String,
+    rawUrl: String?,
     imageRequest: ImageRequest,
     modifier: Modifier = Modifier
 ) {
@@ -228,18 +232,22 @@ fun ResultItemImage(
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(16.dp)
             )
-            SubcomposeAsyncImage(
-                model = imageRequest,
-                loading = {
-                    LinearProgressIndicator()
-                },
-                contentScale = ContentScale.Crop,
-                contentDescription = "结果",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .sizeIn(maxHeight = 200.dp)
-            )
+            if (rawUrl == null) {
+                LinearProgressIndicator()
+            } else {
+                SubcomposeAsyncImage(
+                    model = imageRequest,
+                    loading = {
+                        LinearProgressIndicator()
+                    },
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "结果",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .sizeIn(maxHeight = 200.dp)
+                )
+            }
             Button(
                 onClick = { /*TODO*/ },
                 modifier = Modifier
@@ -315,6 +323,7 @@ fun ResultItemImagePreview() {
     TiYiAppTheme {
         ResultItemImage(
             resultName = "MFCC：20",
+            null,
             imageRequest = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.login_background)
                 .build()
