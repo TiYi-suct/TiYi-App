@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -95,19 +96,19 @@ import java.net.URL
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
     val profileViewModel: ProfileViewModel = viewModel()
-    val showTopUpDialog = rememberSaveable { mutableStateOf(false) }
+    val showRechargeDialog = rememberSaveable { mutableStateOf(false) }
     val showAvatarDialog = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val activity = context as? Activity
 
 
-    if (showTopUpDialog.value) {
-        TopUpDialog(
-            onDismiss = { showTopUpDialog.value = false },
+    if (showRechargeDialog.value) {
+        RechargeDialog(
+            onDismiss = { showRechargeDialog.value = false },
             onTopUp = { rechargeId ->
 
                 profileViewModel.createOrder(rechargeId, { orderInfoStr ->
-                    showTopUpDialog.value = false
+                    showRechargeDialog.value = false
                     activity?.let { activity ->
                         CoroutineScope(Dispatchers.IO).launch {
                             val payTask = PayTask(activity)
@@ -133,7 +134,24 @@ fun ProfilePage(modifier: Modifier = Modifier) {
 
 
     Scaffold(
-        floatingActionButton = { TopUpFloatBtn(onClick = { showTopUpDialog.value = true }) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(text = {
+                Text(
+                    text = "充值", style = TextStyle(
+                        lineHeight = 20.sp,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(400),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                    )
+                )
+            }, icon = {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = ""
+                )
+            }, onClick = { showRechargeDialog.value = true })
+        },
         modifier = modifier.padding(start = 10.dp, top = 10.dp, end = 10.dp)
     ) {
         Column(
@@ -143,6 +161,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
             ProfileInfoBlock(
                 onAvatarClick = {
                     showAvatarDialog.value = true
@@ -155,7 +174,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 },
                 viewModel = profileViewModel
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             BalanceInfoBlock()
         }
     }
@@ -504,42 +523,7 @@ fun BalanceInfoBlock() {
 }
 
 @Composable
-fun TopUpFloatBtn(onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .padding(0.dp)
-            .width(139.dp)
-            .height(56.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(size = 16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 4.dp,
-    )
-    {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "",
-                modifier = Modifier.width(24.dp)
-            )
-            Text(
-                text = "充值 Token", style = TextStyle(
-                    lineHeight = 20.sp,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight(400),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                )
-            )
-        }
-    }
-}
-
-@Composable
-fun TopUpDialog(onDismiss: () -> Unit, onTopUp: (Int) -> Unit) {
+fun RechargeDialog(onDismiss: () -> Unit, onTopUp: (Int) -> Unit) {
     val profileViewModel: ProfileViewModel = viewModel()
     val rechargeItems by profileViewModel.rechargeItems.collectAsState()
 
