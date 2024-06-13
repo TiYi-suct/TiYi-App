@@ -374,7 +374,11 @@ fun AvatarDialog(onDismiss: () -> Unit) {
                     // 保存图片逻辑
                     scope.launch {
                         val bitmap = loadImageFromUrl(profileViewModel.userDetails.value?.avatar)
-                        saveImageToGallery(context, bitmap)
+                        if (bitmap == null) {
+                            Toast.makeText(context, "图片为空", Toast.LENGTH_SHORT).show()
+                        } else {
+                            saveImageToGallery(context, bitmap)
+                        }
                     }
                 }) {
                     Text(text = "保存图片")
@@ -429,7 +433,10 @@ fun EditSignatureDialog(
     }
 }
 
-suspend fun loadImageFromUrl(url: String?): Bitmap {
+suspend fun loadImageFromUrl(url: String?): Bitmap? {
+    if (url.isNullOrBlank()) {
+        return null
+    }
     return withContext(Dispatchers.IO) {
         val connection = URL(url).openConnection()
         connection.connect()
