@@ -6,7 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
 import com.tiyi.tiyi_app.dto.LoginRequest
-import com.tiyi.tiyi_app.page.LoginInfo
+import com.tiyi.tiyi_app.dto.RegisterRequest
+import com.tiyi.tiyi_app.page.UserInfo
 import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +35,8 @@ class LoginViewModel(
     private var _loginStatus: MutableStateFlow<LoginStatus> = MutableStateFlow(LoginStatus.Idle)
     val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
-    fun setLoginInfo(info: LoginInfo) {
+
+    fun setUserInfo(info: UserInfo) {
         _username.value = info.username
         _password.value = info.password
     }
@@ -50,26 +52,39 @@ class LoginViewModel(
             val loginRequest = LoginRequest(username.value, password.value)
             when (val result = networkRepository.loginUser(loginRequest)) {
                 is Result.Success -> {
-                    val response = result.data
-                    Log.d(TAG, response.toString())
-                    if (response.code == 0) {
-                        _loginStatus.value = LoginStatus.Success
-                    } else {
-                        _loginStatus.value = LoginStatus.Error(response.msg)
-                    }
+                    _loginStatus.value = LoginStatus.Success
+                }
+
+                is Result.BadRequest -> {
+                    _loginStatus.value = LoginStatus.Error(result.message)
                 }
 
                 else -> {
                     Log.e(TAG, "未知错误")
                 }
             }
-
         }
+
     }
 
     fun register() {
         // Register logic
         Log.d(TAG, "register: ${username.value} ${password.value}")
-        _loginStatus.value = LoginStatus.Error("Temporary error message")
+        viewModelScope.launch {
+            val request = RegisterRequest(username.value, password.value)
+            when (val result = networkRepository.registerUser(request)) {
+                is Result.Success -> {
+                    login()
+                }
+
+                is Result.BadRequest -> {
+                    _loginStatus.value = LoginStatus.Error(result.message)
+                }
+
+                else -> {
+                    Log.e(TAG, "未知错误")
+                }
+            }
+        }
     }
 }

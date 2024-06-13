@@ -40,14 +40,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.R
-import com.tiyi.tiyi_app.viewModel.LoginViewModel
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+import com.tiyi.tiyi_app.viewModel.LoginViewModel
 
 
 @Composable
@@ -55,6 +54,8 @@ fun LoginScreen(
     modifier: Modifier
 ) {
     val loginModel: LoginViewModel = viewModel()
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = modifier.fillMaxSize()
@@ -78,16 +79,22 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
-                LoginBlock { loginInfo ->
-                    loginModel.setLoginInfo(loginInfo)
+                LoginBlock(onLoginClick = {
+                    loginModel.setUserInfo(UserInfo(username, password))
                     loginModel.login()
-                }
+                },
+                    username = username,
+                    password = password,
+                    onUsernameChange = { username = it },
+                    onPasswordChange = { password = it }
+                )
                 Spacer(modifier = Modifier.height(64.dp))
                 OutlinedButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     onClick = {
+                        loginModel.setUserInfo(UserInfo(username, password))
                         loginModel.register()
                     },
                 ) {
@@ -107,15 +114,19 @@ fun LoginScreenPreview() {
     }
 }
 
-data class LoginInfo(
+data class UserInfo(
     val username: String,
     val password: String,
 )
 
 @Composable
-fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
-    var username by remember { mutableStateOf(TextFieldValue("")) }
-    var password by remember { mutableStateOf(TextFieldValue("")) }
+fun LoginBlock(
+    onLoginClick: () -> Unit,
+    username: String,
+    password: String,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit
+) {
     var passwordVisible by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     Surface(
@@ -137,7 +148,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = username,
-                onValueChange = { username = it },
+                onValueChange = { onUsernameChange(it) },
                 label = {
                     Text("用户名")
                 },
@@ -145,7 +156,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                     Icon(Icons.Outlined.AccountCircle, contentDescription = "用户名")
                 },
                 trailingIcon = {
-                    IconButton(onClick = { username = TextFieldValue("") }) {
+                    IconButton(onClick = { onUsernameChange("") }) {
                         Icon(Icons.Outlined.Cancel, contentDescription = "清空")
                     }
                 },
@@ -165,7 +176,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { onPasswordChange(it) },
                 label = {
                     Text("密码")
                 },
@@ -180,7 +191,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                             else
                                 Icon(Icons.Outlined.Visibility, contentDescription = "显示密码")
                         }
-                        IconButton(onClick = { password = TextFieldValue("") }) {
+                        IconButton(onClick = { onPasswordChange("") }) {
                             Icon(Icons.Outlined.Cancel, contentDescription = "清空")
                         }
                     }
@@ -194,7 +205,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        onLoginClick(LoginInfo(username.text, password.text))
+                        onLoginClick()
                     }
                 ),
                 modifier = Modifier
@@ -204,7 +215,7 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    onLoginClick(LoginInfo(username.text, password.text))
+                    onLoginClick()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -214,11 +225,11 @@ fun LoginBlock(onLoginClick: (result: LoginInfo) -> Unit) {
     }
 }
 
-@Composable
-@Preview(name = "Light Mode")
-@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun LoginBlockPreview() {
-    TiYiAppTheme {
-        LoginBlock { }
-    }
-}
+//@Composable
+//@Preview(name = "Light Mode")
+//@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+//fun LoginBlockPreview() {
+//    TiYiAppTheme {
+//        LoginBlock { }
+//    }
+//}

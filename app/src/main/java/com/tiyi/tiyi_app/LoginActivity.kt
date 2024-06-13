@@ -35,7 +35,7 @@ class LoginActivity : ComponentActivity() {
                     is LoginStatus.Error -> {
                         Toast.makeText(
                             this@LoginActivity,
-                            "登录失败: ${status.message}",
+                            status.message,
                             Toast.LENGTH_SHORT
                         )
                             .show()

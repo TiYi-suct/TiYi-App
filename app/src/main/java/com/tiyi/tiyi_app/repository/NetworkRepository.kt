@@ -45,16 +45,16 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T> = try {
 class NetworkRepository(private val apiService: MusicApiService) {
 
     // User API
-    suspend fun loginUser(loginRequest: LoginRequest): Result<CommonResponseModel> = try {
-        val response = apiService.loginUser(loginRequest)
-        if (response.code == 0) {
+    suspend fun loginUser(loginRequest: LoginRequest): Result<CommonResponseModel> {
+        return try {
+            val response = apiService.loginUser(loginRequest)
             TokenManager.setToken(response.data)
+            Result.Success(response)
+        } catch (httpException: HttpException) {
+            Result.BadRequest(httpException)
+        } catch (networkException: ConnectException) {
+            Result.NetworkError(networkException)
         }
-        Result.Success(response)
-    } catch (httpException: HttpException) {
-        throw CorruptedApiException()
-    } catch (networkException: ConnectException) {
-        Result.NetworkError(networkException)
     }
 
     suspend fun registerUser(registerRequest: RegisterRequest): Result<CommonResponseModel> =
