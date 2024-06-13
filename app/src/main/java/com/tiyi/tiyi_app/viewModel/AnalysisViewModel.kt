@@ -30,6 +30,8 @@ class AnalysisViewModel(
     val analysisItems = _analysisItems.asStateFlow()
     private val _analysisCost = MutableStateFlow(0)
     val analysisCost = _analysisCost.asStateFlow()
+    private val _allowed = MutableStateFlow(false)
+    val allowed = _allowed.asStateFlow()
 
     private val _transpositionSteps = MutableStateFlow(2)
     val transpositionSteps = _transpositionSteps.asStateFlow()
@@ -104,6 +106,7 @@ class AnalysisViewModel(
                         return@launch
                     }
                     _analysisCost.value = response.data.required
+                    _allowed.value = response.data.allow
                 }
                 else -> {
                     submitError(message = result.message)

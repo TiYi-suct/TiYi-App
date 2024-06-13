@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.outlined.Info
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -79,6 +81,7 @@ fun AnalysisPage(
     val sliceId by analysisViewModel.id.collectAsState()
     val sliceName by analysisViewModel.sliceName.collectAsState()
     val analysisCost by analysisViewModel.analysisCost.collectAsState()
+    val allowed by analysisViewModel.allowed.collectAsState()
     val error by analysisViewModel.error.collectAsState()
     val activity = LocalContext.current as Activity
 
@@ -107,6 +110,7 @@ fun AnalysisPage(
         },
         bottomBar = {
             AnalysisPlayBottomBar(analysisCost,
+                allowed = allowed,
                 onAnalysisClick = {
                     val transferAnalysisRequest = TransferAnalysisRequest(
                         audioId = sliceId,
@@ -163,13 +167,22 @@ fun AnalysisPage(
 @Composable
 fun StartAnalysisButton(
     coinCost: Int,
+    allowed: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val textStyle = MaterialTheme.typography.titleLarge
     val iconModifier = Modifier.size(textStyle.fontSize.value.dp)
+
     Button(
+        enabled = allowed,
         onClick = onClick,
+        colors = ButtonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
+            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = 0.8f)
+        ),
         modifier = modifier
     ) {
         Icon(
@@ -182,11 +195,19 @@ fun StartAnalysisButton(
             style = textStyle
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Icon(
-            imageVector = Icons.Filled.Check,
-            contentDescription = "对勾",
-            modifier = iconModifier
-        )
+        if (allowed) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "对勾",
+                modifier = iconModifier
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "错误",
+                modifier = iconModifier
+            )
+        }
     }
 }
 
@@ -302,6 +323,7 @@ fun TranspositionStepsDrawer(
 @Composable
 fun AnalysisPlayBottomBar(
     analysisCost: Int,
+    allowed: Boolean,
     modifier: Modifier = Modifier,
     onAnalysisClick: () -> Unit = {},
 ) {
@@ -339,6 +361,7 @@ fun AnalysisPlayBottomBar(
                 StartAnalysisButton(
                     coinCost = analysisCost,
                     onClick = onAnalysisClick,
+                    allowed = allowed,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
@@ -555,7 +578,7 @@ fun AnalysisItemPreview() {
 )
 fun AnalysisPlayBottomBarPreview() {
     TiYiAppTheme {
-        AnalysisPlayBottomBar(10)
+        AnalysisPlayBottomBar(10, true)
     }
 }
 
@@ -587,10 +610,18 @@ fun MfccFactorDrawerPreview() {
 @Preview(name = "StartAnalysisButton - Light", showBackground = true)
 fun StartAnalysisButtonPreview() {
     TiYiAppTheme {
-        StartAnalysisButton(
-            coinCost = 10,
-            onClick = { /* do something */ }
-        )
+        Column {
+            StartAnalysisButton(
+                coinCost = 10,
+                allowed = true,
+                onClick = { /* do something */ }
+            )
+            StartAnalysisButton(
+                coinCost = 13,
+                allowed = false,
+                onClick = {}
+            )
+        }
     }
 }
 
