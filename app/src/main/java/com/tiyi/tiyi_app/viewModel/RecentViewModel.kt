@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.application.TokenManager
 import com.tiyi.tiyi_app.dto.LabelRequest
 import com.tiyi.tiyi_app.pojo.AudioDetail
 import com.tiyi.tiyi_app.pojo.AudioInfo
@@ -47,6 +48,7 @@ class RecentViewModel(
     init {
         viewModelScope.launch {
             _loading.within {
+                Log.d(TAG, TokenManager.getToken()?:"")
                 fetchTagAndRecentList()
             }
         }

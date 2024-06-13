@@ -148,6 +148,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                     showAvatarDialog.value = true
                 },
                 onLogoutConfirmed = {
+                    profileViewModel.logout()
                     val intent = Intent(context, LoginActivity::class.java)
                     context.startActivity(intent)
                     activity?.finish()
@@ -210,9 +211,7 @@ fun ProfileInfoBlock(
             text = { Text("你确定要退出登录吗？") },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.logout()
                     onLogoutConfirmed()
-                    showLogoutDialog = false
                 }) {
                     Text("确定")
                 }

@@ -1,27 +1,38 @@
 package com.tiyi.tiyi_app.viewModel
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.dto.LoginRequest
 import com.tiyi.tiyi_app.page.LoginInfo
+import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 sealed class LoginStatus {
-    data object Idle: LoginStatus()
-    data object Success: LoginStatus()
-    class Error(val message: String): LoginStatus()
+    data object Idle : LoginStatus()
+    data object Success : LoginStatus()
+    class Error(val message: String) : LoginStatus()
 }
 
-class LoginViewModel: ViewModel() {
+class LoginViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+    private val tiyiApplication = application as TiyiApplication
+    private val networkRepository = tiyiApplication.networkRepository
+
     private var _username = MutableStateFlow("")
     val username: StateFlow<String> = _username.asStateFlow()
 
     private var _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
-    private var _loginSuccess: MutableStateFlow<LoginStatus> = MutableStateFlow(LoginStatus.Idle)
-    val loginStatus: StateFlow<LoginStatus> = _loginSuccess.asStateFlow()
+    private var _loginStatus: MutableStateFlow<LoginStatus> = MutableStateFlow(LoginStatus.Idle)
+    val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
 
     fun setLoginInfo(info: LoginInfo) {
         _username.value = info.username
@@ -35,12 +46,30 @@ class LoginViewModel: ViewModel() {
     fun login() {
         // Login logic
         Log.d(TAG, "login: ${username.value} ${password.value}")
-        _loginSuccess.value = LoginStatus.Success
+        viewModelScope.launch {
+            val loginRequest = LoginRequest(username.value, password.value)
+            when (val result = networkRepository.loginUser(loginRequest)) {
+                is Result.Success -> {
+                    val response = result.data
+                    Log.d(TAG, response.toString())
+                    if (response.code == 0) {
+                        _loginStatus.value = LoginStatus.Success
+                    } else {
+                        _loginStatus.value = LoginStatus.Error(response.msg)
+                    }
+                }
+
+                else -> {
+                    Log.e(TAG, "未知错误")
+                }
+            }
+
+        }
     }
 
     fun register() {
         // Register logic
         Log.d(TAG, "register: ${username.value} ${password.value}")
-        _loginSuccess.value = LoginStatus.Error("Temporary error message")
+        _loginStatus.value = LoginStatus.Error("Temporary error message")
     }
 }
