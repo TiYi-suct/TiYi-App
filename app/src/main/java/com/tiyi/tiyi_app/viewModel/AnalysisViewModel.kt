@@ -10,10 +10,7 @@ import com.tiyi.tiyi_app.pojo.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 
 class AnalysisViewModel(
     application: Application
@@ -51,6 +48,9 @@ class AnalysisViewModel(
 
     private var _sliceExtension: String = ""
 
+    private val _filename = MutableStateFlow("")
+    val filename = _filename.asStateFlow()
+
 
     init {
         fetchAnalysisItem()
@@ -65,7 +65,7 @@ class AnalysisViewModel(
                     _sliceExtension =
                         result.data.data.find { it.name == _sliceName.value }?.extension ?: ""
                     if (_sliceExtension != "") {
-                        cacheAnalysisItem()
+                        _filename.value = String.format("%s.%s", _id.value, _sliceExtension)
                     } else {
                         submitError(message = result.message + "extension is empty")
                     }
@@ -78,48 +78,6 @@ class AnalysisViewModel(
         }
     }
 
-    private fun cacheAnalysisItem() {
-        val fullFilename = "${id.value}.${_sliceExtension}"
-        viewModelScope.launch {
-            try {
-                val response = networkRepository.downloadFile(fullFilename)
-                if (response.isSuccessful) {
-                    response.body()?.let { responseBody ->
-                        val file = saveFileToCache(responseBody, _sliceName.value)
-                        Log.d(TAG, "cacheAnalysisItem: File saved at ${file.absolutePath}")
-                    }
-                } else {
-                    submitError(message = "Failed to download file: ${response.message()}")
-                }
-            } catch (e: Exception) {
-                submitError(message = "Failed to execute download: ${e.message}")
-            }
-        }
-    }
-
-    private fun saveFileToCache(body: ResponseBody, filename: String): File {
-        val cacheDir = getApplication<Application>().cacheDir
-        val file = File(cacheDir, filename)
-        var inputStream: InputStream? = null
-        var outputStream: FileOutputStream? = null
-        try {
-            inputStream = body.byteStream()
-            outputStream = FileOutputStream(file)
-            val buffer = ByteArray(4096)
-            var bytesRead: Int
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-            }
-            outputStream.flush()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            submitError(message = "Failed to save file: ${e.message}")
-        } finally {
-            inputStream?.close()
-            outputStream?.close()
-        }
-        return file
-    }
 
     fun deleteCachedFile() {
         val filename = _sliceName.value

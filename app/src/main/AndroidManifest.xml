@@ -10,6 +10,7 @@
         <package android:name="hk.alipay.wallet" />
     </queries>
 
+
     <application
         android:name=".application.TiyiApplication"
         android:allowBackup="true"
@@ -46,6 +47,10 @@
             android:name=".LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.TiYiApp" />
+
+        <service
+            android:name=".utils.AudioPlayerService"
+            android:exported="false" />
     </application>
 
 </manifest>

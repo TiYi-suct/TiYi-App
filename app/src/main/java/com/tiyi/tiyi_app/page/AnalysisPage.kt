@@ -89,6 +89,7 @@ fun AnalysisPage(
     val allowed by analysisViewModel.allowed.collectAsState()
     val error by analysisViewModel.error.collectAsState()
     val isDownloading by analysisViewModel.isDownloading.collectAsState()
+    val filename by analysisViewModel.filename.collectAsState()
     val activity = LocalContext.current as Activity
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -112,24 +113,28 @@ fun AnalysisPage(
     }
 
     var isPlaying by remember { mutableStateOf(false) }
+    var isPlayerExist by remember { mutableStateOf(false) }
     var playProgress by remember { mutableFloatStateOf(0f) }
 
     fun playAudio() {
-        val filename = String.format(sliceName)
-        val cacheDir = activity.cacheDir
-        val file = File(cacheDir, filename)
-        if (file.exists()) {
+        if (!isPlayerExist) {
+            val url = "http://tiyi.api.maskira.top/file/$filename"
+            Log.d("AnalysisPage", "Preparing to play audio from URL: $url")
             val intent = Intent(activity, AudioPlayerService::class.java).apply {
                 action = AudioPlayerService.ACTION_PLAY
-                putExtra(AudioPlayerService.EXTRA_AUDIO_FILE_PATH, file.absolutePath)
+                putExtra(AudioPlayerService.EXTRA_AUDIO_URL, url)
             }
             activity.startService(intent)
-            isPlaying = true
-            Log.d("AudioPlayer", "File exists and service started")
+            isPlayerExist = true
         } else {
-            showSnackBar("文件未找到")
-            Log.d("AudioPlayer", "File not found: ${file.absolutePath}")
+            val intent = Intent(activity, AudioPlayerService::class.java).apply {
+                action = AudioPlayerService.ACTION_RESUME
+            }
+            activity.startService(intent)
         }
+
+        isPlaying = true
+        Log.d("AnalysisPage", "Intent sent to AudioPlayerService")
     }
 
 
@@ -141,21 +146,6 @@ fun AnalysisPage(
         isPlaying = false
     }
 
-    fun resumeAudio() {
-        val intent = Intent(activity, AudioPlayerService::class.java).apply {
-            action = AudioPlayerService.ACTION_RESUME
-        }
-        activity.startService(intent)
-        isPlaying = true
-    }
-
-    fun stopAudio() {
-        val intent = Intent(activity, AudioPlayerService::class.java).apply {
-            action = AudioPlayerService.ACTION_STOP
-        }
-        activity.startService(intent)
-        isPlaying = false
-    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

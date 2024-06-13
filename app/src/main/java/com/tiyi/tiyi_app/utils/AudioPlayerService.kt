@@ -5,89 +5,63 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.IBinder
 import android.util.Log
-import java.io.File
 
 class AudioPlayerService : Service() {
-
     private var mediaPlayer: MediaPlayer? = null
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val action = intent?.action
-        when (action) {
+        Log.d("AudioPlayerService", "onStartCommand called with action: ${intent?.action}")
+        when (intent?.action) {
             ACTION_PLAY -> {
-                val audioFilePath = intent?.getStringExtra(EXTRA_AUDIO_FILE_PATH)
-                val audioFile = File(audioFilePath ?: "")
-                Log.d("AudioPlayerService", "Playing audio file: ${audioFile.absolutePath}")
-                play(audioFile)
+                val url = intent.getStringExtra(EXTRA_AUDIO_URL)
+                Log.d("AudioPlayerService", "ACTION_PLAY received with URL: $url")
+                if (mediaPlayer == null) {
+                    mediaPlayer = MediaPlayer().apply {
+                        setDataSource(url)
+                        setOnPreparedListener {
+                            Log.d("AudioPlayerService", "MediaPlayer prepared, starting playback")
+                            start()
+                        }
+                        prepareAsync()
+                    }
+                } else {
+                    mediaPlayer?.start()
+                    Log.d("AudioPlayerService", "MediaPlayer resumed playback")
+                }
             }
 
             ACTION_PAUSE -> {
-                Log.d("AudioPlayerService", "Pausing audio")
-                pause()
+                Log.d("AudioPlayerService", "ACTION_PAUSE received")
+                mediaPlayer?.pause()
             }
 
             ACTION_RESUME -> {
-                Log.d("AudioPlayerService", "Resuming audio")
-                resume()
+                Log.d("AudioPlayerService", "ACTION_RESUME received")
+                mediaPlayer?.start()
             }
 
             ACTION_STOP -> {
-                Log.d("AudioPlayerService", "Stopping audio")
-                stop()
+                Log.d("AudioPlayerService", "ACTION_STOP received")
+                mediaPlayer?.stop()
+                mediaPlayer?.release()
+                mediaPlayer = null
+            }
+
+            else -> {
+                Log.d("AudioPlayerService", "Unknown action received")
             }
         }
         return START_NOT_STICKY
     }
 
-    private fun play(audioFile: File) {
-        mediaPlayer?.release()
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(audioFile.absolutePath)
-            setOnCompletionListener {
-                Log.d("AudioPlayerService", "Audio completed")
-                stopSelf()
-            }
-            setOnPreparedListener {
-                Log.d("AudioPlayerService", "Audio prepared, starting playback")
-                start()
-            }
-            setOnErrorListener { _, what, extra ->
-                Log.e("AudioPlayerService", "Error occurred: what=$what, extra=$extra")
-                false
-            }
-            prepareAsync() // Use prepareAsync for better responsiveness
-        }
-    }
-
-    private fun pause() {
-        mediaPlayer?.pause()
-    }
-
-    private fun resume() {
-        mediaPlayer?.start()
-    }
-
-    private fun stop() {
-        mediaPlayer?.release()
-        mediaPlayer = null
-        stopSelf()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer?.release()
-        mediaPlayer = null
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
-        const val ACTION_PLAY = "com.example.action.PLAY"
-        const val ACTION_PAUSE = "com.example.action.PAUSE"
-        const val ACTION_RESUME = "com.example.action.RESUME"
-        const val ACTION_STOP = "com.example.action.STOP"
-        const val EXTRA_AUDIO_FILE_PATH = "com.example.extra.AUDIO_FILE_PATH"
+        const val ACTION_PLAY = "com.example.ACTION_PLAY"
+        const val ACTION_PAUSE = "com.example.ACTION_PAUSE"
+        const val ACTION_RESUME = "com.example.ACTION_RESUME"
+        const val ACTION_STOP = "com.example.ACTION_STOP"
+        const val EXTRA_AUDIO_URL = "com.example.EXTRA_AUDIO_URL"
     }
 }
+
