@@ -81,6 +81,7 @@ fun AnalysisPage(
     val sliceId by analysisViewModel.id.collectAsState()
     val sliceName by analysisViewModel.sliceName.collectAsState()
     val analysisCost by analysisViewModel.analysisCost.collectAsState()
+    val allowed by analysisViewModel.allowed.collectAsState()
     val error by analysisViewModel.error.collectAsState()
     val activity = LocalContext.current as Activity
 
@@ -109,6 +110,7 @@ fun AnalysisPage(
         },
         bottomBar = {
             AnalysisPlayBottomBar(analysisCost,
+                allowed = allowed,
                 onAnalysisClick = {
                     val transferAnalysisRequest = TransferAnalysisRequest(
                         audioId = sliceId,
@@ -321,6 +323,7 @@ fun TranspositionStepsDrawer(
 @Composable
 fun AnalysisPlayBottomBar(
     analysisCost: Int,
+    allowed: Boolean,
     modifier: Modifier = Modifier,
     onAnalysisClick: () -> Unit = {},
 ) {
@@ -358,7 +361,7 @@ fun AnalysisPlayBottomBar(
                 StartAnalysisButton(
                     coinCost = analysisCost,
                     onClick = onAnalysisClick,
-                    allowed = true,
+                    allowed = allowed,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
@@ -575,7 +578,7 @@ fun AnalysisItemPreview() {
 )
 fun AnalysisPlayBottomBarPreview() {
     TiYiAppTheme {
-        AnalysisPlayBottomBar(10)
+        AnalysisPlayBottomBar(10, true)
     }
 }
 
