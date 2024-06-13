@@ -2,6 +2,8 @@ package com.tiyi.tiyi_app.page
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Paid
+import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -66,8 +69,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tiyi.tiyi_app.ResultActivity
 import com.tiyi.tiyi_app.pojo.TransferAnalysisRequest
 import com.tiyi.tiyi_app.ui.theme.TiYiAppTheme
+import com.tiyi.tiyi_app.utils.AudioPlayerService
 import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 
@@ -83,6 +88,7 @@ fun AnalysisPage(
     val analysisCost by analysisViewModel.analysisCost.collectAsState()
     val allowed by analysisViewModel.allowed.collectAsState()
     val error by analysisViewModel.error.collectAsState()
+    val isDownloading by analysisViewModel.isDownloading.collectAsState()
     val activity = LocalContext.current as Activity
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -98,6 +104,59 @@ fun AnalysisPage(
             analysisViewModel.clearError()
         }
     }
+
+    LaunchedEffect(isDownloading) {
+        if (isDownloading) {
+            Toast.makeText(activity, "开始下载目标分析音频", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    var isPlaying by remember { mutableStateOf(false) }
+    var playProgress by remember { mutableFloatStateOf(0f) }
+
+    fun playAudio() {
+        val filename = String.format(sliceName)
+        val cacheDir = activity.cacheDir
+        val file = File(cacheDir, filename)
+        if (file.exists()) {
+            val intent = Intent(activity, AudioPlayerService::class.java).apply {
+                action = AudioPlayerService.ACTION_PLAY
+                putExtra(AudioPlayerService.EXTRA_AUDIO_FILE_PATH, file.absolutePath)
+            }
+            activity.startService(intent)
+            isPlaying = true
+            Log.d("AudioPlayer", "File exists and service started")
+        } else {
+            showSnackBar("文件未找到")
+            Log.d("AudioPlayer", "File not found: ${file.absolutePath}")
+        }
+    }
+
+
+    fun pauseAudio() {
+        val intent = Intent(activity, AudioPlayerService::class.java).apply {
+            action = AudioPlayerService.ACTION_PAUSE
+        }
+        activity.startService(intent)
+        isPlaying = false
+    }
+
+    fun resumeAudio() {
+        val intent = Intent(activity, AudioPlayerService::class.java).apply {
+            action = AudioPlayerService.ACTION_RESUME
+        }
+        activity.startService(intent)
+        isPlaying = true
+    }
+
+    fun stopAudio() {
+        val intent = Intent(activity, AudioPlayerService::class.java).apply {
+            action = AudioPlayerService.ACTION_STOP
+        }
+        activity.startService(intent)
+        isPlaying = false
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -110,7 +169,16 @@ fun AnalysisPage(
         },
         bottomBar = {
             AnalysisPlayBottomBar(analysisCost,
-                allowed = allowed,
+                allowAnalysis = allowed,
+                isPlaying = isPlaying,
+                playProgress = playProgress,
+                onPlayPauseClick = {
+                    if (isPlaying) {
+                        pauseAudio()
+                    } else {
+                        playAudio()
+                    }
+                },
                 onAnalysisClick = {
                     val transferAnalysisRequest = TransferAnalysisRequest(
                         audioId = sliceId,
@@ -323,11 +391,13 @@ fun TranspositionStepsDrawer(
 @Composable
 fun AnalysisPlayBottomBar(
     analysisCost: Int,
-    allowed: Boolean,
+    allowAnalysis: Boolean,
+    isPlaying: Boolean = false,
+    playProgress: Float = 0f,
     modifier: Modifier = Modifier,
     onAnalysisClick: () -> Unit = {},
+    onPlayPauseClick: () -> Unit = {},
 ) {
-    var playProgress by remember { mutableFloatStateOf(0f) }
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -342,26 +412,27 @@ fun AnalysisPlayBottomBar(
         ) {
             Slider(
                 value = playProgress,
-                onValueChange = { playProgress = it },
+                onValueChange = {},
                 valueRange = 0f..100f,
+                enabled = false
             )
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(
-                    onClick = { /* do something */ },
+                    onClick = onPlayPauseClick,
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.PlayArrow,
-                        contentDescription = "播放",
+                        imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                        contentDescription = if (isPlaying) "暂停" else "播放",
                         modifier = Modifier.size(64.dp)
                     )
                 }
                 StartAnalysisButton(
                     coinCost = analysisCost,
                     onClick = onAnalysisClick,
-                    allowed = allowed,
+                    allowed = allowAnalysis,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
