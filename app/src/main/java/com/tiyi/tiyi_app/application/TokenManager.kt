@@ -20,4 +20,8 @@ object TokenManager {
     fun setToken(token: String?) {
         prefs.edit().putString(TOKEN_KEY, token).apply()
     }
+
+    fun clearToken() {
+        prefs.edit().remove(TOKEN_KEY).apply()
+    }
 }

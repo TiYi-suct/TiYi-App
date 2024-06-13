@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -74,6 +76,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.alipay.sdk.app.PayTask
+import com.tiyi.tiyi_app.LoginActivity
 import com.tiyi.tiyi_app.R
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import com.tiyi.tiyi_app.viewModel.ProfileViewModel
@@ -136,10 +139,21 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(10.dp)
                 .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            ProfileInfoBlock(onAvatarClick = { showAvatarDialog.value = true })
+            ProfileInfoBlock(
+                onAvatarClick = {
+                    showAvatarDialog.value = true
+                },
+                onLogoutConfirmed = {
+                    val intent = Intent(context, LoginActivity::class.java)
+                    context.startActivity(intent)
+                    activity?.finish()
+                },
+                viewModel = profileViewModel
+            )
             Spacer(modifier = Modifier.height(16.dp))
             BalanceInfoBlock()
         }
@@ -168,19 +182,45 @@ fun handlePayResult(context: Context, result: Map<String, String>) {
 }
 
 @Composable
-fun ProfileInfoBlock(onAvatarClick: () -> Unit) {
-    val profileViewModel: ProfileViewModel = viewModel()
+fun ProfileInfoBlock(
+    onAvatarClick: () -> Unit,
+    onLogoutConfirmed: () -> Unit,
+    viewModel: ProfileViewModel
+) {
     val userDetailsState: State<UserDetailsModel.UserDetails?> =
-        profileViewModel.userDetails.collectAsState()
+        viewModel.userDetails.collectAsState()
     var showSignatureDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     if (showSignatureDialog) {
         EditSignatureDialog(
             currentSignature = userDetailsState.value?.signature ?: "",
             onDismiss = { showSignatureDialog = false },
             onSave = { newSignature ->
-                profileViewModel.editSignature(newSignature)
+                viewModel.editSignature(newSignature)
                 showSignatureDialog = false
+            }
+        )
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("确认退出登录") },
+            text = { Text("你确定要退出登录吗？") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.logout()
+                    onLogoutConfirmed()
+                    showLogoutDialog = false
+                }) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showLogoutDialog = false }) {
+                    Text("取消")
+                }
             }
         )
     }
@@ -241,23 +281,31 @@ fun ProfileInfoBlock(onAvatarClick: () -> Unit) {
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = userDetailsState.value?.signature ?: "在签名中展现你的个性吧！",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight(400),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            textAlign = TextAlign.Center,
-                            letterSpacing = 0.25.sp,
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .sizeIn(maxWidth = (348/2).dp)
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    (if (!userDetailsState.value?.signature.isNullOrBlank()) {
+                        userDetailsState.value?.signature
+                    } else {
+                        "在签名中展现你的个性吧！"
+                    })?.let {
+                        Text(
+                            text = it,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                fontWeight = FontWeight(400),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                textAlign = TextAlign.Center,
+                                letterSpacing = 0.25.sp,
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .sizeIn(maxWidth = (348 / 2).dp)
+                        )
+                    }
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Edit Signature",
@@ -269,6 +317,18 @@ fun ProfileInfoBlock(onAvatarClick: () -> Unit) {
                     )
                 }
             }
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(10.dp)
+                .clickable { showLogoutDialog = true }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Logout,
+                contentDescription = "Logout",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
