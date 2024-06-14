@@ -157,7 +157,10 @@ fun ResultItemNumber(
             )
 
             if (number == null) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                )
             } else {
                 Text(
                     text = number.toString(),
@@ -226,6 +229,7 @@ fun ResultItemImage(
     ) {
         Column(
             modifier = Modifier
+                .fillMaxWidth()
         ) {
             Text(
                 text = resultName,
