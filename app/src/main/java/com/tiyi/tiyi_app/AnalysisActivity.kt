@@ -12,15 +12,21 @@ import com.tiyi.tiyi_app.viewModel.AnalysisViewModel
 class AnalysisActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val analysisViewModel = ViewModelProvider(this)[AnalysisViewModel::class.java]
         enableEdgeToEdge()
         val sliceName = intent.getStringExtra("title") ?: ""
         val id = intent.getStringExtra("id") ?: ""
-        val analysisViewModel = ViewModelProvider(this)[AnalysisViewModel::class.java]
         analysisViewModel.updateAnalysisTarget(sliceName, id)
         setContent {
             TiYiAppTheme {
                 AnalysisPage()
             }
         }
+    }
+
+    override fun onDestroy() {
+        val analysisViewModel = ViewModelProvider(this)[AnalysisViewModel::class.java]
+        super.onDestroy()
+        analysisViewModel.deleteCachedFile()
     }
 }

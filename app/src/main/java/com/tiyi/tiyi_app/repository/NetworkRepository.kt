@@ -22,7 +22,9 @@ import com.tiyi.tiyi_app.pojo.Result
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.Call
 import retrofit2.HttpException
+import retrofit2.Response
 import java.net.ConnectException
 
 fun HttpException.handleHttpException(): Result<Nothing> {
@@ -114,8 +116,8 @@ class NetworkRepository(private val apiService: MusicApiService) {
     suspend fun uploadFile(file: RequestBody): Result<FileResponseModel> =
         safeApiCall { apiService.uploadFile(file) }
 
-    suspend fun downloadFile(filename: String): Result<ResponseBody> =
-        safeApiCall { apiService.downloadFile(filename) }
+    suspend fun downloadFile(filename: String): Response<ResponseBody> =
+        apiService.downloadFile(filename)
 
     suspend fun analysisMelSpec(
         audioId: String,
