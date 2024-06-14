@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiyi.tiyi_app.application.TiyiApplication
+import com.tiyi.tiyi_app.application.TokenManager
 import com.tiyi.tiyi_app.dto.RechargeItemsModel
 import com.tiyi.tiyi_app.dto.UserDetailsModel
 import com.tiyi.tiyi_app.pojo.Result
@@ -91,7 +92,7 @@ class ProfileViewModel(
 
     fun editSignature(newSignature: String) {
         viewModelScope.launch {
-            when (val result = networkRepository.editSignature(newSignature)) {
+            when (networkRepository.editSignature(newSignature)) {
                 is Result.Success -> {
                     fetchUserDetails()
                 }
@@ -135,5 +136,10 @@ class ProfileViewModel(
                 }
             }
         }
+    }
+
+    fun logout() {
+        Log.d(TAG, "logout: ")
+        TokenManager.clearToken()
     }
 }
